@@ -1,18 +1,50 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Drawer, DrawerContentScrollView, DrawerItem, DrawerItemList } from "expo-router/drawer";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { router } from "expo-router";
+import "../../global.css";
 
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+function CustomDrawerContent(props: any) {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <DrawerItem label="Explore" onPress={() => router.push('/(tabs)/explore')} />
+      <DrawerItem label="Folder" onPress={() => router.push('/(tabs)/folder')} />
+      <DrawerItem label="Subscription" onPress={() => router.push('/(tabs)/subscription')} />
+      <DrawerItem label="Settings" onPress={() => router.push('/(tabs)/settings')} />
+    </DrawerContentScrollView>
   );
+}
+
+export default function RootLayout() {
+  return (
+    <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />}>
+      <Drawer.Screen
+        name="(tabs)"
+        options={{
+          drawerItemStyle: { display: 'none' },
+          headerShown: false
+        }}
+      />
+      <Drawer.Screen
+        name="(auth)/signin"
+        options={{
+          drawerItemStyle: { display: 'none' },
+          headerShown: false
+        }}
+      />
+      <Drawer.Screen
+        name="(auth)/signup"
+        options={{
+          drawerItemStyle: { display: 'none' },
+          headerShown: false
+        }}
+      />
+      <Drawer.Screen
+        name="index"
+        options={{
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+    </Drawer>
+  )
 }
