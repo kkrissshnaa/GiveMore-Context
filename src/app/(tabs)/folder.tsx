@@ -1,11 +1,12 @@
-import { Text, View } from 'react-native'
+import { Text } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-const explore = () => {
+const folder = () => {
   return (
-    <View>
-      <Text>explore</Text>
-    </View>
+    <SafeAreaView>
+      <Text>folder</Text>
+    </SafeAreaView>
   )
 }
 
-export default explore
+export default folder
