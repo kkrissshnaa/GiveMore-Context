@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/ui": "~57.0.4",
     "@react-navigation/drawer": "^7.12.7",
+    "@supabase/supabase-js": "^2.110.2",
     "clsx": "^2.1.1",
     "expo": "~57.0.4",
     "expo-constants": "~57.0.3",
@@ -15,6 +16,7 @@
     "expo-linking": "~57.0.2",
     "expo-router": "~57.0.4",
     "expo-splash-screen": "~57.0.2",
+    "expo-sqlite": "~57.0.0",
     "expo-status-bar": "~57.0.0",
     "expo-symbols": "~57.0.0",
     "expo-system-ui": "~57.0.0",

@@ -39,6 +39,7 @@ export default function RootLayout() {
         </DrawerContentScrollView>
       )}
       screenOptions={{
+        drawerType: "back",
         // Pass a function returning your custom component to the header prop
         header: ({ navigation }) => (
           <CustomHeader navigation={navigation} />
