@@ -77,7 +77,7 @@ export default function index() {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Connecting to ComfyUI...</Text>
+          <Text style={styles.loadingText}>Generating Image...</Text>
         </View>
       )}
 
