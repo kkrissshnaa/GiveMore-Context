@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#e6e6e6ff',
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
   },
   title: {
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffffff',
     borderWidth: 1,
     borderColor: '#E5E5EA',
     borderRadius: 12,
@@ -123,8 +123,8 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 100 },
+    shadowOpacity: 5,
     shadowRadius: 3,
     elevation: 2,
   },

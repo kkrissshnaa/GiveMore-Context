@@ -30,7 +30,7 @@
   },
   "6": {
     "inputs": {
-      "text": "dreamy illustration of a cute chibi purple-haired girl with oversized cream headphones and tiny angel wings on a purple train seat traveling by the train, leaning on a small train table and looking out of a large window, mini round portable fan facing her and cute iced milk tea on the table, beautiful coastal ocean view outside the train, blue sea, green mountains, seaside houses, soft sunlight, lavender and cream palette, cozy healing summer travel mood, delicate illustration pencil texture\n",
+      "text": "",
       "clip": [
         "4",
         0
@@ -57,7 +57,7 @@
   "8": {
     "inputs": {
       "aspect_ratio": "9:16 (Portrait Widescreen)",
-      "megapixels": 1.5,
+      "megapixels": 1,
       "multiple": 8
     },
     "class_type": "ResolutionSelector",
