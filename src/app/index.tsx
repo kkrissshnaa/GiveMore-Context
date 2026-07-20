@@ -10,13 +10,16 @@ import {
   View,
   KeyboardAvoidingView,
   ScrollView,
-  SafeAreaView,
   Switch
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from 'expo-router';
 
 export default function index() {
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [prompt, setPrompt] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -84,21 +87,21 @@ export default function index() {
     }
   };
 
-  const renderIconBtn = (icon: any, bg: string, color: string, border: string = 'border-white/10') => (
-    <TouchableOpacity className={`w-10 h-10 rounded-full items-center justify-center border ${bg} ${border}`}>
+  const renderIconBtn = (icon: any, bg: string, color: string, border: string = 'border-white/10', onPress?: () => void) => (
+    <TouchableOpacity onPress={onPress} className={`w-10 h-10 rounded-full items-center justify-center border ${bg} ${border}`}>
       <Feather name={icon} size={18} color={color} />
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#0e0b0e]">
+    <View className="flex-1 bg-[#0e0b0e]" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
       <KeyboardAvoidingView 
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
       >
         {/* Top Bar */}
         <View className="flex-row items-center justify-between px-4 pt-2 pb-3 z-20">
-          {renderIconBtn('menu', 'bg-white/5', 'white')}
+          {renderIconBtn('menu', 'bg-white/5', 'white', 'border-white/10', () => (navigation as any).toggleDrawer())}
           <View className="items-center flex-1 mx-2">
             <Text className="text-[10px] tracking-widest uppercase text-[#8a8385] font-semibold">Generation</Text>
             <Text className="text-[15px] font-bold text-white mt-0.5">New generation</Text>
@@ -146,7 +149,7 @@ export default function index() {
         </ScrollView>
 
         {/* Bottom Prompt Bar */}
-        <View className="absolute bottom-0 left-0 right-0 px-3 pb-8 pt-2 z-30">
+        <View className="px-3 pb-3 pt-2 z-30">
           <View className="bg-[#1c1618] border border-white/10 rounded-[30px] overflow-hidden">
             {/* Expanded Panel */}
             {expanded && (
@@ -269,6 +272,6 @@ export default function index() {
         </View>
 
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
