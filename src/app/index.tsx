@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Image,
   Keyboard,
   Platform,
@@ -16,6 +17,94 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from 'expo-router';
+
+function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
+  const pulseAnim = useRef(new Animated.Value(0.35)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 0.85,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0.35,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [pulseAnim]);
+
+  const getAspectRatioStyle = (ratio: string) => {
+    switch (ratio) {
+      case '16:9': return { aspectRatio: 16 / 9 };
+      case '4:5': return { aspectRatio: 4 / 5 };
+      case '9:16': return { aspectRatio: 9 / 16 };
+      case '1:1':
+      default:
+        return { aspectRatio: 1 };
+    }
+  };
+
+  return (
+    <View 
+      className="w-full mt-3 rounded-[22px] overflow-hidden bg-white/5 border border-white/10 p-4 justify-between relative"
+      style={getAspectRatioStyle(aspectRatio)}
+    >
+      {/* Top skeleton bar */}
+      <View className="flex-row items-center justify-between z-10">
+        <Animated.View className="h-6 w-28 rounded-full bg-white/20" style={{ opacity: pulseAnim }} />
+        <Animated.View className="h-6 px-3 rounded-full bg-[#ff6d29]/20 border border-[#ff6d29]/40 items-center justify-center" style={{ opacity: pulseAnim }}>
+          <Text className="text-[10px] font-bold text-[#ff6d29] tracking-wider">GENERATING</Text>
+        </Animated.View>
+      </View>
+
+      {/* Center glowing skeleton placeholder */}
+      <View className="items-center justify-center my-auto z-10">
+        <Animated.View 
+          className="w-16 h-16 rounded-full bg-[#ff6d29]/20 border border-[#ff6d29]/50 items-center justify-center mb-3"
+          style={{ opacity: pulseAnim, transform: [{ scale: pulseAnim.interpolate({ inputRange: [0.35, 0.85], outputRange: [0.95, 1.05] }) }] }}
+        >
+          <ActivityIndicator size="small" color="#ff6d29" />
+        </Animated.View>
+        <Animated.Text className="text-white text-xs font-semibold tracking-wider uppercase text-center" style={{ opacity: pulseAnim }}>
+          Synthesizing Image...
+        </Animated.Text>
+        <Animated.Text className="text-[#8a8385] text-[11px] text-center mt-1" style={{ opacity: pulseAnim }}>
+          Aspect Ratio {aspectRatio}
+        </Animated.Text>
+      </View>
+
+      {/* Bottom skeleton lines */}
+      <View className="gap-2 z-10">
+        <Animated.View className="h-3 w-3/4 rounded-full bg-white/15" style={{ opacity: pulseAnim }} />
+        <Animated.View className="h-3 w-1/2 rounded-full bg-white/10" style={{ opacity: pulseAnim }} />
+      </View>
+
+      {/* Background pulsing layer */}
+      <Animated.View 
+        className="absolute inset-0 bg-[#ff6d29]/5" 
+        style={{ opacity: pulseAnim }} 
+      />
+    </View>
+  );
+}
+
+const getAspectRatioStyle = (ratio: string) => {
+  switch (ratio) {
+    case '16:9': return { aspectRatio: 16 / 9 };
+    case '4:5': return { aspectRatio: 4 / 5 };
+    case '9:16': return { aspectRatio: 9 / 16 };
+    case '1:1':
+    default:
+      return { aspectRatio: 1 };
+  }
+};
 
 export default function index() {
   const navigation = useNavigation();
@@ -91,6 +180,8 @@ export default function index() {
 
       if (data.success) {
         setImageUrl(data.imageUrl);
+      } else {
+        setErrorText(data.error || 'Failed to generate image');
       }
     } catch (error: any) {
       console.error("Network error:", error);
@@ -144,16 +235,16 @@ export default function index() {
              <View className="px-4">
                 {/* Status / Results */}
                 {loading && (
-                  <View className="items-center mt-5">
-                    <ActivityIndicator size="large" color="#ff6d29" />
-                    <Text className="mt-3 text-[#bababa] text-sm font-medium">Generating Image...</Text>
-                  </View>
+                  <ImageSkeleton aspectRatio={aspectRatio} />
                 )}
                 {errorText && (
-                  <Text className="text-red-500 text-center mt-3 text-sm">{errorText}</Text>
+                  <Text className="text-red-500 text-center mt-3 text-sm font-medium">{errorText}</Text>
                 )}
                 {imageUrl && (
-                  <View className="w-full mt-3 rounded-[22px] overflow-hidden bg-white/5 border border-white/10 aspect-square p-2">
+                  <View 
+                    className="w-full mt-3 rounded-[22px] overflow-hidden bg-white/5 border border-white/10 p-2"
+                    style={getAspectRatioStyle(aspectRatio)}
+                  >
                     <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[14px]" resizeMode="cover" />
                   </View>
                 )}

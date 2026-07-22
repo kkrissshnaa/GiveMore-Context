@@ -9,6 +9,8 @@ export async function POST(request: Request) {
         // 1. Parse the incoming request body from your frontend
         const body = await request.json();
         const userPrompt = body.prompt;
+        const userAspectRatio = body.aspectRatio;
+        const userQuality = body.quality;
 
         if (!userPrompt) {
             return Response.json(
@@ -23,7 +25,30 @@ export async function POST(request: Request) {
         // 3. Inject the user's prompt (Update "6" to your CLIPTextEncode node ID)
         workflow["6"].inputs.text = userPrompt;
 
-        // 4. Randomize the seed (Update "3" to your KSampler node ID)
+        // 4. Update aspect ratio and resolution (megapixels) on Node 8
+        if (workflow["8"]) {
+            const aspectMap: Record<string, string> = {
+                '1:1': '1:1 (Square)',
+                '4:5': '4:5 (Portrait)',
+                '16:9': '16:9 (Widescreen)',
+                '9:16': '9:16 (Portrait Widescreen)',
+            };
+            if (userAspectRatio && aspectMap[userAspectRatio]) {
+                workflow["8"].inputs.aspect_ratio = aspectMap[userAspectRatio];
+            } else if (userAspectRatio) {
+                workflow["8"].inputs.aspect_ratio = userAspectRatio;
+            }
+
+            if (userQuality === 'Fast') {
+                workflow["8"].inputs.megapixels = 0.75;
+            } else if (userQuality === 'Max' || userQuality === 'Quality') {
+                workflow["8"].inputs.megapixels = 1.5;
+            } else if (userQuality === 'Balanced') {
+                workflow["8"].inputs.megapixels = 1;
+            }
+        }
+
+        // 5. Randomize the seed (Update "10" to your KSampler node ID)
         workflow["10"].inputs.seed = Math.floor(Math.random() * 1000000000000);
 
         // 5. Queue the prompt in ComfyUI
