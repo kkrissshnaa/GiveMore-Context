@@ -25,7 +25,7 @@ export default function index() {
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState('1:1');
-  const [referenceImage, setReferenceImage] = useState<string | null>(null);
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [model, setModel] = useState('Ideogram');
   const [quality, setQuality] = useState('Balanced');
   const [expanded, setExpanded] = useState(true);
@@ -48,13 +48,19 @@ export default function index() {
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      allowsEditing: true,
+      allowsEditing: false,
+      allowsMultipleSelection: true,
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setReferenceImage(result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const newUris = result.assets.map((asset) => asset.uri);
+      setReferenceImages((prev) => [...prev, ...newUris]);
     }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setReferenceImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const generateImage = async () => {
@@ -71,7 +77,14 @@ export default function index() {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, aspectRatio, referenceImage, model, quality }),
+        body: JSON.stringify({
+          prompt,
+          aspectRatio,
+          referenceImage: referenceImages[0] || null,
+          referenceImages,
+          model,
+          quality,
+        }),
       });
 
       const data = await response.json();
@@ -229,11 +242,51 @@ export default function index() {
               </View>
             )}
 
+            {/* Selected Reference Images Carousel */}
+            {referenceImages.length > 0 && (
+              <View className="px-4 pt-3 pb-2 border-b border-white/10">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385]">
+                    Reference Images ({referenceImages.length})
+                  </Text>
+                  <TouchableOpacity onPress={() => setReferenceImages([])}>
+                    <Text className="text-[11px] font-semibold text-[#ff6d29]">Clear all</Text>
+                  </TouchableOpacity>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                  {referenceImages.map((uri, index) => (
+                    <View key={`${uri}-${index}`} className="relative w-12 h-12 rounded-[10px] overflow-hidden border border-white/20">
+                      <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
+                      <TouchableOpacity 
+                        onPress={() => removeImage(index)}
+                        className="absolute top-1 right-1 bg-black/70 rounded-full w-4 h-4 items-center justify-center border border-white/40"
+                      >
+                        <Feather name="x" size={10} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                  <TouchableOpacity 
+                    onPress={pickImage} 
+                    className="w-12 h-12 rounded-[10px] border border-dashed border-white/30 items-center justify-center bg-white/5"
+                  >
+                    <Feather name="plus" size={16} color="#bababa" />
+                  </TouchableOpacity>
+                </ScrollView>
+              </View>
+            )}
+
             {/* Main Prompt Row */}
             <View className="flex-row items-end px-3.5 py-3">
               <TouchableOpacity onPress={pickImage} className="w-10 h-10 rounded-[10px] border-[1.5px] border-dashed border-white/20 items-center justify-center bg-transparent mr-2.5">
-                {referenceImage ? (
-                  <Image source={{ uri: referenceImage }} className="w-full h-full rounded-[8px]" resizeMode="cover" />
+                {referenceImages.length > 0 ? (
+                  <View className="relative w-full h-full rounded-[8px] overflow-hidden">
+                    <Image source={{ uri: referenceImages[referenceImages.length - 1] }} className="w-full h-full" resizeMode="cover" />
+                    {referenceImages.length > 1 && (
+                      <View className="absolute inset-0 bg-black/50 items-center justify-center">
+                        <Text className="text-white text-[10px] font-bold">+{referenceImages.length}</Text>
+                      </View>
+                    )}
+                  </View>
                 ) : (
                   <Feather name="image" size={18} color="#bababa" />
                 )}
