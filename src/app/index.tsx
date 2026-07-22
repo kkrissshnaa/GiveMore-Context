@@ -231,17 +231,17 @@ export default function index() {
 
             {/* Main Prompt Row */}
             <View className="flex-row items-end px-3.5 py-3">
-              <TouchableOpacity onPress={pickImage} className="w-[38px] h-[38px] rounded-[10px] border-[1.5px] border-dashed border-white/20 items-center justify-center bg-transparent mr-2.5 mb-0.5">
+              <TouchableOpacity onPress={pickImage} className="w-10 h-10 rounded-[10px] border-[1.5px] border-dashed border-white/20 items-center justify-center bg-transparent mr-2.5">
                 {referenceImage ? (
                   <Image source={{ uri: referenceImage }} className="w-full h-full rounded-[8px]" resizeMode="cover" />
                 ) : (
-                  <Feather name="image" size={16} color="#bababa" />
+                  <Feather name="image" size={18} color="#bababa" />
                 )}
               </TouchableOpacity>
               
               <View className="flex-1 justify-center mr-2">
                 <TextInput 
-                  className="text-white text-[14px] font-medium max-h-[90px] min-h-[38px] py-2"
+                  className="text-white text-[14px] font-medium max-h-[90px] min-h-[40px] py-2"
                   placeholder="Describe the shot, scene, or edit…"
                   placeholderTextColor="#8a8385"
                   multiline
@@ -252,8 +252,8 @@ export default function index() {
               </View>
               
               <View className="flex-row items-center gap-2">
-                <TouchableOpacity className="w-[36px] h-[36px] items-center justify-center mb-0.5" onPress={() => setExpanded(!expanded)}>
-                  <Feather name={expanded ? "chevron-down" : "chevron-up"} size={22} color="#bababa" />
+                <TouchableOpacity className="w-10 h-10 items-center justify-center" onPress={() => setExpanded(!expanded)}>
+                  <Feather name={expanded ? "chevron-down" : "chevron-up"} size={24} color="#bababa" />
                 </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={generateImage}
@@ -263,7 +263,7 @@ export default function index() {
                   {loading ? (
                     <ActivityIndicator size="small" color="#1a1210" />
                   ) : (
-                    <Feather name="arrow-up" size={18} color="#1a1210" />
+                    <Feather name="arrow-up" size={20} color="#1a1210" />
                   )}
                 </TouchableOpacity>
               </View>
