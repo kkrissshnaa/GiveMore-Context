@@ -110,6 +110,7 @@ export default function index() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [prompt, setPrompt] = useState('');
+  const [activePrompt, setActivePrompt] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -155,6 +156,10 @@ export default function index() {
   const generateImage = async () => {
     if (!prompt.trim()) return;
 
+    const currentPrompt = prompt.trim();
+    setActivePrompt(currentPrompt);
+    setPrompt('');
+
     Keyboard.dismiss();
     setLoading(true);
     setImageUrl(null);
@@ -167,7 +172,7 @@ export default function index() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt,
+          prompt: currentPrompt,
           aspectRatio,
           referenceImage: referenceImages[0] || null,
           referenceImages,
@@ -246,6 +251,15 @@ export default function index() {
                     style={getAspectRatioStyle(aspectRatio)}
                   >
                     <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[14px]" resizeMode="cover" />
+                  </View>
+                )}
+                {activePrompt && (loading || imageUrl || errorText) && (
+                  <View className="mt-3 p-4 bg-[#1c1618] border border-white/10 rounded-[20px]">
+                    <View className="flex-row items-center gap-2 mb-1.5">
+                      <Feather name="terminal" size={13} color="#ff6d29" />
+                      <Text className="text-[10px] font-bold text-[#8a8385] uppercase tracking-widest">Prompt</Text>
+                    </View>
+                    <Text className="text-white text-[13.5px] font-medium leading-5">{activePrompt}</Text>
                   </View>
                 )}
              </View>
