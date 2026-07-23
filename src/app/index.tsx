@@ -116,17 +116,16 @@ export default function index() {
   const [errorText, setErrorText] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState('1:1');
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
-  const [model, setModel] = useState('Ideogram');
+  const [model, setModel] = useState('krea2');
   const [quality, setQuality] = useState('Balanced');
   const [expanded, setExpanded] = useState(true);
   const [canvasEnabled, setCanvasEnabled] = useState(false);
 
   const aspectRatios = ['1:1', '4:5', '16:9', '9:16'];
   const models = [
-    { name: 'Ideogram', short: 'Id', dotBg: '#ff6d29' },
-    { name: 'Kling', short: 'Kl', dotBg: '#453027' },
-    { name: 'Veo', short: 'Ve', dotBg: '#8a8385' },
-    { name: 'Seedance', short: 'Sd', dotBg: '#7a3a1c' }
+    { name: 'krea2', short: 'Kr', dotBg: '#ff6d29' },
+    { name: 'flux-edit', short: 'Fl', dotBg: '#453027' },
+    { name: 'ideogram4', short: 'Id', dotBg: '#8a8385' }
   ];
   const qualities = [
     { name: 'Fast', icon: 'zap' as const },
@@ -145,7 +144,7 @@ export default function index() {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const newUris = result.assets.map((asset) => asset.uri);
-      setReferenceImages((prev) => [...prev, ...newUris]);
+      setReferenceImages((prev) => [...prev, ...newUris].slice(0, 2));
     }
   };
 

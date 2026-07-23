@@ -42,14 +42,8 @@
   "92:102": {
     "inputs": {
       "steps": 4,
-      "width": [
-        "92:114",
-        0
-      ],
-      "height": [
-        "92:114",
-        1
-      ]
+      "width": 1024,
+      "height": 1024
     },
     "class_type": "Flux2Scheduler",
     "_meta": {
@@ -158,11 +152,11 @@
   "92:113": {
     "inputs": {
       "width": [
-        "92:114",
+        "92:158",
         0
       ],
       "height": [
-        "92:114",
+        "92:158",
         1
       ],
       "batch_size": 1
@@ -170,18 +164,6 @@
     "class_type": "EmptyFlux2LatentImage",
     "_meta": {
       "title": "Empty Flux 2 Latent"
-    }
-  },
-  "92:114": {
-    "inputs": {
-      "image": [
-        "92:111",
-        0
-      ]
-    },
-    "class_type": "GetImageSize",
-    "_meta": {
-      "title": "Get Image Size"
     }
   },
   "92:127": {
@@ -343,6 +325,17 @@
     "class_type": "CLIPLoader",
     "_meta": {
       "title": "Load CLIP"
+    }
+  },
+  "92:158": {
+    "inputs": {
+      "aspect_ratio": "1:1 (Square)",
+      "megapixels": 1,
+      "multiple": 8
+    },
+    "class_type": "ResolutionSelector",
+    "_meta": {
+      "title": "Resolution Selector"
     }
   }
 }
