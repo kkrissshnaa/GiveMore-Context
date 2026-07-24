@@ -16,7 +16,9 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from 'expo-router';
+import { ReferenceCanvasModal, CanvasRegion } from '../components/ReferenceCanvasModal';
 
 function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
   const pulseAnim = useRef(new Animated.Value(0.35)).current;
@@ -120,6 +122,16 @@ export default function index() {
   const [quality, setQuality] = useState('Balanced');
   const [expanded, setExpanded] = useState(true);
   const [canvasEnabled, setCanvasEnabled] = useState(false);
+  const [canvasModalVisible, setCanvasModalVisible] = useState(false);
+  const [canvasRegions, setCanvasRegions] = useState<CanvasRegion[]>([]);
+  const [copied, setCopied] = useState(false);
+
+  const copyPrompt = async (textToCopy: string | null) => {
+    if (!textToCopy) return;
+    await Clipboard.setStringAsync(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const aspectRatios = ['1:1', '4:5', '16:9', '9:16'];
   const models = [
@@ -139,11 +151,18 @@ export default function index() {
       mediaTypes: ['images'],
       allowsEditing: false,
       allowsMultipleSelection: true,
-      quality: 1,
+      quality: 0.8,
+      base64: true,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      const newUris = result.assets.map((asset) => asset.uri);
+      const newUris = result.assets.map((asset) => {
+        if (asset.base64) {
+          const mimeType = asset.mimeType || 'image/jpeg';
+          return `data:${mimeType};base64,${asset.base64}`;
+        }
+        return asset.uri;
+      });
       setReferenceImages((prev) => [...prev, ...newUris].slice(0, 2));
     }
   };
@@ -153,9 +172,19 @@ export default function index() {
   };
 
   const generateImage = async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() && canvasRegions.length === 0) return;
 
-    const currentPrompt = prompt.trim();
+    let currentPrompt = prompt.trim();
+    if (canvasRegions.length > 0) {
+      const regionPrompts = canvasRegions
+        .filter((r) => r.prompt.trim())
+        .map((r, i) => `[Region ${i + 1}: ${r.prompt.trim()}]`)
+        .join('; ');
+      if (regionPrompts) {
+        currentPrompt = currentPrompt ? `${currentPrompt} | Layout: ${regionPrompts}` : `Layout: ${regionPrompts}`;
+      }
+    }
+
     setActivePrompt(currentPrompt);
     setPrompt('');
 
@@ -166,7 +195,12 @@ export default function index() {
     setExpanded(false);
 
     try {
-      const url = '/api/generation';
+      const endpointMap: Record<string, string> = {
+        'krea2': '/api/krea2',
+        'flux-edit': '/api/flux_edit',
+        'ideogram4': '/api/ideogram4',
+      };
+      const url = endpointMap[model.toLowerCase()] || '/api/generation';
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -175,6 +209,7 @@ export default function index() {
           aspectRatio,
           referenceImage: referenceImages[0] || null,
           referenceImages,
+          canvasRegions,
           model,
           quality,
         }),
@@ -254,9 +289,29 @@ export default function index() {
                 )}
                 {activePrompt && (loading || imageUrl || errorText) && (
                   <View className="mt-3 p-4 bg-[#1c1618] border border-white/10 rounded-[20px]">
-                    <View className="flex-row items-center gap-2 mb-1.5">
-                      <Feather name="terminal" size={13} color="#ff6d29" />
-                      <Text className="text-[10px] font-bold text-[#8a8385] uppercase tracking-widest">Prompt</Text>
+                    <View className="flex-row items-center justify-between mb-2">
+                      <View className="flex-row items-center gap-2">
+                        <Feather name="terminal" size={13} color="#ff6d29" />
+                        <Text className="text-[10px] font-bold text-[#8a8385] uppercase tracking-widest">Prompt</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <TouchableOpacity 
+                          onPress={() => setPrompt(activePrompt)} 
+                          className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10"
+                        >
+                          <Feather name="edit-2" size={11} color="#bababa" />
+                          <Text className="text-[11px] font-medium text-[#bababa]">Reuse</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          onPress={() => copyPrompt(activePrompt)} 
+                          className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10"
+                        >
+                          <Feather name={copied ? "check" : "copy"} size={11} color={copied ? "#4ade80" : "#bababa"} />
+                          <Text className={`text-[11px] font-medium ${copied ? 'text-green-400' : 'text-[#bababa]'}`}>
+                            {copied ? 'Copied!' : 'Copy'}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
                     <Text className="text-white text-[13.5px] font-medium leading-5">{activePrompt}</Text>
                   </View>
@@ -298,7 +353,10 @@ export default function index() {
                   </View>
                   <Switch 
                     value={canvasEnabled} 
-                    onValueChange={setCanvasEnabled} 
+                    onValueChange={(val) => {
+                      setCanvasEnabled(val);
+                      if (val) setCanvasModalVisible(true);
+                    }} 
                     trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#ff6d29' }} 
                     thumbColor="white"
                     ios_backgroundColor="rgba(255,255,255,0.12)"
@@ -397,8 +455,30 @@ export default function index() {
               </TouchableOpacity>
               
               <View className="flex-1 justify-center mr-2">
+                {canvasRegions.length > 0 && (
+                  <View className="flex-row items-center mb-1">
+                    <TouchableOpacity 
+                      onPress={() => setCanvasModalVisible(true)}
+                      className="flex-row items-center gap-1.5 px-3 py-1 rounded-full bg-[#3d271d] border border-[#ff6d29]/60"
+                    >
+                      <Feather name="layers" size={12} color="#ff6d29" />
+                      <Text className="text-[11.5px] font-bold text-white">
+                        Layout · {canvasRegions.length}
+                      </Text>
+                      <TouchableOpacity 
+                        onPress={() => {
+                          setCanvasRegions([]);
+                          setCanvasEnabled(false);
+                        }}
+                        className="ml-1 pl-1 border-l border-white/20"
+                      >
+                        <Feather name="x" size={12} color="#bababa" />
+                      </TouchableOpacity>
+                    </TouchableOpacity>
+                  </View>
+                )}
                 <TextInput 
-                  className="text-white text-[14px] font-medium max-h-[90px] min-h-[40px] py-2"
+                  className="text-white text-[14px] font-medium max-h-[90px] min-h-[40px] py-1"
                   placeholder="Describe the shot, scene, or edit…"
                   placeholderTextColor="#8a8385"
                   multiline
@@ -427,6 +507,17 @@ export default function index() {
             </View>
           </View>
         </View>
+
+        <ReferenceCanvasModal
+          visible={canvasModalVisible}
+          onClose={() => setCanvasModalVisible(false)}
+          aspectRatio={aspectRatio}
+          regions={canvasRegions}
+          onSaveRegions={(newRegions) => {
+            setCanvasRegions(newRegions);
+            setCanvasEnabled(newRegions.length > 0);
+          }}
+        />
 
       </KeyboardAvoidingView>
     </View>
