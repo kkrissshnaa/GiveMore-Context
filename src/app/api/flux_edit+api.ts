@@ -209,13 +209,25 @@ export async function POST(request: Request) {
             throw new Error('ComfyUI generation timed out or failed to complete.');
         }
 
-        // Extract output image
+        // Extract output image (prefer 'output' type over 'temp' preview images)
         let imageData: any = null;
         if (historyData.outputs) {
             for (const nodeId of Object.keys(historyData.outputs)) {
-                if (historyData.outputs[nodeId]?.images?.length > 0) {
-                    imageData = historyData.outputs[nodeId].images[0];
-                    break;
+                const images = historyData.outputs[nodeId]?.images;
+                if (images && images.length > 0) {
+                    const saveImg = images.find((img: any) => img.type === 'output');
+                    if (saveImg) {
+                        imageData = saveImg;
+                        break;
+                    }
+                }
+            }
+            if (!imageData) {
+                for (const nodeId of Object.keys(historyData.outputs)) {
+                    if (historyData.outputs[nodeId]?.images?.length > 0) {
+                        imageData = historyData.outputs[nodeId].images[0];
+                        break;
+                    }
                 }
             }
         }
