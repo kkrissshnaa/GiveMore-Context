@@ -1,5 +1,5 @@
-// app/api/krea2+api.ts
-import workflowTemplate from './workflow_api.json';
+// app/api/ideogram4+api.ts
+import ideogram4Template from './ideogram4.json';
 
 const COMFYUI_URL = 'http://127.0.0.1:8188';
 const PUBLIC_COMFY_URL = 'http://192.168.31.78:8188';
@@ -15,38 +15,38 @@ export async function POST(request: Request) {
             return Response.json({ success: false, error: 'Prompt is required' }, { status: 400 });
         }
 
-        const workflow = JSON.parse(JSON.stringify(workflowTemplate));
+        const workflow = JSON.parse(JSON.stringify(ideogram4Template));
 
-        // 1. Inject prompt
-        if (workflow["6"]) {
-            workflow["6"].inputs.text = userPrompt;
+        // 1. Inject prompt into Node "185" (high_level_description)
+        if (workflow["185"]) {
+            workflow["185"].inputs.high_level_description = userPrompt;
         }
 
-        // 2. Aspect Ratio & Quality
-        if (workflow["8"]) {
+        // 2. Aspect Ratio & Quality on Node "191"
+        if (workflow["191"]) {
             const aspectMap: Record<string, string> = {
                 '1:1': '1:1 (Square)',
                 '4:5': '4:5 (Portrait)',
                 '16:9': '16:9 (Widescreen)',
                 '9:16': '9:16 (Portrait Widescreen)',
             };
-            workflow["8"].inputs.aspect_ratio = aspectMap[userAspectRatio] || userAspectRatio || '1:1 (Square)';
+            workflow["191"].inputs.aspect_ratio = aspectMap[userAspectRatio] || userAspectRatio || '1:1 (Square)';
 
-            if (userQuality === 'Fast') workflow["8"].inputs.megapixels = 0.75;
-            else if (userQuality === 'Max' || userQuality === 'Quality') workflow["8"].inputs.megapixels = 1.5;
-            else workflow["8"].inputs.megapixels = 1;
+            if (userQuality === 'Fast') workflow["191"].inputs.megapixel = "0.5";
+            else if (userQuality === 'Max' || userQuality === 'Quality') workflow["191"].inputs.megapixel = "1.5";
+            else workflow["191"].inputs.megapixel = "1.0";
         }
 
-        // 3. Seed
-        if (workflow["10"]) {
-            workflow["10"].inputs.seed = Math.floor(Math.random() * 1000000000000);
+        // 3. Seed on Node "197"
+        if (workflow["197"]) {
+            workflow["197"].inputs.seed = Math.floor(Math.random() * 1000000000000);
         }
 
         // Queue prompt in ComfyUI
         const queueResponse = await fetch(`${COMFYUI_URL}/prompt`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: workflow, client_id: "expo-api-krea2" })
+            body: JSON.stringify({ prompt: workflow, client_id: "expo-api-ideogram4" })
         });
 
         if (!queueResponse.ok) {
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
 
         return Response.json({ success: true, imageUrl });
     } catch (error: any) {
-        console.error("Krea2 API Route failed:", error);
+        console.error("Ideogram4 API Route failed:", error);
         return Response.json({ success: false, error: error.message || 'Failed to generate image' }, { status: 500 });
     }
 }
