@@ -7,6 +7,7 @@ import {
   TextInput,
   LayoutChangeEvent,
   StyleSheet,
+  Keyboard,
 } from 'react-native';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
@@ -81,6 +82,7 @@ function RegionItem({
   const moveGesture = Gesture.Pan()
     .onStart(() => {
       'worklet';
+      runOnJS(Keyboard.dismiss)();
       startPosX.value = posX.value;
       startPosY.value = posY.value;
     })
@@ -110,6 +112,7 @@ function RegionItem({
   const resizeGesture = Gesture.Pan()
     .onStart(() => {
       'worklet';
+      runOnJS(Keyboard.dismiss)();
       startPosW.value = posW.value;
       startPosH.value = posH.value;
     })
@@ -259,6 +262,7 @@ export function ReferenceCanvasModal({
   const canvasDrawGesture = Gesture.Pan()
     .onStart((e) => {
       'worklet';
+      runOnJS(Keyboard.dismiss)();
       startX.value = e.x;
       startY.value = e.y;
       currentX.value = e.x;
@@ -286,6 +290,13 @@ export function ReferenceCanvasModal({
       'worklet';
       isDrawing.value = false;
     });
+
+  const canvasTapGesture = Gesture.Tap().onEnd(() => {
+    'worklet';
+    runOnJS(Keyboard.dismiss)();
+  });
+
+  const combinedCanvasGesture = Gesture.Exclusive(canvasDrawGesture, canvasTapGesture);
 
   const drawingBoxStyle = useAnimatedStyle(() => {
     if (!isDrawing.value) {
@@ -364,7 +375,7 @@ export function ReferenceCanvasModal({
 
             {/* Dynamic Aspect Ratio Canvas Container */}
             <View className="w-full items-center my-2">
-              <GestureDetector gesture={canvasDrawGesture}>
+              <GestureDetector gesture={combinedCanvasGesture}>
                 <View
                   onLayout={onCanvasLayout}
                   className="w-full rounded-[24px] bg-[#181315] border border-white/15 overflow-hidden relative justify-center items-center"

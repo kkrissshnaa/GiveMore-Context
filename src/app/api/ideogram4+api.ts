@@ -94,12 +94,24 @@ export async function POST(request: Request) {
             if (historyJson[promptId]) historyData = historyJson[promptId];
         }
 
-        // Extract output image
+        // Extract output image (strictly ignore SigmasPreview node, use SaveImage node)
         let imageData: any = null;
-        for (const nodeId of Object.keys(historyData.outputs)) {
-            if (historyData.outputs[nodeId]?.images?.length > 0) {
-                imageData = historyData.outputs[nodeId].images[0];
-                break;
+
+        // 1. Explicitly check SaveImage node "200" or any SaveImage class_type
+        if (historyData.outputs["200"]?.images?.length > 0) {
+            imageData = historyData.outputs["200"].images[0];
+        } else {
+            for (const nodeId of Object.keys(historyData.outputs)) {
+                const classType = (workflow[nodeId]?.class_type || '').toLowerCase();
+                const title = (workflow[nodeId]?._meta?.title || '').toLowerCase();
+                if (classType.includes('sigmas') || classType.includes('preview') || title.includes('sigmas') || title.includes('preview')) {
+                    continue;
+                }
+                const images = historyData.outputs[nodeId]?.images;
+                if (images && images.length > 0) {
+                    imageData = images[0];
+                    break;
+                }
             }
         }
 
