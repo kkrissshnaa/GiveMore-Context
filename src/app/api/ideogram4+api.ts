@@ -10,16 +10,27 @@ export async function POST(request: Request) {
         const userPrompt = body.prompt;
         const userAspectRatio = body.aspectRatio;
         const userQuality = body.quality;
+        const canvasRegions = body.canvasRegions || [];
+        let finalPrompt = userPrompt;
 
-        if (!userPrompt) {
-            return Response.json({ success: false, error: 'Prompt is required' }, { status: 400 });
+        if (Array.isArray(canvasRegions) && canvasRegions.length > 0) {
+            const layoutDescriptions = canvasRegions.map((region: any, i: number) => {
+                const centerX = region.x + region.width / 2;
+                const centerY = region.y + region.height / 2;
+                const hPos = centerX < 35 ? 'left' : centerX > 65 ? 'right' : 'center';
+                const vPos = centerY < 35 ? 'top' : centerY > 65 ? 'bottom' : 'middle';
+                const desc = region.prompt?.trim() || `object ${i + 1}`;
+                return `[Object ${i + 1}: "${desc}" placed at ${vPos}-${hPos} section, size: ${Math.round(region.width)}%x${Math.round(region.height)}% (pos: x=${Math.round(region.x)}%, y=${Math.round(region.y)}%)]`;
+            }).join('; ');
+
+            finalPrompt = `${userPrompt}. Spatial Layout & Reference Objects: ${layoutDescriptions}`;
         }
 
         const workflow = JSON.parse(JSON.stringify(ideogram4Template));
 
         // 1. Inject prompt into Node "185" (high_level_description)
         if (workflow["185"]) {
-            workflow["185"].inputs.high_level_description = userPrompt;
+            workflow["185"].inputs.high_level_description = finalPrompt;
         }
 
         // 2. Aspect Ratio & Quality on Node "191"
