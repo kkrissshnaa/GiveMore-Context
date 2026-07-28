@@ -159,6 +159,7 @@ function RegionItem({
   return (
     <GestureDetector gesture={moveGesture}>
       <Animated.View
+        collapsable={false}
         style={animatedStyle}
         className="rounded-[16px] border-[1.5px] border-[#ff6d29] bg-[#ff6d29]/20 p-2 justify-between z-10"
       >
@@ -393,7 +394,7 @@ export function ReferenceCanvasModal({
               >
                 {/* Layer 1: Drawing Gesture Background */}
                 <GestureDetector gesture={canvasDrawGesture}>
-                  <View style={StyleSheet.absoluteFill} className="w-full h-full">
+                  <View collapsable={false} style={StyleSheet.absoluteFill} className="w-full h-full">
                     {/* Subtle Grid Dot Background */}
                     <View style={StyleSheet.absoluteFill} className="opacity-15 flex-row flex-wrap justify-between p-3">
                       {Array.from({ length: 48 }).map((_, i) => (
