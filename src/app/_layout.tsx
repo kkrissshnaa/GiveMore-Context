@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import { router } from "expo-router";
 import { Drawer, DrawerContentScrollView } from "expo-router/drawer";
@@ -90,24 +91,26 @@ function CustomDrawerContent(props: any) {
 
 export default function RootLayout() {
   return (
-    <Drawer
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
-      screenOptions={{
-        headerShown: false,
-        drawerStyle: {
-          backgroundColor: '#181314',
-          width: '76%',
-          maxWidth: 300,
-        },
-        sceneStyle: {
-          backgroundColor: '#0e0b0e',
-        }
-      }}
-    >
-      <Drawer.Screen name="index" />
-      <Drawer.Screen name="(auth)/signin" />
-      <Drawer.Screen name="(auth)/signup" />
-      <Drawer.Screen name="(tabs)" />
-    </Drawer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Drawer
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
+        screenOptions={{
+          headerShown: false,
+          drawerStyle: {
+            backgroundColor: '#181314',
+            width: '76%',
+            maxWidth: 300,
+          },
+          sceneStyle: {
+            backgroundColor: '#0e0b0e',
+          }
+        }}
+      >
+        <Drawer.Screen name="index" />
+        <Drawer.Screen name="(auth)/signin" />
+        <Drawer.Screen name="(auth)/signup" />
+        <Drawer.Screen name="(tabs)" />
+      </Drawer>
+    </GestureHandlerRootView>
   );
 }
