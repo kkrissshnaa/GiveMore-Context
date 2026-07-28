@@ -79,64 +79,74 @@ function RegionItem({
   };
 
   // Move Gesture (Pan inside region)
-  const moveGesture = Gesture.Pan()
-    .onStart(() => {
-      'worklet';
-      runOnJS(Keyboard.dismiss)();
-      startPosX.value = posX.value;
-      startPosY.value = posY.value;
-    })
-    .onUpdate((e) => {
-      'worklet';
-      if (canvasWidth <= 0 || canvasHeight <= 0) return;
-      const deltaXPercent = (e.translationX / canvasWidth) * 100;
-      const deltaYPercent = (e.translationY / canvasHeight) * 100;
+  const moveGesture = React.useMemo(() => {
+    return Gesture.Pan()
+      .onBegin(() => {
+        'worklet';
+        runOnJS(Keyboard.dismiss)();
+      })
+      .onStart(() => {
+        'worklet';
+        startPosX.value = posX.value;
+        startPosY.value = posY.value;
+      })
+      .onUpdate((e) => {
+        'worklet';
+        if (canvasWidth <= 0 || canvasHeight <= 0) return;
+        const deltaXPercent = (e.translationX / canvasWidth) * 100;
+        const deltaYPercent = (e.translationY / canvasHeight) * 100;
 
-      const maxX = 100 - posW.value;
-      const maxY = 100 - posH.value;
+        const maxX = 100 - posW.value;
+        const maxY = 100 - posH.value;
 
-      posX.value = Math.max(0, Math.min(maxX, startPosX.value + deltaXPercent));
-      posY.value = Math.max(0, Math.min(maxY, startPosY.value + deltaYPercent));
-    })
-    .onEnd(() => {
-      'worklet';
-      runOnJS(commitUpdate)(
-        posX.value,
-        posY.value,
-        posW.value,
-        posH.value
-      );
-    });
+        posX.value = Math.max(0, Math.min(maxX, startPosX.value + deltaXPercent));
+        posY.value = Math.max(0, Math.min(maxY, startPosY.value + deltaYPercent));
+      })
+      .onEnd(() => {
+        'worklet';
+        runOnJS(commitUpdate)(
+          posX.value,
+          posY.value,
+          posW.value,
+          posH.value
+        );
+      });
+  }, [canvasWidth, canvasHeight]);
 
   // Resize Gesture (Pan on bottom-right handle)
-  const resizeGesture = Gesture.Pan()
-    .onStart(() => {
-      'worklet';
-      runOnJS(Keyboard.dismiss)();
-      startPosW.value = posW.value;
-      startPosH.value = posH.value;
-    })
-    .onUpdate((e) => {
-      'worklet';
-      if (canvasWidth <= 0 || canvasHeight <= 0) return;
-      const deltaWPercent = (e.translationX / canvasWidth) * 100;
-      const deltaHPercent = (e.translationY / canvasHeight) * 100;
+  const resizeGesture = React.useMemo(() => {
+    return Gesture.Pan()
+      .onBegin(() => {
+        'worklet';
+        runOnJS(Keyboard.dismiss)();
+      })
+      .onStart(() => {
+        'worklet';
+        startPosW.value = posW.value;
+        startPosH.value = posH.value;
+      })
+      .onUpdate((e) => {
+        'worklet';
+        if (canvasWidth <= 0 || canvasHeight <= 0) return;
+        const deltaWPercent = (e.translationX / canvasWidth) * 100;
+        const deltaHPercent = (e.translationY / canvasHeight) * 100;
 
-      const maxW = 100 - posX.value;
-      const maxH = 100 - posY.value;
+        const maxW = 100 - posX.value;
+        const maxH = 100 - posY.value;
 
-      posW.value = Math.max(15, Math.min(maxW, startPosW.value + deltaWPercent));
-      posH.value = Math.max(15, Math.min(maxH, startPosH.value + deltaHPercent));
-    })
-    .onEnd(() => {
-      'worklet';
-      runOnJS(commitUpdate)(
-        posX.value,
-        posY.value,
-        posW.value,
-        posH.value
-      );
-    });
+        posW.value = Math.max(15, Math.min(maxW, startPosW.value + deltaWPercent));
+        posH.value = Math.max(15, Math.min(maxH, startPosH.value + deltaHPercent));
+      })
+      .onEnd(() => {
+        'worklet';
+        runOnJS(commitUpdate)(
+          posX.value,
+          posY.value,
+          posW.value,
+          posH.value
+        );
+      });
+  }, [canvasWidth, canvasHeight]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     position: 'absolute',
@@ -259,44 +269,42 @@ export function ReferenceCanvasModal({
   };
 
   // Canvas Pan gesture for drawing new region
-  const canvasDrawGesture = Gesture.Pan()
-    .onStart((e) => {
-      'worklet';
-      runOnJS(Keyboard.dismiss)();
-      startX.value = e.x;
-      startY.value = e.y;
-      currentX.value = e.x;
-      currentY.value = e.y;
-      isDrawing.value = true;
-    })
-    .onUpdate((e) => {
-      'worklet';
-      currentX.value = e.x;
-      currentY.value = e.y;
-    })
-    .onEnd(() => {
-      'worklet';
-      if (isDrawing.value) {
+  const canvasDrawGesture = React.useMemo(() => {
+    return Gesture.Pan()
+      .onBegin(() => {
+        'worklet';
+        runOnJS(Keyboard.dismiss)();
+      })
+      .onStart((e) => {
+        'worklet';
+        startX.value = e.x;
+        startY.value = e.y;
+        currentX.value = e.x;
+        currentY.value = e.y;
+        isDrawing.value = true;
+      })
+      .onUpdate((e) => {
+        'worklet';
+        currentX.value = e.x;
+        currentY.value = e.y;
+      })
+      .onEnd(() => {
+        'worklet';
+        if (isDrawing.value) {
+          isDrawing.value = false;
+          runOnJS(handleDrawEnd)(
+            startX.value,
+            startY.value,
+            currentX.value,
+            currentY.value
+          );
+        }
+      })
+      .onFinalize(() => {
+        'worklet';
         isDrawing.value = false;
-        runOnJS(handleDrawEnd)(
-          startX.value,
-          startY.value,
-          currentX.value,
-          currentY.value
-        );
-      }
-    })
-    .onFinalize(() => {
-      'worklet';
-      isDrawing.value = false;
-    });
-
-  const canvasTapGesture = Gesture.Tap().onEnd(() => {
-    'worklet';
-    runOnJS(Keyboard.dismiss)();
-  });
-
-  const combinedCanvasGesture = Gesture.Exclusive(canvasDrawGesture, canvasTapGesture);
+      });
+  }, [canvasLayout.width, canvasLayout.height]);
 
   const drawingBoxStyle = useAnimatedStyle(() => {
     if (!isDrawing.value) {
@@ -375,23 +383,54 @@ export function ReferenceCanvasModal({
 
             {/* Dynamic Aspect Ratio Canvas Container */}
             <View className="w-full items-center my-2">
-              <GestureDetector gesture={combinedCanvasGesture}>
-                <View
-                  onLayout={onCanvasLayout}
-                  className="w-full rounded-[24px] bg-[#181315] border border-white/15 overflow-hidden relative justify-center items-center"
-                  style={{
-                    aspectRatio: getCanvasAspectRatio(),
-                    maxHeight: aspectRatio === '9:16' ? 360 : 320,
-                  }}
-                >
-                  {/* Subtle Grid Dot Background */}
-                  <View style={StyleSheet.absoluteFill} className="opacity-15 flex-row flex-wrap justify-between p-3">
-                    {Array.from({ length: 48 }).map((_, i) => (
-                      <View key={i} className="w-1.5 h-1.5 rounded-full bg-white/40 m-2" />
-                    ))}
-                  </View>
+              <View
+                onLayout={onCanvasLayout}
+                className="w-full rounded-[24px] bg-[#181315] border border-white/15 overflow-hidden relative justify-center items-center"
+                style={{
+                  aspectRatio: getCanvasAspectRatio(),
+                  maxHeight: aspectRatio === '9:16' ? 360 : 320,
+                }}
+              >
+                {/* Layer 1: Drawing Gesture Background */}
+                <GestureDetector gesture={canvasDrawGesture}>
+                  <View style={StyleSheet.absoluteFill} className="w-full h-full">
+                    {/* Subtle Grid Dot Background */}
+                    <View style={StyleSheet.absoluteFill} className="opacity-15 flex-row flex-wrap justify-between p-3">
+                      {Array.from({ length: 48 }).map((_, i) => (
+                        <View key={i} className="w-1.5 h-1.5 rounded-full bg-white/40 m-2" />
+                      ))}
+                    </View>
 
-                  {/* Render Existing Drawn Regions with Move & Scale Gestures */}
+                    {/* Live Drawing Rectangle Preview */}
+                    <Animated.View
+                      style={[
+                        drawingBoxStyle,
+                        {
+                          position: 'absolute',
+                          borderRadius: 16,
+                          borderWidth: 2,
+                          borderColor: '#ff6d29',
+                          borderStyle: 'dashed',
+                          backgroundColor: 'rgba(255, 109, 41, 0.25)',
+                          zIndex: 30,
+                        },
+                      ]}
+                    />
+
+                    {/* Empty State Overlay */}
+                    {localRegions.length === 0 && (
+                      <View className="absolute inset-0 items-center justify-center p-4 pointer-events-none">
+                        <Feather name="edit-3" size={24} color="rgba(255, 109, 41, 0.5)" />
+                        <Text className="text-white/40 text-xs font-semibold mt-2 text-center">
+                          Touch & drag anywhere to draw a region
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </GestureDetector>
+
+                {/* Layer 2: Interactive Regions Overlay (positioned as sibling, not nested in Layer 1's GestureDetector) */}
+                <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
                   {localRegions.map((region, idx) => (
                     <RegionItem
                       key={region.id}
@@ -403,34 +442,8 @@ export function ReferenceCanvasModal({
                       onRemoveRegion={handleRemoveRegion}
                     />
                   ))}
-
-                  {/* Live Drawing Rectangle Preview */}
-                  <Animated.View
-                    style={[
-                      drawingBoxStyle,
-                      {
-                        position: 'absolute',
-                        borderRadius: 16,
-                        borderWidth: 2,
-                        borderColor: '#ff6d29',
-                        borderStyle: 'dashed',
-                        backgroundColor: 'rgba(255, 109, 41, 0.25)',
-                        zIndex: 30,
-                      },
-                    ]}
-                  />
-
-                  {/* Empty State Overlay */}
-                  {localRegions.length === 0 && (
-                    <View className="absolute inset-0 items-center justify-center p-4 pointer-events-none">
-                      <Feather name="edit-3" size={24} color="rgba(255, 109, 41, 0.5)" />
-                      <Text className="text-white/40 text-xs font-semibold mt-2 text-center">
-                        Touch & drag anywhere to draw a region
-                      </Text>
-                    </View>
-                  )}
                 </View>
-              </GestureDetector>
+              </View>
             </View>
 
             {/* Footer Action Bar */}
