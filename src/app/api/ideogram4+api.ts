@@ -53,6 +53,10 @@ export async function POST(request: Request) {
             workflow["197"].inputs.seed = Math.floor(Math.random() * 1000000000000);
         }
 
+        // 4. Remove preview/graph nodes (189: SigmasPreview, 199: PreviewAny) so ComfyUI doesn't render or return them
+        delete workflow["189"];
+        delete workflow["199"];
+
         // Queue prompt in ComfyUI
         const queueResponse = await fetch(`${COMFYUI_URL}/prompt`, {
             method: 'POST',
@@ -94,28 +98,33 @@ export async function POST(request: Request) {
             if (historyJson[promptId]) historyData = historyJson[promptId];
         }
 
-        // Extract output image (strictly ignore SigmasPreview node, use SaveImage node)
+        // Extract output image (strictly from SaveImage node "200", ignoring any preview nodes)
         let imageData: any = null;
 
-        // 1. Explicitly check SaveImage node "200" or any SaveImage class_type
         if (historyData.outputs["200"]?.images?.length > 0) {
             imageData = historyData.outputs["200"].images[0];
-        } else {
+        } else if (historyData.outputs) {
             for (const nodeId of Object.keys(historyData.outputs)) {
                 const classType = (workflow[nodeId]?.class_type || '').toLowerCase();
                 const title = (workflow[nodeId]?._meta?.title || '').toLowerCase();
-                if (classType.includes('sigmas') || classType.includes('preview') || title.includes('sigmas') || title.includes('preview')) {
+                if (nodeId === '189' || classType.includes('sigmas') || classType.includes('preview') || title.includes('sigmas') || title.includes('preview')) {
                     continue;
                 }
                 const images = historyData.outputs[nodeId]?.images;
                 if (images && images.length > 0) {
-                    imageData = images[0];
-                    break;
+                    const validImg = images.find((img: any) => {
+                        const fn = (img.filename || '').toLowerCase();
+                        return !fn.includes('sigma') && !fn.includes('preview');
+                    });
+                    if (validImg) {
+                        imageData = validImg;
+                        break;
+                    }
                 }
             }
         }
 
-        if (!imageData) throw new Error('No output image returned from ComfyUI');
+        if (!imageData) throw new Error('No valid generated image returned from SaveImage node');
 
         const subfolder = imageData.subfolder || "";
         const imageUrl = `${PUBLIC_COMFY_URL}/view?filename=${imageData.filename}&subfolder=${subfolder}&type=${imageData.type}`;
