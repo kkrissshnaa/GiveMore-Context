@@ -17,6 +17,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
 
+const dismissKeyboard = () => {
+  Keyboard.dismiss();
+};
+
 export interface CanvasRegion {
   id: string;
   x: number; // percentage 0 - 100
@@ -83,7 +87,7 @@ function RegionItem({
     return Gesture.Pan()
       .onBegin(() => {
         'worklet';
-        runOnJS(Keyboard.dismiss)();
+        runOnJS(dismissKeyboard)();
       })
       .onStart(() => {
         'worklet';
@@ -118,7 +122,7 @@ function RegionItem({
     return Gesture.Pan()
       .onBegin(() => {
         'worklet';
-        runOnJS(Keyboard.dismiss)();
+        runOnJS(dismissKeyboard)();
       })
       .onStart(() => {
         'worklet';
@@ -274,7 +278,7 @@ export function ReferenceCanvasModal({
     return Gesture.Pan()
       .onBegin(() => {
         'worklet';
-        runOnJS(Keyboard.dismiss)();
+        runOnJS(dismissKeyboard)();
       })
       .onStart((e) => {
         'worklet';
