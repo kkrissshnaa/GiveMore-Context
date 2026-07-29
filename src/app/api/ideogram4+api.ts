@@ -4,6 +4,15 @@ import ideogram4Template from './ideogram4.json';
 const COMFYUI_URL = 'http://127.0.0.1:8188';
 const PUBLIC_COMFY_URL = 'http://192.168.31.78:8188';
 
+export function normalizeAspectRatio(input: any): string {
+    if (typeof input !== 'string') return '1:1';
+    const trimmed = input.trim();
+    if (/^\d+:\d+$/.test(trimmed)) {
+        return trimmed;
+    }
+    return '1:1';
+}
+
 export async function POST(request: Request) {
     try {
         const body = await request.json();
@@ -11,31 +20,34 @@ export async function POST(request: Request) {
         const userAspectRatio = body.aspectRatio;
         const userQuality = body.quality;
         const canvasRegions = body.canvasRegions || [];
-        let finalPrompt = userPrompt;
-
-        if (Array.isArray(canvasRegions) && canvasRegions.length > 0) {
-            const layoutDescriptions = canvasRegions.map((region: any, i: number) => {
-                const centerX = region.x + region.width / 2;
-                const centerY = region.y + region.height / 2;
-                const hPos = centerX < 35 ? 'left' : centerX > 65 ? 'right' : 'center';
-                const vPos = centerY < 35 ? 'top' : centerY > 65 ? 'bottom' : 'middle';
-                const desc = region.prompt?.trim() || `object ${i + 1}`;
-                return `[Object ${i + 1}: "${desc}" placed at ${vPos}-${hPos} section, size: ${Math.round(region.width)}%x${Math.round(region.height)}% (pos: x=${Math.round(region.x)}%, y=${Math.round(region.y)}%)]`;
-            }).join('; ');
-
-            finalPrompt = `${userPrompt}. Spatial Layout & Reference Objects: ${layoutDescriptions}`;
-        }
+        let finalPrompt = userPrompt || '';
 
         const workflow = JSON.parse(JSON.stringify(ideogram4Template));
 
-        // 1. Inject prompt into Node "185" (high_level_description)
+        // 1. Inject prompt and dynamic elements_data into Node "185" (Ideogram4PromptBuilderKJ)
         if (workflow["185"]) {
             workflow["185"].inputs.high_level_description = finalPrompt;
+
+            if (Array.isArray(canvasRegions) && canvasRegions.length > 0) {
+                const elements = canvasRegions.map((region: any) => ({
+                    x: Math.max(0, Math.min(1, (region.x || 0) / 100)),
+                    y: Math.max(0, Math.min(1, (region.y || 0) / 100)),
+                    w: Math.max(0.01, Math.min(1, (region.width || 20) / 100)),
+                    h: Math.max(0.01, Math.min(1, (region.height || 20) / 100)),
+                    type: "obj",
+                    text: "",
+                    desc: region.prompt?.trim() || "",
+                    palette: []
+                }));
+                workflow["185"].inputs.elements_data = JSON.stringify(elements);
+            } else {
+                workflow["185"].inputs.elements_data = "[]";
+            }
         }
 
         // 2. Aspect Ratio & Quality on Node "191"
         if (workflow["191"]) {
-            const ratio = userAspectRatio || '1:1';
+            const ratio = normalizeAspectRatio(userAspectRatio);
             workflow["191"].inputs.custom_ratio = true;
             workflow["191"].inputs.custom_aspect_ratio = ratio;
 
