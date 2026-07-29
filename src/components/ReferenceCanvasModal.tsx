@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   View,
@@ -65,6 +65,11 @@ function RegionItem({
   const startPosW = useSharedValue(region.width);
   const startPosH = useSharedValue(region.height);
 
+  const regionRef = useRef(region);
+  useEffect(() => {
+    regionRef.current = region;
+  }, [region]);
+
   useEffect(() => {
     posX.value = region.x;
     posY.value = region.y;
@@ -74,7 +79,7 @@ function RegionItem({
 
   const commitUpdate = (x: number, y: number, w: number, h: number) => {
     onUpdateRegion({
-      ...region,
+      ...regionRef.current,
       x,
       y,
       width: w,
@@ -85,12 +90,9 @@ function RegionItem({
   // Move Gesture (Pan inside region)
   const moveGesture = React.useMemo(() => {
     return Gesture.Pan()
-      .onBegin(() => {
-        'worklet';
-        runOnJS(dismissKeyboard)();
-      })
       .onStart(() => {
         'worklet';
+        runOnJS(dismissKeyboard)();
         startPosX.value = posX.value;
         startPosY.value = posY.value;
       })
@@ -120,12 +122,9 @@ function RegionItem({
   // Resize Gesture (Pan on bottom-right handle)
   const resizeGesture = React.useMemo(() => {
     return Gesture.Pan()
-      .onBegin(() => {
-        'worklet';
-        runOnJS(dismissKeyboard)();
-      })
       .onStart(() => {
         'worklet';
+        runOnJS(dismissKeyboard)();
         startPosW.value = posW.value;
         startPosH.value = posH.value;
       })

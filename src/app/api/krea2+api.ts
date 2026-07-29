@@ -10,16 +10,43 @@ export async function POST(request: Request) {
         const userPrompt = body.prompt;
         const userAspectRatio = body.aspectRatio;
         const userQuality = body.quality;
+        const canvasRegions = body.canvasRegions || [];
 
-        if (!userPrompt) {
-            return Response.json({ success: false, error: 'Prompt is required' }, { status: 400 });
+        if (!userPrompt && (!Array.isArray(canvasRegions) || canvasRegions.length === 0)) {
+            return Response.json({ success: false, error: 'Prompt or Reference Canvas regions are required' }, { status: 400 });
         }
 
         const workflow = JSON.parse(JSON.stringify(workflowTemplate));
 
-        // 1. Inject prompt
-        if (workflow["6"]) {
-            workflow["6"].inputs.text = userPrompt;
+        // 1. Inject prompt & Canvas regions
+        let finalPrompt = (userPrompt || '').trim();
+
+        if (Array.isArray(canvasRegions) && canvasRegions.length > 0) {
+            let spatialText = finalPrompt ? `${finalPrompt}\n\n` : '';
+            spatialText += "Spatial composition & layout:";
+
+            canvasRegions.forEach((region: any) => {
+                const rX = Math.max(0, Math.min(100, region.x || 0));
+                const rY = Math.max(0, Math.min(100, region.y || 0));
+                const rW = Math.max(1, Math.min(100, region.width || 20));
+                const rH = Math.max(1, Math.min(100, region.height || 20));
+                const regPrompt = (region.prompt || '').trim();
+
+                const posX = rX < 33 ? "left" : rX < 66 ? "center" : "right";
+                const posY = rY < 33 ? "top" : rY < 66 ? "middle" : "bottom";
+
+                if (regPrompt) {
+                    spatialText += `\n- [Location: ${posY}-${posX} (x: ${Math.round(rX)}%, y: ${Math.round(rY)}%, width: ${Math.round(rW)}%, height: ${Math.round(rH)}%)]: ${regPrompt}`;
+                }
+            });
+
+            if (workflow["6"]) {
+                workflow["6"].inputs.text = spatialText;
+            }
+        } else {
+            if (workflow["6"]) {
+                workflow["6"].inputs.text = finalPrompt;
+            }
         }
 
         // 2. Aspect Ratio & Quality
