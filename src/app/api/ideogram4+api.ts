@@ -35,13 +35,9 @@ export async function POST(request: Request) {
 
         // 2. Aspect Ratio & Quality on Node "191"
         if (workflow["191"]) {
-            const aspectMap: Record<string, string> = {
-                '1:1': '1:1 (Square)',
-                '4:5': '4:5 (Portrait)',
-                '16:9': '16:9 (Widescreen)',
-                '9:16': '9:16 (Portrait Widescreen)',
-            };
-            workflow["191"].inputs.aspect_ratio = aspectMap[userAspectRatio] || userAspectRatio || '1:1 (Square)';
+            const ratio = userAspectRatio || '1:1';
+            workflow["191"].inputs.custom_ratio = true;
+            workflow["191"].inputs.custom_aspect_ratio = ratio;
 
             if (userQuality === 'Fast') workflow["191"].inputs.megapixel = "0.5";
             else if (userQuality === 'Max' || userQuality === 'Quality') workflow["191"].inputs.megapixel = "1.5";
