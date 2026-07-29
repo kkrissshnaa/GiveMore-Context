@@ -175,15 +175,6 @@ export default function index() {
     if (!prompt.trim() && canvasRegions.length === 0) return;
 
     let currentPrompt = prompt.trim();
-    if (canvasRegions.length > 0) {
-      const regionPrompts = canvasRegions
-        .filter((r) => r.prompt.trim())
-        .map((r, i) => `[Region ${i + 1}: ${r.prompt.trim()}]`)
-        .join('; ');
-      if (regionPrompts) {
-        currentPrompt = currentPrompt ? `${currentPrompt} | Layout: ${regionPrompts}` : `Layout: ${regionPrompts}`;
-      }
-    }
 
     setActivePrompt(currentPrompt);
     setPrompt('');
