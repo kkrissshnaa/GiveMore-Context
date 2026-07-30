@@ -2,10 +2,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import { router } from "expo-router";
 import { Drawer, DrawerContentScrollView } from "expo-router/drawer";
-import { useState } from 'react';
-import { Text, TouchableOpacity, View } from "react-native";
+import { useState, useEffect, useCallback } from 'react';
+import { Text, TouchableOpacity, View, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import "../../global.css";
+import { getChats, ChatItem } from '../lib/chatService';
+import { chatEvents } from '../lib/chatEvents';
 
 function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, badge?: string, onPress?: () => void }) {
   return (
@@ -23,17 +25,71 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
 
 function CustomDrawerContent(props: any) {
   const insets = useSafeAreaInsets();
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<ChatItem[]>([]);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const fetchInitialChats = useCallback(async () => {
+    const initial = await getChats(10, 0);
+    setHistory(initial);
+    setPage(0);
+    setHasMore(initial.length === 10);
+  }, []);
+
+  const fetchMoreChats = async () => {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    const more = await getChats(10, nextPage * 10);
+    if (more.length > 0) {
+      setHistory(prev => [...prev, ...more]);
+      setPage(nextPage);
+      setHasMore(more.length === 10);
+    } else {
+      setHasMore(false);
+    }
+    setLoadingMore(false);
+  };
+
+  useEffect(() => {
+    fetchInitialChats();
+    const unsub = chatEvents.subscribe((event) => {
+      if (event.type === 'CHAT_SAVED' || event.type === 'NEW_CHAT') {
+        fetchInitialChats();
+      }
+    });
+    return () => unsub();
+  }, [fetchInitialChats]);
 
   const handleNewChat = () => {
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setHistory([`Generation at ${timeString}`, ...history]);
+    chatEvents.emitNewChat();
     props.navigation.navigate('index');
+    props.navigation.closeDrawer();
+  };
+
+  const handleSelectChat = (chatItem: ChatItem) => {
+    chatEvents.emitLoadChat(chatItem);
+    props.navigation.navigate('index');
+    props.navigation.closeDrawer();
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 50;
+    if (isCloseToBottom) {
+      fetchMoreChats();
+    }
   };
 
   return (
     <View className="flex-1 bg-[#181314]" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
-      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingHorizontal: 16 }}>
+      <DrawerContentScrollView 
+        {...props} 
+        contentContainerStyle={{ paddingHorizontal: 16 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={200}
+      >
         {/* Logo */}
         <View className="px-2 pb-8">
           <Text className="text-[22px] font-bold leading-tight text-white">give more</Text>
@@ -59,16 +115,37 @@ function CustomDrawerContent(props: any) {
           <NavItem icon="settings" label="Settings" onPress={() => router.push('/(tabs)/settings')} />
         </View>
 
-        {/* Divider if history exists */}
-        {history.length > 0 && <View className="h-[1px] bg-white/10 my-4 mx-2" />}
-
-        {/* History */}
-        {history.map((h, i) => (
-          <TouchableOpacity key={i} className="flex-row items-center gap-3 px-3 py-3 rounded-[14px]">
-            <Feather name="message-square" size={16} color="#8a8385" />
-            <Text className="text-[13.5px] font-medium text-[#bababa]">{h}</Text>
-          </TouchableOpacity>
-        ))}
+        {/* History Header & List */}
+        {history.length > 0 && (
+          <>
+            <View className="h-[1px] bg-white/10 my-4 mx-2" />
+            <Text className="px-2 mb-2 text-[10px] font-bold uppercase tracking-widest text-[#8a8385]">
+              Recent Generations ({history.length})
+            </Text>
+            {history.map((chat) => (
+              <TouchableOpacity 
+                key={chat.id} 
+                onPress={() => handleSelectChat(chat)}
+                className="flex-row items-center gap-2.5 px-3 py-2.5 mb-1 rounded-[14px] bg-white/5 border border-white/5 active:bg-white/10"
+              >
+                <Feather name="message-square" size={15} color="#ff6d29" />
+                <View className="flex-1 overflow-hidden">
+                  <Text className="text-[13px] font-medium text-white" numberOfLines={1}>
+                    {chat.title}
+                  </Text>
+                  <Text className="text-[10px] font-semibold text-[#8a8385] mt-0.5 uppercase tracking-wider">
+                    {chat.model} · {new Date(chat.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+            {loadingMore && (
+              <View className="py-3 items-center">
+                <ActivityIndicator size="small" color="#ff6d29" />
+              </View>
+            )}
+          </>
+        )}
 
       </DrawerContentScrollView>
 

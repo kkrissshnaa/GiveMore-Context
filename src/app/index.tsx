@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -19,6 +19,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from 'expo-router';
 import { ReferenceCanvasModal, CanvasRegion } from '../components/ReferenceCanvasModal';
+import { saveChat, ChatItem } from '../lib/chatService';
+import { chatEvents } from '../lib/chatEvents';
 
 function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
   const pulseAnim = useRef(new Animated.Value(0.35)).current;
@@ -55,7 +57,7 @@ function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
 
   return (
     <View 
-      className="w-full mt-3 rounded-[22px] overflow-hidden bg-white/5 border border-white/10 p-4 justify-between relative"
+      className="w-full mt-1 rounded-[22px] overflow-hidden bg-white/5 border border-white/10 p-4 justify-between relative"
       style={getAspectRatioStyle(aspectRatio)}
     >
       {/* Top skeleton bar */}
@@ -120,12 +122,97 @@ export default function index() {
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [model, setModel] = useState('krea2');
   const [quality, setQuality] = useState('Balanced');
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [canvasEnabled, setCanvasEnabled] = useState(false);
   const [canvasModalVisible, setCanvasModalVisible] = useState(false);
   const [canvasRegions, setCanvasRegions] = useState<CanvasRegion[]>([]);
   const [copied, setCopied] = useState(false);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [currentChatId, setCurrentChatId] = useState<string>(() => `chat_${Date.now()}_${Math.floor(Math.random() * 1000)}`);
+  const [createdAt, setCreatedAt] = useState<string>(() => new Date().toISOString());
+
   const keyboardHeightAnim = useRef(new Animated.Value(0)).current;
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const saveCurrentChatIfNeeded = useCallback(async () => {
+    const hasData = Boolean(
+      (prompt && prompt.trim().length > 0) || 
+      activePrompt !== null || 
+      imageUrl !== null || 
+      referenceImages.length > 0 || 
+      canvasRegions.length > 0
+    );
+    if (hasData) {
+      const chatToSave: ChatItem = {
+        id: currentChatId,
+        title: (prompt || activePrompt || 'New generation').trim().slice(0, 45) || 'Untitled Generation',
+        prompt,
+        activePrompt,
+        imageUrl,
+        model,
+        aspectRatio,
+        quality,
+        referenceImages,
+        canvasRegions,
+        createdAt,
+      };
+      await saveChat(chatToSave);
+      chatEvents.emitChatSaved();
+    }
+  }, [prompt, activePrompt, imageUrl, referenceImages, canvasRegions, model, aspectRatio, quality, currentChatId, createdAt]);
+
+  const handleCreateNewChat = useCallback(async () => {
+    await saveCurrentChatIfNeeded();
+    const newId = `chat_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    setCurrentChatId(newId);
+    setCreatedAt(new Date().toISOString());
+    setPrompt('');
+    setActivePrompt(null);
+    setImageUrl(null);
+    setErrorText(null);
+    setReferenceImages([]);
+    setCanvasRegions([]);
+    setCanvasEnabled(false);
+    setExpanded(false);
+  }, [saveCurrentChatIfNeeded]);
+
+  const handleLoadChat = useCallback(async (chatItem: ChatItem) => {
+    await saveCurrentChatIfNeeded();
+    setCurrentChatId(chatItem.id);
+    setCreatedAt(chatItem.createdAt || new Date().toISOString());
+    setPrompt(chatItem.prompt || '');
+    setActivePrompt(chatItem.activePrompt || null);
+    setImageUrl(chatItem.imageUrl || null);
+    setModel(chatItem.model || 'krea2');
+    setAspectRatio(chatItem.aspectRatio || '1:1');
+    setQuality(chatItem.quality || 'Balanced');
+    setReferenceImages(chatItem.referenceImages || []);
+    setCanvasRegions(chatItem.canvasRegions || []);
+    setCanvasEnabled((chatItem.canvasRegions || []).length > 0);
+    setErrorText(null);
+    setExpanded(false);
+  }, [saveCurrentChatIfNeeded]);
+
+  useEffect(() => {
+    const unsub = chatEvents.subscribe((event) => {
+      if (event.type === 'NEW_CHAT') {
+        handleCreateNewChat();
+      } else if (event.type === 'LOAD_CHAT') {
+        handleLoadChat(event.chat);
+      }
+    });
+    return () => unsub();
+  }, [handleCreateNewChat, handleLoadChat]);
+
+  const stopGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setLoading(false);
+    setErrorText('Generation cancelled');
+  };
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -213,6 +300,9 @@ export default function index() {
     setErrorText(null);
     setExpanded(false);
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       const endpointMap: Record<string, string> = {
         'krea2': '/api/krea2',
@@ -223,6 +313,7 @@ export default function index() {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           prompt: currentPrompt,
           aspectRatio,
@@ -238,14 +329,24 @@ export default function index() {
 
       if (data.success) {
         setImageUrl(data.imageUrl);
+        // Save chat to database on success
+        setTimeout(() => {
+          saveCurrentChatIfNeeded();
+        }, 100);
       } else {
         setErrorText(data.error || 'Failed to generate image');
       }
     } catch (error: any) {
-      console.error("Network error:", error);
-      setErrorText(error.message || "Network request failed. Check your connection.");
+      if (error.name === 'AbortError') {
+        console.log('Generation request aborted by user');
+        setErrorText('Generation stopped');
+      } else {
+        console.error("Network error:", error);
+        setErrorText(error.message || "Network request failed. Check your connection.");
+      }
     } finally {
       setLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -264,12 +365,17 @@ export default function index() {
           <Text className="text-[10px] tracking-widest uppercase text-[#8a8385] font-semibold">Generation</Text>
           <Text className="text-[15px] font-bold text-white mt-0.5">New generation</Text>
         </View>
-        {renderIconBtn('plus', 'bg-[#ff6d29]', '#1a1210', 'border-white/25')}
+        {renderIconBtn('plus', 'bg-[#ff6d29]', '#1a1210', 'border-white/25', handleCreateNewChat)}
       </View>
 
         <ScrollView 
           className="flex-1 z-10" 
-          contentContainerStyle={{ paddingBottom: 150, paddingTop: 20 }}
+          contentContainerStyle={{ paddingBottom: 24, paddingTop: 2 }}
+          onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
+          onContentSizeChange={(_, h) => setContentHeight(h)}
+          scrollEnabled={contentHeight > containerHeight + 5}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
         >
@@ -291,24 +397,24 @@ export default function index() {
                </View>
              </View>
           ) : (
-             <View className="px-4">
+             <View className="px-4 pt-0">
                 {/* Status / Results */}
                 {loading && (
                   <ImageSkeleton aspectRatio={aspectRatio} />
                 )}
                 {errorText && (
-                  <Text className="text-red-500 text-center mt-3 text-sm font-medium">{errorText}</Text>
+                  <Text className="text-red-500 text-center mt-2 text-sm font-medium">{errorText}</Text>
                 )}
                 {imageUrl && (
                   <View 
-                    className="w-full mt-3 rounded-[22px] overflow-hidden bg-white/5 border border-white/10 p-2"
+                    className="w-full mt-1 rounded-[22px] overflow-hidden bg-white/5 border border-white/10 p-2"
                     style={getAspectRatioStyle(aspectRatio)}
                   >
                     <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[14px]" resizeMode="cover" />
                   </View>
                 )}
                 {activePrompt && (loading || imageUrl || errorText) && (
-                  <View className="mt-3 p-4 bg-[#1c1618] border border-white/10 rounded-[20px]">
+                  <View className="mt-2.5 p-4 bg-[#1c1618] border border-white/10 rounded-[20px]">
                     <View className="flex-row items-center justify-between mb-2">
                       <View className="flex-row items-center gap-2">
                         <Feather name="terminal" size={13} color="#ff6d29" />
@@ -527,12 +633,12 @@ export default function index() {
                   <Feather name={expanded ? "chevron-down" : "chevron-up"} size={24} color="#bababa" />
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  onPress={generateImage}
-                  disabled={loading}
+                  onPress={loading ? stopGeneration : generateImage}
+                  activeOpacity={0.7}
                   className="w-10 h-10 rounded-full bg-[#ff6d29] items-center justify-center shadow-[0_10px_24px_-8px_rgba(255,109,41,0.65)] border border-white/40"
                 >
                   {loading ? (
-                    <ActivityIndicator size="small" color="#1a1210" />
+                    <View className="w-3.5 h-3.5 bg-[#1a1210] rounded-[3px]" />
                   ) : (
                     <Feather name="arrow-up" size={20} color="#1a1210" />
                   )}
