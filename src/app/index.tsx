@@ -125,6 +125,34 @@ export default function index() {
   const [canvasModalVisible, setCanvasModalVisible] = useState(false);
   const [canvasRegions, setCanvasRegions] = useState<CanvasRegion[]>([]);
   const [copied, setCopied] = useState(false);
+  const keyboardHeightAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      setExpanded(false);
+      Animated.timing(keyboardHeightAnim, {
+        toValue: e.endCoordinates.height,
+        duration: Platform.OS === 'ios' ? (e.duration || 250) : 150,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, (e) => {
+      Animated.timing(keyboardHeightAnim, {
+        toValue: 0,
+        duration: Platform.OS === 'ios' ? (e.duration || 250) : 150,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboardHeightAnim]);
 
   const copyPrompt = async (textToCopy: string | null) => {
     if (!textToCopy) return;
@@ -228,22 +256,23 @@ export default function index() {
   );
 
   return (
-    <View className="flex-1 bg-[#0e0b0e]" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
-      <KeyboardAvoidingView 
-        className="flex-1"
-        behavior="padding"
-      >
-        {/* Top Bar */}
-        <View className="flex-row items-center justify-between px-4 pt-2 pb-3 z-20">
-          {renderIconBtn('menu', 'bg-white/5', 'white', 'border-white/10', () => (navigation as any).toggleDrawer())}
-          <View className="items-center flex-1 mx-2">
-            <Text className="text-[10px] tracking-widest uppercase text-[#8a8385] font-semibold">Generation</Text>
-            <Text className="text-[15px] font-bold text-white mt-0.5">New generation</Text>
-          </View>
-          {renderIconBtn('plus', 'bg-[#ff6d29]', '#1a1210', 'border-white/25')}
+    <View className="flex-1 bg-[#0e0b0e]" style={{ paddingTop: insets.top }}>
+      {/* Top Bar */}
+      <View className="flex-row items-center justify-between px-4 pt-2 pb-3 z-20">
+        {renderIconBtn('menu', 'bg-white/5', 'white', 'border-white/10', () => (navigation as any).toggleDrawer())}
+        <View className="items-center flex-1 mx-2">
+          <Text className="text-[10px] tracking-widest uppercase text-[#8a8385] font-semibold">Generation</Text>
+          <Text className="text-[15px] font-bold text-white mt-0.5">New generation</Text>
         </View>
+        {renderIconBtn('plus', 'bg-[#ff6d29]', '#1a1210', 'border-white/25')}
+      </View>
 
-        <ScrollView className="flex-1 z-10" contentContainerStyle={{ paddingBottom: 300, paddingTop: 40 }}>
+        <ScrollView 
+          className="flex-1 z-10" 
+          contentContainerStyle={{ paddingBottom: 150, paddingTop: 20 }}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+        >
           {/* Empty State */}
           {!imageUrl && !loading && !errorText ? (
              <View className="items-center px-4 pt-10">
@@ -312,7 +341,19 @@ export default function index() {
         </ScrollView>
 
         {/* Bottom Prompt Bar */}
-        <View className="px-3 pb-3 pt-2 z-30">
+        <Animated.View 
+          className="px-3 pt-2 z-30" 
+          style={{ 
+            paddingBottom: Animated.add(
+              keyboardHeightAnim, 
+              keyboardHeightAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [Math.max(insets.bottom, 12), 10],
+                extrapolate: 'clamp',
+              })
+            ) 
+          }}
+        >
           <View className="bg-[#1c1618] border border-white/10 rounded-[30px] overflow-hidden">
             {/* Expanded Panel */}
             {expanded && (
@@ -469,13 +510,15 @@ export default function index() {
                   </View>
                 )}
                 <TextInput 
-                  className="text-white text-[14px] font-medium max-h-[90px] min-h-[40px] py-1"
+                  className="text-white text-[14px] font-medium max-h-[110px] min-h-[40px] py-1.5 px-1"
                   placeholder="Describe the shot, scene, or edit…"
                   placeholderTextColor="#8a8385"
                   multiline
+                  scrollEnabled={true}
                   value={prompt}
                   onChangeText={setPrompt}
-                  style={{ textAlignVertical: 'center' }}
+                  onFocus={() => setExpanded(false)}
+                  style={{ textAlignVertical: 'top' }}
                 />
               </View>
               
@@ -497,7 +540,7 @@ export default function index() {
               </View>
             </View>
           </View>
-        </View>
+        </Animated.View>
 
         <ReferenceCanvasModal
           visible={canvasModalVisible}
@@ -509,8 +552,6 @@ export default function index() {
             setCanvasEnabled(newRegions.length > 0);
           }}
         />
-
-      </KeyboardAvoidingView>
     </View>
   );
 }
