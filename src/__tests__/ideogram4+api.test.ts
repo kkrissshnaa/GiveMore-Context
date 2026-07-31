@@ -1,6 +1,4 @@
-// @ts-ignore
-import { expect, test, describe } from 'bun:test';
-import { normalizeAspectRatio } from '../ideogram4+api';
+import { normalizeAspectRatio } from '../app/api/ideogram4+api';
 
 describe('normalizeAspectRatio', () => {
     test('returns "1:1" for missing or undefined inputs', () => {

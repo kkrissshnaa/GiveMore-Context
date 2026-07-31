@@ -19,6 +19,7 @@
     "expo-glass-effect": "~57.0.1",
     "expo-image": "~57.0.1",
     "expo-image-picker": "~57.0.6",
+    "expo-linear-gradient": "^57.0.1",
     "expo-linking": "~57.0.4",
     "expo-router": "~57.0.8",
     "expo-splash-screen": "~57.0.5",
@@ -43,8 +44,11 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^26.1.1",
     "@types/react": "~19.2.2",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~57.0.1",
     "postcss": "^8.5.16",
     "tailwindcss": "^4.3.2",
     "typescript": "~6.0.3"

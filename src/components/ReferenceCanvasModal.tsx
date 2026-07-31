@@ -164,12 +164,12 @@ function RegionItem({
       <Animated.View
         collapsable={false}
         style={animatedStyle}
-        className="rounded-[16px] border-[1.5px] border-[#ff6d29] bg-[#ff6d29]/20 p-2 justify-between z-10"
+        className="rounded-[16px] border-[1.5px] border-[#b2ff59] bg-[#b2ff59]/20 p-2 justify-between z-10"
       >
         {/* Region Header: Badge & Delete Button */}
         <View className="flex-row items-center justify-between z-20">
-          <View className="w-5 h-5 rounded-full bg-[#ff6d29] items-center justify-center shadow-md">
-            <Text className="text-[10px] font-bold text-black">{index + 1}</Text>
+          <View className="w-5 h-5 rounded-full bg-[#b2ff59] items-center justify-center shadow-md">
+            <Text className="text-[10px] font-bold text-[#0b1405]">{index + 1}</Text>
           </View>
 
           <TouchableOpacity
@@ -195,8 +195,8 @@ function RegionItem({
 
         {/* Resize Handle (Bottom-Right Corner) */}
         <GestureDetector gesture={resizeGesture}>
-          <View className="absolute bottom-1 right-1 w-6 h-6 items-center justify-center bg-black/60 rounded-full border border-[#ff6d29]/80 z-30">
-            <Feather name="maximize-2" size={10} color="#ff6d29" />
+          <View className="absolute bottom-1 right-1 w-6 h-6 items-center justify-center bg-black/60 rounded-full border border-[#b2ff59]/80 z-30">
+            <Feather name="maximize-2" size={10} color="#b2ff59" />
           </View>
         </GestureDetector>
       </Animated.View>
@@ -413,9 +413,9 @@ export function ReferenceCanvasModal({
                           position: 'absolute',
                           borderRadius: 16,
                           borderWidth: 2,
-                          borderColor: '#ff6d29',
+                          borderColor: '#b2ff59',
                           borderStyle: 'dashed',
-                          backgroundColor: 'rgba(255, 109, 41, 0.25)',
+                          backgroundColor: 'rgba(178, 255, 89, 0.25)',
                           zIndex: 30,
                         },
                       ]}
@@ -424,7 +424,7 @@ export function ReferenceCanvasModal({
                     {/* Empty State Overlay */}
                     {localRegions.length === 0 && (
                       <View className="absolute inset-0 items-center justify-center p-4 pointer-events-none">
-                        <Feather name="edit-3" size={24} color="rgba(255, 109, 41, 0.5)" />
+                        <Feather name="edit-3" size={24} color="rgba(178, 255, 89, 0.5)" />
                         <Text className="text-white/40 text-xs font-semibold mt-2 text-center">
                           Touch & drag anywhere to draw a region
                         </Text>
@@ -464,9 +464,9 @@ export function ReferenceCanvasModal({
 
               <TouchableOpacity
                 onPress={handleDone}
-                className="px-6 py-2.5 rounded-full bg-[#ff6d29] shadow-lg shadow-[#ff6d29]/40 items-center justify-center border border-white/20"
+                className="px-6 py-2.5 rounded-full bg-[#b2ff59] shadow-lg shadow-[#b2ff59]/40 items-center justify-center border border-white/20"
               >
-                <Text className="text-[13.5px] font-bold text-[#1a1210]">
+                <Text className="text-[13.5px] font-bold text-[#0b1405]">
                   Done
                 </Text>
               </TouchableOpacity>
