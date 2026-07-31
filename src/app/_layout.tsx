@@ -5,9 +5,12 @@ import { Drawer, DrawerContentScrollView } from "expo-router/drawer";
 import { useState, useEffect, useCallback } from 'react';
 import { Text, TouchableOpacity, View, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from 'expo-linear-gradient';
 import "../../global.css";
 import { getChats, ChatItem } from '../lib/chatService';
 import { chatEvents } from '../lib/chatEvents';
+
+import { AestheticBackdrop } from '../components/AestheticBackdrop';
 
 function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, badge?: string, onPress?: () => void }) {
   return (
@@ -15,8 +18,8 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
       <Feather name={icon} size={17} color="#bababa" />
       <Text className="text-[13.5px] font-medium text-[#bababa]">{label}</Text>
       {badge && (
-        <View className="ml-auto px-2 py-0.5 rounded-full bg-[#ff6d29]/20">
-          <Text className="text-[9.5px] font-bold tracking-wider text-[#ffa15c]">{badge}</Text>
+        <View className="ml-auto px-2 py-0.5 rounded-full bg-[#b2ff59]/20 border border-[#b2ff59]/30">
+          <Text className="text-[9.5px] font-bold tracking-wider text-[#b2ff59]">{badge}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -83,7 +86,10 @@ function CustomDrawerContent(props: any) {
   };
 
   return (
-    <View className="flex-1 bg-[#181314]" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+    <AestheticBackdrop
+      gradientColors={['#0d140e', '#121d13', '#0a0e0b']}
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
       <DrawerContentScrollView 
         {...props} 
         contentContainerStyle={{ paddingHorizontal: 16 }}
@@ -93,16 +99,16 @@ function CustomDrawerContent(props: any) {
         {/* Logo */}
         <View className="px-2 pb-8">
           <Text className="text-[22px] font-bold leading-tight text-white">give more</Text>
-          <Text className="text-[22px] font-bold leading-tight text-[#ff6d29]">—context</Text>
+          <Text className="text-[22px] font-bold leading-tight text-[#b2ff59]">—context</Text>
         </View>
 
         {/* New Generation Button */}
         <TouchableOpacity
           onPress={handleNewChat}
-          className="flex-row items-center gap-3 px-3 py-3 mb-5 rounded-[16px] bg-[#ff6d29]/15 border border-[#ffa15c]/40"
+          className="flex-row items-center gap-3 px-3 py-3 mb-5 rounded-[16px] bg-[#b2ff59]/15 border border-[#b2ff59]/40"
         >
-          <View className="w-[30px] h-[30px] rounded-full bg-[#ff6d29] items-center justify-center shadow-lg shadow-[#ff6d29]/50">
-            <Feather name="plus" size={14} color="#1a1210" />
+          <View className="w-[30px] h-[30px] rounded-full bg-[#b2ff59] items-center justify-center shadow-lg shadow-[#b2ff59]/40">
+            <Feather name="plus" size={14} color="#0b1405" />
           </View>
           <Text className="text-[13.5px] font-bold text-white">New generation</Text>
         </TouchableOpacity>
@@ -128,7 +134,7 @@ function CustomDrawerContent(props: any) {
                 onPress={() => handleSelectChat(chat)}
                 className="flex-row items-center gap-2.5 px-3 py-2.5 mb-1 rounded-[14px] bg-white/5 border border-white/5 active:bg-white/10"
               >
-                <Feather name="message-square" size={15} color="#ff6d29" />
+                <Feather name="message-square" size={15} color="#b2ff59" />
                 <View className="flex-1 overflow-hidden">
                   <Text className="text-[13px] font-medium text-white" numberOfLines={1}>
                     {chat.title}
@@ -141,7 +147,7 @@ function CustomDrawerContent(props: any) {
             ))}
             {loadingMore && (
               <View className="py-3 items-center">
-                <ActivityIndicator size="small" color="#ff6d29" />
+                <ActivityIndicator size="small" color="#b2ff59" />
               </View>
             )}
           </>
@@ -152,17 +158,17 @@ function CustomDrawerContent(props: any) {
       {/* Account Bottom */}
       <View className="p-4 border-t border-white/5 mb-4">
         <View className="flex-row items-center gap-3 px-3 py-3 rounded-[16px] bg-white/5 border border-white/10">
-          <View className="w-[34px] h-[34px] rounded-full bg-[#453027] items-center justify-center">
-            <Text className="text-[12.5px] font-bold text-[#e8e2dd]">KV</Text>
+          <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#b2ff59]/30">
+            <Text className="text-[12.5px] font-bold text-[#b2ff59]">KV</Text>
           </View>
           <View className="flex-1">
             <Text className="text-[12.5px] font-bold text-white">Krishna</Text>
-            <Text className="text-[10.5px] font-bold text-[#ffa15c] mt-0.5">Pro plan</Text>
+            <Text className="text-[10.5px] font-bold text-[#b2ff59] mt-0.5">Pro plan</Text>
           </View>
           <Feather name="chevron-right" size={15} color="#8a8385" />
         </View>
       </View>
-    </View>
+    </AestheticBackdrop>
   );
 }
 
@@ -174,12 +180,12 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           drawerStyle: {
-            backgroundColor: '#181314',
+            backgroundColor: '#0c140e',
             width: '76%',
             maxWidth: 300,
           },
           sceneStyle: {
-            backgroundColor: '#0e0b0e',
+            backgroundColor: '#070b08',
           }
         }}
       >

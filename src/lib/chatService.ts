@@ -52,6 +52,16 @@ async function getSQLiteDb() {
   return dbPromise;
 }
 
+async function safeStorageGetItem(key: string): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  return AsyncStorage.getItem(key);
+}
+
+async function safeStorageSetItem(key: string, value: string): Promise<void> {
+  if (typeof window === 'undefined') return;
+  return AsyncStorage.setItem(key, value);
+}
+
 export async function saveChat(chat: ChatItem): Promise<void> {
   if (!chat.id) return;
   const rawTitle = (chat.prompt || chat.activePrompt || 'New generation').trim();
@@ -80,7 +90,7 @@ export async function saveChat(chat: ChatItem): Promise<void> {
         ]
       );
     } else {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      const stored = await safeStorageGetItem(STORAGE_KEY);
       let list: ChatItem[] = stored ? JSON.parse(stored) : [];
       const index = list.findIndex(c => c.id === chatToSave.id);
       if (index >= 0) {
@@ -88,7 +98,7 @@ export async function saveChat(chat: ChatItem): Promise<void> {
       } else {
         list.unshift(chatToSave);
       }
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      await safeStorageSetItem(STORAGE_KEY, JSON.stringify(list));
     }
 
     // Supabase sync (graceful catch if network offline or table not present)
@@ -138,7 +148,7 @@ export async function getChats(limit: number = 10, offset: number = 0): Promise<
         createdAt: r.created_at
       }));
     } else {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      const stored = await safeStorageGetItem(STORAGE_KEY);
       const list: ChatItem[] = stored ? JSON.parse(stored) : [];
       return list.slice(offset, offset + limit);
     }
