@@ -1,4 +1,3 @@
-const generation = () => {
-  return (null)
-}
-export default generation
+import GenerationScreen from '../index';
+
+export default GenerationScreen;
