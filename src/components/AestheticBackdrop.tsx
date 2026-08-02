@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#060b07',
   },
   fullImage: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     opacity: 0.95,
   },
   orb: {
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   grainImage: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     opacity: 0.08,
   },
 });
