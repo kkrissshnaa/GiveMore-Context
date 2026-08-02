@@ -87,7 +87,7 @@ function CustomDrawerContent(props: any) {
 
   return (
     <AestheticBackdrop
-      gradientColors={['#0d140e', '#121d13', '#0a0e0b']}
+      gradientColors={['#060b07', '#0d140e', '#050806']}
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
     >
       <DrawerContentScrollView 
@@ -180,12 +180,12 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           drawerStyle: {
-            backgroundColor: '#0c140e',
+            backgroundColor: '#060b07',
             width: '76%',
             maxWidth: 300,
           },
           sceneStyle: {
-            backgroundColor: '#070b08',
+            backgroundColor: '#060b07',
           }
         }}
       >
