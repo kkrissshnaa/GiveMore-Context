@@ -164,17 +164,17 @@ function RegionItem({
       <Animated.View
         collapsable={false}
         style={animatedStyle}
-        className="rounded-[16px] border-[1.5px] border-[#b2ff59] bg-[#b2ff59]/20 p-2 justify-between z-10"
+        className="rounded-[16px] border-[1.5px] border-[#b2ff59] bg-[#b2ff59]/20 p-2 justify-between z-10 shadow-[0_0_15px_rgba(178,255,89,0.3)]"
       >
         {/* Region Header: Badge & Delete Button */}
         <View className="flex-row items-center justify-between z-20">
           <View className="w-5 h-5 rounded-full bg-[#b2ff59] items-center justify-center shadow-md">
-            <Text className="text-[10px] font-bold text-[#0b1405]">{index + 1}</Text>
+            <Text className="text-[10px] font-bold text-[#0b1405] font-mono">{index + 1}</Text>
           </View>
 
           <TouchableOpacity
             onPress={() => onRemoveRegion(region.id)}
-            className="w-5 h-5 rounded-full bg-black/70 border border-white/40 items-center justify-center"
+            className="w-5 h-5 rounded-full bg-black/80 border border-white/40 items-center justify-center"
           >
             <Feather name="x" size={11} color="white" />
           </TouchableOpacity>
@@ -188,14 +188,14 @@ function RegionItem({
             placeholder="e.g. product bottle, warm light"
             placeholderTextColor="rgba(255, 255, 255, 0.45)"
             multiline
-            className="text-white text-[11px] font-semibold p-0 leading-3.5"
+            className="text-white text-[11px] font-sans font-semibold p-0 leading-3.5"
             style={{ textAlignVertical: 'top' }}
           />
         </View>
 
         {/* Resize Handle (Bottom-Right Corner) */}
         <GestureDetector gesture={resizeGesture}>
-          <View className="absolute bottom-1 right-1 w-6 h-6 items-center justify-center bg-black/60 rounded-full border border-[#b2ff59]/80 z-30">
+          <View className="absolute bottom-1 right-1 w-6 h-6 items-center justify-center bg-black/70 rounded-full border border-[#b2ff59]/80 z-30">
             <Feather name="maximize-2" size={10} color="#b2ff59" />
           </View>
         </GestureDetector>
@@ -424,8 +424,8 @@ export function ReferenceCanvasModal({
                     {/* Empty State Overlay */}
                     {localRegions.length === 0 && (
                       <View className="absolute inset-0 items-center justify-center p-4 pointer-events-none">
-                        <Feather name="edit-3" size={24} color="rgba(178, 255, 89, 0.5)" />
-                        <Text className="text-white/40 text-xs font-semibold mt-2 text-center">
+                        <Feather name="edit-3" size={24} color="rgba(178, 255, 89, 0.6)" />
+                        <Text className="text-white/40 text-xs font-sans font-semibold mt-2 text-center">
                           Touch & drag anywhere to draw a region
                         </Text>
                       </View>
@@ -453,12 +453,12 @@ export function ReferenceCanvasModal({
             {/* Footer Action Bar */}
             <View className="flex-row items-center justify-between pt-4 mt-2 border-t border-white/10">
               <TouchableOpacity onPress={clearAll} className="px-2 py-1">
-                <Text className="text-[13.5px] font-medium text-[#bababa]">
+                <Text className="text-[13.5px] font-medium text-[#bababa] font-sans">
                   Clear all
                 </Text>
               </TouchableOpacity>
 
-              <Text className="text-[12.5px] font-semibold text-[#8a8385]">
+              <Text className="text-[12.5px] font-semibold text-[#8a8385] font-mono">
                 {localRegions.length} {localRegions.length === 1 ? 'region' : 'regions'}
               </Text>
 
@@ -466,7 +466,7 @@ export function ReferenceCanvasModal({
                 onPress={handleDone}
                 className="px-6 py-2.5 rounded-full bg-[#b2ff59] shadow-lg shadow-[#b2ff59]/40 items-center justify-center border border-white/20"
               >
-                <Text className="text-[13.5px] font-bold text-[#0b1405]">
+                <Text className="text-[13.5px] font-bold text-[#0b1405] font-display">
                   Done
                 </Text>
               </TouchableOpacity>
