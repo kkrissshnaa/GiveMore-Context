@@ -358,10 +358,10 @@ export default function index() {
   );
 
   return (
-    <AestheticBackdrop style={{ paddingTop: insets.top }}>
+    <AestheticBackdrop fullWindowAlign={true} style={{ paddingTop: insets.top }}>
       {/* Top Bar */}
       <View className="flex-row items-center justify-between px-4 pt-2 pb-3 z-20">
-        {renderIconBtn('grid', 'bg-white/10 backdrop-blur-md', 'white', 'border-white/20', () => (navigation as any).toggleDrawer())}
+        {renderIconBtn('grid', 'bg-[#b2ff59]/10 backdrop-blur-md', '#b2ff59', 'border-[#b2ff59]/30', () => (navigation as any).toggleDrawer())}
         <View className="items-center flex-1 mx-2">
           <Text className="text-[10px] tracking-widest uppercase text-[#b2ff59] font-bold font-display">Generation</Text>
           <Text className="text-[16px] font-bold text-white mt-0.5 font-display tracking-tight">New generation</Text>
@@ -397,9 +397,9 @@ export default function index() {
                    <TouchableOpacity 
                     key={i} 
                     onPress={() => setPrompt(text)} 
-                    className="px-[15px] py-2 rounded-full bg-white/10 border border-white/20 shadow-sm backdrop-blur-md active:bg-[#b2ff59]/20 active:border-[#b2ff59]/50"
+                    className="px-[15px] py-2 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30 shadow-sm backdrop-blur-md active:bg-[#b2ff59]/25 active:border-[#b2ff59]/60"
                    >
-                     <Text className="text-xs font-medium text-white/90 font-sans">{text}</Text>
+                     <Text className="text-xs font-semibold text-[#b2ff59] font-sans">{text}</Text>
                    </TouchableOpacity>
                  ))}
                </View>
@@ -431,17 +431,17 @@ export default function index() {
                       <View className="flex-row items-center gap-2">
                         <TouchableOpacity 
                           onPress={() => setPrompt(activePrompt)} 
-                          className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20"
+                          className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30"
                         >
-                          <Feather name="edit-3" size={11} color="#bababa" />
-                          <Text className="text-[11px] font-medium text-[#bababa] font-sans">Reuse</Text>
+                          <Feather name="edit-3" size={11} color="#b2ff59" />
+                          <Text className="text-[11px] font-medium text-[#b2ff59] font-sans">Reuse</Text>
                         </TouchableOpacity>
                         <TouchableOpacity 
                           onPress={() => copyPrompt(activePrompt)} 
-                          className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20"
+                          className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30"
                         >
-                          <Feather name={copied ? "check" : "copy"} size={11} color={copied ? "#b2ff59" : "#bababa"} />
-                          <Text className={`text-[11px] font-medium font-sans ${copied ? 'text-[#b2ff59]' : 'text-[#bababa]'}`}>
+                          <Feather name={copied ? "check" : "copy"} size={11} color="#b2ff59" />
+                          <Text className="text-[11px] font-medium font-sans text-[#b2ff59]">
                             {copied ? 'Copied!' : 'Copy'}
                           </Text>
                         </TouchableOpacity>
@@ -585,7 +585,7 @@ export default function index() {
 
             {/* Main Prompt Row */}
             <View className="flex-row items-end px-3.5 py-3">
-              <TouchableOpacity onPress={pickImage} className="w-10 h-10 rounded-[10px] border-[1.5px] border-dashed border-white/25 items-center justify-center bg-transparent mr-2.5">
+              <TouchableOpacity onPress={pickImage} className="w-10 h-10 rounded-[10px] border-[1.5px] border-dashed border-[#b2ff59]/35 items-center justify-center bg-[#b2ff59]/5 mr-2.5">
                 {referenceImages.length > 0 ? (
                   <View className="relative w-full h-full rounded-[8px] overflow-hidden">
                     <Image source={{ uri: referenceImages[referenceImages.length - 1] }} className="w-full h-full" resizeMode="cover" />
@@ -596,7 +596,7 @@ export default function index() {
                     )}
                   </View>
                 ) : (
-                  <Feather name="image" size={18} color="#bababa" />
+                  <Feather name="image" size={18} color="#b2ff59" />
                 )}
               </TouchableOpacity>
               
@@ -638,7 +638,7 @@ export default function index() {
               
               <View className="flex-row items-center gap-2">
                 <TouchableOpacity className="w-10 h-10 items-center justify-center" onPress={() => setExpanded(!expanded)}>
-                  <Feather name={expanded ? "chevron-down" : "chevron-up"} size={24} color="#bababa" />
+                  <Feather name={expanded ? "chevron-down" : "chevron-up"} size={24} color="#b2ff59" />
                 </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={loading ? stopGeneration : generateImage}
