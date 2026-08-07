@@ -98,8 +98,8 @@ function CustomDrawerContent(props: any) {
       >
         {/* Logo */}
         <View className="px-2 pb-8">
-          <Text className="text-[22px] font-bold leading-tight text-white">give more</Text>
-          <Text className="text-[22px] font-bold leading-tight text-[#b2ff59]">—context</Text>
+          <Text className="text-[22px] font-bold leading-tight text-white font-display">give more</Text>
+          <Text className="text-[22px] font-bold leading-tight text-[#b2ff59] font-display">—context</Text>
         </View>
 
         {/* New Generation Button */}
@@ -110,7 +110,7 @@ function CustomDrawerContent(props: any) {
           <View className="w-[30px] h-[30px] rounded-full bg-[#b2ff59] items-center justify-center shadow-lg shadow-[#b2ff59]/40">
             <Feather name="plus" size={14} color="#0b1405" />
           </View>
-          <Text className="text-[13.5px] font-bold text-white">New generation</Text>
+          <Text className="text-[13.5px] font-bold text-white font-display">New generation</Text>
         </TouchableOpacity>
 
         {/* Nav Items */}
@@ -125,7 +125,7 @@ function CustomDrawerContent(props: any) {
         {history.length > 0 && (
           <>
             <View className="h-[1px] bg-white/10 my-4 mx-2" />
-            <Text className="px-2 mb-2 text-[10px] font-bold uppercase tracking-widest text-[#8a8385]">
+            <Text className="px-2 mb-2 text-[10px] font-bold uppercase tracking-widest text-[#8a8385] font-display">
               Recent Generations ({history.length})
             </Text>
             {history.map((chat) => (
@@ -136,10 +136,10 @@ function CustomDrawerContent(props: any) {
               >
                 <Feather name="message-square" size={15} color="#b2ff59" />
                 <View className="flex-1 overflow-hidden">
-                  <Text className="text-[13px] font-medium text-white" numberOfLines={1}>
+                  <Text className="text-[13px] font-medium text-white font-sans" numberOfLines={1}>
                     {chat.title}
                   </Text>
-                  <Text className="text-[10px] font-semibold text-[#8a8385] mt-0.5 uppercase tracking-wider">
+                  <Text className="text-[10px] font-semibold text-[#8a8385] mt-0.5 uppercase tracking-wider font-mono">
                     {chat.model} · {new Date(chat.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </Text>
                 </View>
@@ -158,12 +158,12 @@ function CustomDrawerContent(props: any) {
       {/* Account Bottom */}
       <View className="p-4 border-t border-white/5 mb-4">
         <View className="flex-row items-center gap-3 px-3 py-3 rounded-[16px] bg-white/5 border border-white/10">
-          <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#b2ff59]/30">
-            <Text className="text-[12.5px] font-bold text-[#b2ff59]">KV</Text>
+          <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#b2ff59]/40">
+            <Text className="text-[12.5px] font-bold text-[#b2ff59] font-display">KV</Text>
           </View>
           <View className="flex-1">
-            <Text className="text-[12.5px] font-bold text-white">Krishna</Text>
-            <Text className="text-[10.5px] font-bold text-[#b2ff59] mt-0.5">Pro plan</Text>
+            <Text className="text-[12.5px] font-bold text-white font-display">Krishna</Text>
+            <Text className="text-[10.5px] font-bold text-[#b2ff59] mt-0.5 font-sans">Pro plan</Text>
           </View>
           <Feather name="chevron-right" size={15} color="#8a8385" />
         </View>
