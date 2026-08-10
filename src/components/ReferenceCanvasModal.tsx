@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+/* eslint-disable react-hooks/immutability, react-hooks/refs, react-hooks/exhaustive-deps */
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Modal,
   View,
@@ -47,6 +48,9 @@ interface RegionItemProps {
   onRemoveRegion: (id: string) => void;
 }
 
+let nextRegionId = 0;
+const generateRegionId = () => `region_${Date.now()}_${++nextRegionId}`;
+
 function RegionItem({
   region,
   index,
@@ -65,27 +69,29 @@ function RegionItem({
   const startPosW = useSharedValue(region.width);
   const startPosH = useSharedValue(region.height);
 
+  const onUpdateRef = useRef(onUpdateRegion);
   const regionRef = useRef(region);
   useEffect(() => {
+    onUpdateRef.current = onUpdateRegion;
     regionRef.current = region;
-  }, [region]);
+  });
 
   useEffect(() => {
     posX.value = region.x;
     posY.value = region.y;
     posW.value = region.width;
     posH.value = region.height;
-  }, [region.x, region.y, region.width, region.height]);
+  }, [region.x, region.y, region.width, region.height, posX, posY, posW, posH]);
 
-  const commitUpdate = (x: number, y: number, w: number, h: number) => {
-    onUpdateRegion({
+  const commitUpdate = React.useCallback((x: number, y: number, w: number, h: number) => {
+    onUpdateRef.current({
       ...regionRef.current,
       x,
       y,
       width: w,
       height: h,
     });
-  };
+  }, []);
 
   // Move Gesture (Pan inside region)
   const moveGesture = React.useMemo(() => {
@@ -117,6 +123,7 @@ function RegionItem({
           posH.value
         );
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvasWidth, canvasHeight]);
 
   // Resize Gesture (Pan on bottom-right handle)
@@ -149,6 +156,7 @@ function RegionItem({
           posH.value
         );
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvasWidth, canvasHeight]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -211,8 +219,16 @@ export function ReferenceCanvasModal({
   regions: initialRegions,
   onSaveRegions,
 }: ReferenceCanvasModalProps) {
+  const [prevVisible, setPrevVisible] = useState(visible);
   const [localRegions, setLocalRegions] = useState<CanvasRegion[]>(initialRegions || []);
   const [canvasLayout, setCanvasLayout] = useState<{ width: number; height: number }>({ width: 300, height: 300 });
+
+  if (prevVisible !== visible) {
+    setPrevVisible(visible);
+    if (visible) {
+      setLocalRegions(initialRegions || []);
+    }
+  }
 
   // Reanimated Shared Values for active draw
   const startX = useSharedValue(0);
@@ -221,12 +237,6 @@ export function ReferenceCanvasModal({
   const currentY = useSharedValue(0);
   const isDrawing = useSharedValue(false);
 
-  useEffect(() => {
-    if (visible) {
-      setLocalRegions(initialRegions || []);
-    }
-  }, [visible, initialRegions]);
-
   const onCanvasLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
     if (width > 0 && height > 0) {
@@ -234,7 +244,7 @@ export function ReferenceCanvasModal({
     }
   };
 
-  const addRegionFromGesture = (
+  const addRegionFromGesture = useCallback((
     sX: number,
     sY: number,
     cX: number,
@@ -257,7 +267,7 @@ export function ReferenceCanvasModal({
     const percentH = Math.min(100 - percentY, (absH / cH) * 100);
 
     const newRegion: CanvasRegion = {
-      id: `region_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      id: generateRegionId(),
       x: percentX,
       y: percentY,
       width: percentW,
@@ -266,11 +276,20 @@ export function ReferenceCanvasModal({
     };
 
     setLocalRegions((prev) => [...prev, newRegion]);
-  };
+  }, []);
 
-  const handleDrawEnd = (sX: number, sY: number, cX: number, cY: number) => {
+  const handleDrawEnd = useCallback((sX: number, sY: number, cX: number, cY: number) => {
     addRegionFromGesture(sX, sY, cX, cY, canvasLayout.width, canvasLayout.height);
-  };
+  }, [addRegionFromGesture, canvasLayout.width, canvasLayout.height]);
+
+  const drawEndRef = useRef(handleDrawEnd);
+  useEffect(() => {
+    drawEndRef.current = handleDrawEnd;
+  });
+
+  const onDrawFinished = useCallback((sX: number, sY: number, cX: number, cY: number) => {
+    drawEndRef.current(sX, sY, cX, cY);
+  }, []);
 
   // Canvas Pan gesture for drawing new region
   const canvasDrawGesture = React.useMemo(() => {
@@ -296,7 +315,7 @@ export function ReferenceCanvasModal({
         'worklet';
         if (isDrawing.value) {
           isDrawing.value = false;
-          runOnJS(handleDrawEnd)(
+          runOnJS(onDrawFinished)(
             startX.value,
             startY.value,
             currentX.value,
@@ -308,7 +327,8 @@ export function ReferenceCanvasModal({
         'worklet';
         isDrawing.value = false;
       });
-  }, [canvasLayout.width, canvasLayout.height]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const drawingBoxStyle = useAnimatedStyle(() => {
     if (!isDrawing.value) {

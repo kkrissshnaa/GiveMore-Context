@@ -25,7 +25,7 @@ import { saveChat, ChatItem } from '../lib/chatService';
 import { chatEvents } from '../lib/chatEvents';
 
 function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
-  const pulseAnim = useRef(new Animated.Value(0.35)).current;
+  const [pulseAnim] = useState(() => new Animated.Value(0.35));
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -112,7 +112,7 @@ const getAspectRatioStyle = (ratio: string) => {
   }
 };
 
-export default function index() {
+export default function Index() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [prompt, setPrompt] = useState('');
@@ -134,7 +134,7 @@ export default function index() {
   const [currentChatId, setCurrentChatId] = useState<string>(() => `chat_${Date.now()}_${Math.floor(Math.random() * 1000)}`);
   const [createdAt, setCreatedAt] = useState<string>(() => new Date().toISOString());
 
-  const keyboardHeightAnim = useRef(new Animated.Value(0)).current;
+  const [keyboardHeightAnim] = useState(() => new Animated.Value(0));
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const saveCurrentChatIfNeeded = useCallback(async () => {
