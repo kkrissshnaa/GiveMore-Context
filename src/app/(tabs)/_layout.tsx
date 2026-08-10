@@ -23,25 +23,11 @@ export default function TabLayout() {
         }} 
       />
       <Tabs.Screen 
-        name="folder" 
-        options={{ 
-          title: 'Folder',
-          tabBarIcon: ({ color, size }) => <Feather name="folder" size={size || 20} color={color} />
-        }} 
-      />
-      <Tabs.Screen 
         name="generation" 
         options={{ 
           title: 'Generate', 
           href: "/",
           tabBarIcon: ({ color, size }) => <Feather name="zap" size={size || 20} color={color} />
-        }} 
-      />
-      <Tabs.Screen 
-        name="subscription" 
-        options={{ 
-          title: 'Pro',
-          tabBarIcon: ({ color, size }) => <Feather name="star" size={size || 20} color={color} />
         }} 
       />
       <Tabs.Screen 
