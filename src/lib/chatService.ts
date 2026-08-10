@@ -118,7 +118,7 @@ export async function saveChat(chat: ChatItem): Promise<void> {
           created_at: chatToSave.createdAt
         });
       }
-    } catch (supabaseErr) {
+    } catch {
       // Ignore network / table errors for local resilience
     }
   } catch (err) {

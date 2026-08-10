@@ -5,7 +5,6 @@ import { Drawer, DrawerContentScrollView } from "expo-router/drawer";
 import { useState, useEffect, useCallback } from 'react';
 import { Text, TouchableOpacity, View, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from 'expo-linear-gradient';
 import "../../global.css";
 import { getChats, ChatItem } from '../lib/chatService';
 import { chatEvents } from '../lib/chatEvents';
@@ -14,12 +13,18 @@ import { AestheticBackdrop } from '../components/AestheticBackdrop';
 
 function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, badge?: string, onPress?: () => void }) {
   return (
-    <TouchableOpacity onPress={onPress} className="flex-row items-center gap-3 px-3 py-3 rounded-[14px]">
-      <Feather name={icon} size={17} color="#bababa" />
-      <Text className="text-[13.5px] font-medium text-[#bababa]">{label}</Text>
+    <TouchableOpacity 
+      onPress={onPress}
+      activeOpacity={0.7}
+      className="flex-row items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/[0.03] active:bg-white/[0.08] mb-1.5 border border-white/[0.05]"
+    >
+      <View className="flex-row items-center gap-3">
+        <Feather name={icon} size={17} color="#b2ff59" />
+        <Text className="text-white text-xs font-semibold font-sans">{label}</Text>
+      </View>
       {badge && (
-        <View className="ml-auto px-2 py-0.5 rounded-full bg-[#b2ff59]/20 border border-[#b2ff59]/30">
-          <Text className="text-[9.5px] font-bold tracking-wider text-[#b2ff59]">{badge}</Text>
+        <View className="bg-[#b2ff59]/20 border border-[#b2ff59]/40 px-2 py-0.5 rounded-full">
+          <Text className="text-[#b2ff59] text-[10px] font-bold font-mono">{badge}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -56,10 +61,13 @@ function CustomDrawerContent(props: any) {
   };
 
   useEffect(() => {
-    fetchInitialChats();
+    const load = async () => {
+      await fetchInitialChats();
+    };
+    void load();
     const unsub = chatEvents.subscribe((event) => {
       if (event.type === 'CHAT_SAVED' || event.type === 'NEW_CHAT') {
-        fetchInitialChats();
+        void fetchInitialChats();
       }
     });
     return () => unsub();
