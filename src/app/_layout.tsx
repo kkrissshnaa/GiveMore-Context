@@ -125,8 +125,6 @@ function CustomDrawerContent(props: any) {
         {/* Nav Items */}
         <View className="flex-col gap-1">
           <NavItem icon="compass" label="Explore" onPress={() => router.push('/(tabs)/explore')} />
-          <NavItem icon="folder" label="Folder" onPress={() => router.push('/(tabs)/folder')} />
-          <NavItem icon="star" label="Subscription" badge="PRO" onPress={() => router.push('/(tabs)/subscription')} />
           <NavItem icon="settings" label="Settings" onPress={() => router.push('/(tabs)/settings')} />
         </View>
 
