@@ -10,6 +10,8 @@ import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 import { ExploreItem } from '../data/exploreData';
 
 interface ExploreCardProps {
@@ -22,19 +24,13 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
   const [likesCount, setLikesCount] = useState(item.likesCount);
   const [isFlipped, setIsFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
 
   // 3D Flip Animation Value (0: Front, 1: Back)
   const flipAnim = useRef(new Animated.Value(0)).current;
 
-  // Double Tap Heart Animation Values
+  // Double Tap Heart Animation
   const heartScale = useRef(new Animated.Value(0)).current;
   const heartOpacity = useRef(new Animated.Value(0)).current;
-
-  // Gesture refs for single vs double tap
-  const lastTapRef = useRef<number>(0);
-  const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 3D Flip Interpolations
   const frontInterpolate = flipAnim.interpolate({
@@ -84,33 +80,6 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
     triggerHeartPop();
   };
 
-  const handleImagePress = () => {
-    // If card is already flipped to back, single tap flips it back to front
-    if (isFlipped) {
-      flipCard(false);
-      return;
-    }
-
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 280;
-
-    if (lastTapRef.current && now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      // Double tap detected
-      if (tapTimerRef.current) {
-        clearTimeout(tapTimerRef.current);
-        tapTimerRef.current = null;
-      }
-      handleDoubleTapLike();
-    } else {
-      // Single tap candidate
-      lastTapRef.current = now;
-      tapTimerRef.current = setTimeout(() => {
-        flipCard(true);
-        tapTimerRef.current = null;
-      }, DOUBLE_TAP_DELAY);
-    }
-  };
-
   const toggleHeartButton = () => {
     if (isLiked) {
       setIsLiked(false);
@@ -141,304 +110,207 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
     }
   };
 
+  // Native Gesture Handler Gestures for Mobile & Web
+  const doubleTapGesture = Gesture.Tap()
+    .numberOfTaps(2)
+    .maxDuration(300)
+    .onEnd(() => {
+      'worklet';
+      runOnJS(handleDoubleTapLike)();
+    });
+
+  const singleTapGesture = Gesture.Tap()
+    .numberOfTaps(1)
+    .requireExternalGestureToFail(doubleTapGesture)
+    .onEnd(() => {
+      'worklet';
+      runOnJS(flipCard)(true);
+    });
+
+  const frontGestures = Gesture.Exclusive(doubleTapGesture, singleTapGesture);
+
+  const backTapGesture = Gesture.Tap()
+    .numberOfTaps(1)
+    .onEnd(() => {
+      'worklet';
+      runOnJS(flipCard)(false);
+    });
+
+  // Pinterest layout image height variations based on aspect ratio
   const isLandscape = item.aspectRatio === '16:9';
-  const imageHeight = isLandscape ? 240 : 360;
+  const cardHeight = isLandscape ? 160 : 230;
 
   return (
-    <View style={styles.cardContainer}>
-      {/* Creator Header */}
-      <View style={styles.header}>
-        <View style={styles.creatorInfo}>
-          <View
-            style={[styles.avatar, { backgroundColor: item.creator.avatarColor }]}
-          >
-            <Text style={styles.avatarText}>{item.creator.initials}</Text>
-          </View>
-          <View>
-            <Text style={styles.creatorName}>{item.creator.name}</Text>
-            <Text style={styles.creatorHandle}>
-              {item.creator.handle} · {item.createdAt}
-            </Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          onPress={() => setIsFollowing(!isFollowing)}
-          style={[
-            styles.followButton,
-            isFollowing ? styles.followActive : styles.followInactive,
-          ]}
-        >
-          <Text
-            style={[
-              styles.followText,
-              { color: isFollowing ? '#b2ff59' : '#ffffff' },
-            ]}
-          >
-            {isFollowing ? 'Following' : 'Follow'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 3D Flip Image Container */}
-      <View style={{ height: imageHeight, position: 'relative', width: '100%' }}>
+    <View style={styles.cardWrapper}>
+      <View style={{ height: cardHeight, position: 'relative', width: '100%' }}>
         {/* FRONT FACE (IMAGE) */}
         <Animated.View
+          pointerEvents={isFlipped ? 'none' : 'auto'}
           style={[
             styles.cardFace,
             {
-              transform: [{ perspective: 1200 }, { rotateY: frontInterpolate }],
+              transform: [{ perspective: 1000 }, { rotateY: frontInterpolate }],
               backfaceVisibility: 'hidden',
+              zIndex: isFlipped ? 1 : 2,
             },
           ]}
         >
-          <TouchableOpacity
-            activeOpacity={0.92}
-            onPress={handleImagePress}
-            style={styles.imageTouchable}
-          >
-            <Image
-              source={item.image}
-              style={styles.cardImage}
-              contentFit="cover"
-              transition={200}
-            />
+          <GestureDetector gesture={frontGestures}>
+            <View style={styles.touchable}>
+              <Image
+                source={item.image}
+                style={styles.cardImage}
+                contentFit="cover"
+                transition={200}
+              />
 
-            {/* Model & Ratio Badge Top Left */}
-            <View style={styles.topBadge}>
-              <Feather name="zap" size={11} color="#b2ff59" />
-              <Text style={styles.topBadgeTextModel}>{item.model}</Text>
-              <Text style={styles.topBadgeDot}>·</Text>
-              <Text style={styles.topBadgeTextRatio}>{item.aspectRatio}</Text>
-            </View>
-
-            {/* Tap Hint Bottom Left */}
-            <View style={styles.bottomHint}>
-              <Feather name="rotate-cw" size={11} color="#ffffff" />
-              <Text style={styles.bottomHintText}>Tap image to view prompt</Text>
-            </View>
-
-            {/* Heart Pop Overlay */}
-            <Animated.View
-              pointerEvents="none"
-              style={[
-                styles.heartOverlay,
-                {
-                  transform: [{ scale: heartScale }],
-                  opacity: heartOpacity,
-                },
-              ]}
-            >
-              <Feather name="heart" size={76} color="#f43f5e" fill="#f43f5e" />
-            </Animated.View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* BACK FACE (PROMPT DETAILS) */}
-        <Animated.View
-          style={[
-            styles.cardFace,
-            styles.backCardFace,
-            {
-              transform: [{ perspective: 1200 }, { rotateY: backInterpolate }],
-              backfaceVisibility: 'hidden',
-            },
-          ]}
-        >
-          <View style={styles.backContent}>
-            {/* Back Header */}
-            <View style={styles.backHeader}>
-              <View style={styles.backHeaderTitle}>
-                <Feather name="terminal" size={15} color="#b2ff59" />
-                <Text style={styles.backHeaderText}>GENERATION DETAILS</Text>
+              {/* Top Model & Aspect Ratio Badge */}
+              <View style={styles.badgeTop} pointerEvents="none">
+                <Text style={styles.badgeModel}>{item.model}</Text>
+                <Text style={styles.badgeDot}>·</Text>
+                <Text style={styles.badgeRatio}>{item.aspectRatio}</Text>
               </View>
-              <TouchableOpacity
-                onPress={() => flipCard(false)}
-                style={styles.closeButton}
-              >
-                <Feather name="x" size={15} color="#ffffff" />
-              </TouchableOpacity>
-            </View>
 
-            {/* Prompt Box */}
-            <View style={styles.promptBox}>
-              <Text style={styles.promptLabel}>PROMPT</Text>
-              <Text style={styles.promptText} numberOfLines={isLandscape ? 4 : 7}>
-                "{item.prompt}"
-              </Text>
-            </View>
+              {/* Bottom Floating Info */}
+              <View style={styles.badgeBottom}>
+                <View style={styles.flipHint} pointerEvents="none">
+                  <Feather name="rotate-cw" size={9} color="#ffffff" />
+                  <Text style={styles.flipHintText}>Tap to flip</Text>
+                </View>
 
-            {/* Metadata Badges */}
-            <View style={styles.metaRow}>
-              <View style={styles.metaBadgeHighlight}>
-                <Text style={styles.metaBadgeLabel}>Model:</Text>
-                <Text style={styles.metaBadgeValueGreen}>{item.model}</Text>
-              </View>
-              <View style={styles.metaBadge}>
-                <Text style={styles.metaBadgeLabel}>Ratio:</Text>
-                <Text style={styles.metaBadgeValue}>{item.aspectRatio}</Text>
-              </View>
-              <View style={styles.metaBadge}>
-                <Text style={styles.metaBadgeLabel}>Res:</Text>
-                <Text style={styles.metaBadgeValue}>{item.dimensions}</Text>
-              </View>
-              <View style={styles.metaBadge}>
-                <Text style={styles.metaBadgeLabel}>Seed:</Text>
-                <Text style={styles.metaBadgeValue}>{item.seed}</Text>
-              </View>
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.backActions}>
-              <TouchableOpacity
-                onPress={handleCopyPrompt}
-                style={[styles.copyButton, copied && styles.copyButtonActive]}
-              >
-                <Feather
-                  name={copied ? 'check' : 'copy'}
-                  size={14}
-                  color={copied ? '#b2ff59' : '#ffffff'}
-                />
-                <Text
-                  style={[styles.copyText, copied && { color: '#b2ff59' }]}
+                {/* Like Heart Button */}
+                <TouchableOpacity
+                  onPress={toggleHeartButton}
+                  style={styles.heartButton}
+                  activeOpacity={0.8}
                 >
-                  {copied ? 'Copied Prompt!' : 'Copy Prompt'}
-                </Text>
-              </TouchableOpacity>
+                  <Feather
+                    name="heart"
+                    size={12}
+                    color={isLiked ? '#f43f5e' : '#ffffff'}
+                    fill={isLiked ? '#f43f5e' : 'none'}
+                  />
+                  <Text
+                    style={[
+                      styles.heartCount,
+                      { color: isLiked ? '#f43f5e' : '#ffffff' },
+                    ]}
+                  >
+                    {likesCount}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-              <TouchableOpacity onPress={handleRemix} style={styles.remixButton}>
-                <Feather name="zap" size={14} color="#0b1405" />
-                <Text style={styles.remixText}>Use Prompt</Text>
-              </TouchableOpacity>
+              {/* Animated Double-Tap Heart Overlay */}
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.heartOverlay,
+                  {
+                    transform: [{ scale: heartScale }],
+                    opacity: heartOpacity,
+                  },
+                ]}
+              >
+                <Feather name="heart" size={54} color="#f43f5e" fill="#f43f5e" />
+              </Animated.View>
             </View>
-          </View>
+          </GestureDetector>
         </Animated.View>
-      </View>
 
-      {/* Card Footer */}
-      <View style={styles.footer}>
-        <View style={{ flex: 1, marginRight: 12 }}>
-          <Text style={styles.cardTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text style={styles.cardSubtitle}>
-            Double-tap image to like · Tap to flip card
-          </Text>
-        </View>
+        {/* BACK FACE (PROMPT, ASPECT RATIO, MODEL NAME) */}
+        <Animated.View
+          pointerEvents={isFlipped ? 'auto' : 'none'}
+          style={[
+            styles.cardFace,
+            styles.backFace,
+            {
+              transform: [{ perspective: 1000 }, { rotateY: backInterpolate }],
+              backfaceVisibility: 'hidden',
+              zIndex: isFlipped ? 2 : 1,
+            },
+          ]}
+        >
+          <GestureDetector gesture={backTapGesture}>
+            <View style={styles.backContent}>
+              {/* Top Header */}
+              <View style={styles.backHeader}>
+                <View style={styles.backHeaderTitle}>
+                  <Feather name="zap" size={11} color="#b2ff59" />
+                  <Text style={styles.backHeaderText}>{item.model}</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => flipCard(false)}
+                  style={styles.closeBtn}
+                >
+                  <Feather name="x" size={12} color="#ffffff" />
+                </TouchableOpacity>
+              </View>
 
-        <View style={styles.footerRight}>
-          {/* Like Button */}
-          <TouchableOpacity onPress={toggleHeartButton} style={styles.likeButton}>
-            <Feather
-              name="heart"
-              size={15}
-              color={isLiked ? '#f43f5e' : '#9ca3af'}
-              fill={isLiked ? '#f43f5e' : 'none'}
-            />
-            <Text
-              style={[
-                styles.likeCount,
-                { color: isLiked ? '#f43f5e' : '#9ca3af' },
-              ]}
-            >
-              {likesCount}
-            </Text>
-          </TouchableOpacity>
+              {/* Prompt Text Box */}
+              <View style={styles.promptBox}>
+                <Text style={styles.promptLabel}>PROMPT</Text>
+                <Text
+                  style={styles.promptText}
+                  numberOfLines={isLandscape ? 3 : 5}
+                >
+                  "{item.prompt}"
+                </Text>
+              </View>
 
-          {/* Comments */}
-          <View style={styles.commentContainer}>
-            <Feather name="message-square" size={14} color="#9ca3af" />
-            <Text style={styles.commentCount}>{item.commentsCount}</Text>
-          </View>
+              {/* Specs Row */}
+              <View style={styles.specsRow}>
+                <View style={styles.specBadgeHighlight}>
+                  <Text style={styles.specLabel}>Model:</Text>
+                  <Text style={styles.specValueGreen}>{item.model}</Text>
+                </View>
+                <View style={styles.specBadge}>
+                  <Text style={styles.specLabel}>Ratio:</Text>
+                  <Text style={styles.specValue}>{item.aspectRatio}</Text>
+                </View>
+              </View>
 
-          {/* Bookmark */}
-          <TouchableOpacity
-            onPress={() => setIsSaved(!isSaved)}
-            style={{ padding: 4 }}
-          >
-            <Feather
-              name="bookmark"
-              size={15}
-              color={isSaved ? '#b2ff59' : '#9ca3af'}
-              fill={isSaved ? '#b2ff59' : 'none'}
-            />
-          </TouchableOpacity>
-        </View>
+              {/* Action Buttons */}
+              <View style={styles.actionRow}>
+                <TouchableOpacity
+                  onPress={handleCopyPrompt}
+                  style={[styles.btnCopy, copied && styles.btnCopyActive]}
+                >
+                  <Feather
+                    name={copied ? 'check' : 'copy'}
+                    size={11}
+                    color={copied ? '#b2ff59' : '#ffffff'}
+                  />
+                  <Text style={[styles.btnCopyText, copied && { color: '#b2ff59' }]}>
+                    {copied ? 'Copied' : 'Copy'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handleRemix} style={styles.btnRemix}>
+                  <Feather name="corner-up-right" size={11} color="#0b1405" />
+                  <Text style={styles.btnRemixText}>Use</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </GestureDetector>
+        </Animated.View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  cardContainer: {
-    marginBottom: 24,
-    borderRadius: 24,
-    backgroundColor: 'rgba(10, 17, 11, 0.95)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+  cardWrapper: {
+    borderRadius: 16,
     overflow: 'hidden',
+    backgroundColor: '#0a110a',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    backgroundColor: 'rgba(5, 9, 6, 0.9)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  creatorInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  avatarText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  creatorName: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  creatorHandle: {
-    color: '#9ca3af',
-    fontSize: 11,
-    marginTop: 1,
-  },
-  followButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 999,
-    borderWidth: 1,
-  },
-  followActive: {
-    backgroundColor: 'rgba(178, 255, 89, 0.15)',
-    borderColor: 'rgba(178, 255, 89, 0.4)',
-  },
-  followInactive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  followText: {
-    fontSize: 11,
-    fontWeight: '700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   cardFace: {
     position: 'absolute',
@@ -449,10 +321,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  backCardFace: {
-    zIndex: 2,
+  backFace: {
+    // zIndex handled dynamically
   },
-  imageTouchable: {
+  touchable: {
     flex: 1,
     width: '100%',
     height: '100%',
@@ -461,67 +333,91 @@ const styles = StyleSheet.create({
   cardImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 16,
   },
-  topBadge: {
+  badgeTop: {
     position: 'absolute',
-    top: 12,
-    left: 12,
+    top: 8,
+    left: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 3,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
-  topBadgeTextModel: {
+  badgeModel: {
     color: '#b2ff59',
-    fontSize: 11,
+    fontSize: 9.5,
     fontWeight: 'bold',
     fontFamily: 'monospace',
   },
-  topBadgeDot: {
+  badgeDot: {
     color: 'rgba(255, 255, 255, 0.4)',
-    fontSize: 11,
+    fontSize: 9.5,
   },
-  topBadgeTextRatio: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 11,
+  badgeRatio: {
+    color: '#ffffff',
+    fontSize: 9.5,
     fontFamily: 'monospace',
   },
-  bottomHint: {
+  badgeBottom: {
     position: 'absolute',
-    bottom: 12,
-    left: 12,
+    bottom: 8,
+    left: 8,
+    right: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    justifyContent: 'space-between',
+  },
+  flipHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
-  bottomHintText: {
+  flipHintText: {
     color: '#ffffff',
-    fontSize: 10.5,
+    fontSize: 9,
     fontWeight: '500',
+  },
+  heartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  heartCount: {
+    fontSize: 9.5,
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
   },
   heartOverlay: {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    marginTop: -38,
-    marginLeft: -38,
+    marginTop: -27,
+    marginLeft: -27,
     zIndex: 10,
   },
   backContent: {
     flex: 1,
-    padding: 16,
+    padding: 10,
     backgroundColor: '#070f08',
+    borderRadius: 16,
     justifyContent: 'space-between',
   },
   backHeader: {
@@ -529,191 +425,137 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-    paddingBottom: 8,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    paddingBottom: 6,
   },
   backHeaderTitle: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   backHeaderText: {
     color: '#b2ff59',
-    fontSize: 12,
+    fontSize: 10.5,
     fontWeight: 'bold',
-    letterSpacing: 1,
     fontFamily: 'monospace',
   },
-  closeButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  closeBtn: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   promptBox: {
-    marginVertical: 10,
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    marginVertical: 4,
+    padding: 8,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     flex: 1,
     justifyContent: 'center',
   },
   promptLabel: {
     color: '#9ca3af',
-    fontSize: 10,
+    fontSize: 8.5,
     fontWeight: 'bold',
-    letterSpacing: 1.5,
-    marginBottom: 4,
+    letterSpacing: 1,
+    marginBottom: 2,
     fontFamily: 'monospace',
   },
   promptText: {
     color: '#ffffff',
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 10.5,
+    lineHeight: 15,
   },
-  metaRow: {
+  specsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 12,
+    gap: 4,
+    marginBottom: 6,
   },
-  metaBadgeHighlight: {
+  specBadgeHighlight: {
     backgroundColor: 'rgba(178, 255, 89, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.35)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    borderColor: 'rgba(178, 255, 89, 0.3)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 5,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
-  metaBadge: {
+  specBadge: {
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 5,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
-  metaBadgeLabel: {
+  specLabel: {
     color: '#9ca3af',
-    fontSize: 10,
+    fontSize: 8.5,
     fontFamily: 'monospace',
   },
-  metaBadgeValueGreen: {
+  specValueGreen: {
     color: '#b2ff59',
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: 'bold',
     fontFamily: 'monospace',
   },
-  metaBadgeValue: {
+  specValue: {
     color: '#ffffff',
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: 'bold',
     fontFamily: 'monospace',
   },
-  backActions: {
+  actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 6,
   },
-  copyButton: {
+  btnCopy: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 14,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    borderRadius: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 4,
   },
-  copyButtonActive: {
+  btnCopyActive: {
     backgroundColor: 'rgba(178, 255, 89, 0.2)',
     borderColor: '#b2ff59',
   },
-  copyText: {
+  btnCopyText: {
     color: '#ffffff',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
   },
-  remixButton: {
+  btnRemix: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 14,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    borderRadius: 8,
     backgroundColor: '#b2ff59',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-  },
-  remixText: {
-    color: '#0b1405',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  footer: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(5, 9, 6, 0.95)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  cardTitle: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  cardSubtitle: {
-    color: '#9ca3af',
-    fontSize: 10.5,
-    marginTop: 2,
-  },
-  footerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  likeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-  },
-  likeCount: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-  },
-  commentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 4,
   },
-  commentCount: {
-    color: '#9ca3af',
-    fontSize: 12,
-    fontFamily: 'monospace',
+  btnRemixText: {
+    color: '#0b1405',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });

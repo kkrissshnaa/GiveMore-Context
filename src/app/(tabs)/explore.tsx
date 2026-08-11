@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  FlatList,
   StatusBar,
   StyleSheet,
 } from 'react-native';
@@ -37,62 +36,69 @@ export default function Explore() {
         !q ||
         item.prompt.toLowerCase().includes(q) ||
         item.title.toLowerCase().includes(q) ||
-        item.creator.name.toLowerCase().includes(q) ||
         item.model.toLowerCase().includes(q);
 
       return matchesCategory && matchesQuery;
     });
   }, [selectedCategory, searchQuery]);
 
+  // Split items into 2 columns for Pinterest staggered masonry grid layout
+  const leftColumn = useMemo(
+    () => filteredItems.filter((_, idx) => idx % 2 === 0),
+    [filteredItems]
+  );
+  const rightColumn = useMemo(
+    () => filteredItems.filter((_, idx) => idx % 2 === 1),
+    [filteredItems]
+  );
+
   return (
     <AestheticBackdrop style={{ flex: 1 }}>
       <StatusBar barStyle="light-content" />
 
       <View style={{ flex: 1, paddingTop: insets.top }}>
-        {/* Header Bar */}
-        <View style={styles.headerBar}>
+        {/* Clean Mobile Header */}
+        <View style={styles.headerContainer}>
           <View style={styles.headerTop}>
-            <View style={styles.titleRow}>
-              <View style={styles.iconCircle}>
-                <Feather name="compass" size={20} color="#b2ff59" />
+            <View style={styles.titleGroup}>
+              <View style={styles.iconBox}>
+                <Feather name="compass" size={18} color="#b2ff59" />
               </View>
               <View>
-                <Text style={styles.titleText}>Explore</Text>
-                <Text style={styles.subtitleText}>
-                  Tap card to flip prompt · Double tap to like
+                <Text style={styles.headerTitle}>Explore</Text>
+                <Text style={styles.headerSubtitle}>
+                  Tap any post to flip prompt & model specs
                 </Text>
               </View>
             </View>
 
             <View style={styles.countBadge}>
-              <Text style={styles.countBadgeText}>
-                {EXPLORE_ITEMS.length} Generations
-              </Text>
+              <Text style={styles.countText}>{filteredItems.length}</Text>
             </View>
           </View>
 
-          {/* Search Box */}
-          <View style={styles.searchBox}>
-            <Feather name="search" size={16} color="#9ca3af" style={{ marginRight: 8 }} />
+          {/* Minimal Search Bar */}
+          <View style={styles.searchBar}>
+            <Feather name="search" size={15} color="#9ca3af" style={{ marginRight: 8 }} />
             <TextInput
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholder="Search prompts, creators, or models..."
+              placeholder="Search prompts or models..."
               placeholderTextColor="#6b7280"
               style={styles.searchInput}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Feather name="x-circle" size={16} color="#9ca3af" />
+                <Feather name="x-circle" size={15} color="#9ca3af" />
               </TouchableOpacity>
             )}
           </View>
 
-          {/* Category Pills */}
+          {/* Category Chips */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8, paddingBottom: 2 }}
+            contentContainerStyle={{ gap: 6, paddingBottom: 2 }}
           >
             {CATEGORIES.map((cat) => {
               const isActive = selectedCategory === cat;
@@ -101,7 +107,7 @@ export default function Explore() {
                   key={cat}
                   onPress={() => setSelectedCategory(cat)}
                   style={[
-                    styles.categoryChip,
+                    styles.chip,
                     isActive ? styles.chipActive : styles.chipInactive,
                   ]}
                 >
@@ -119,118 +125,132 @@ export default function Explore() {
           </ScrollView>
         </View>
 
-        {/* Feed List */}
-        <FlatList
-          data={filteredItems}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ExploreCard item={item} />}
+        {/* Pinterest 2-Column Grid Feed */}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingHorizontal: 16,
-            paddingTop: 16,
+            paddingHorizontal: 10,
+            paddingTop: 12,
             paddingBottom: insets.bottom + 80,
           }}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <View style={styles.emptyIconCircle}>
-                <Feather name="search" size={24} color="#b2ff59" />
+        >
+          {filteredItems.length > 0 ? (
+            <View style={styles.gridContainer}>
+              {/* Left Column */}
+              <View style={styles.column}>
+                {leftColumn.map((item) => (
+                  <ExploreCard key={item.id} item={item} />
+                ))}
+              </View>
+
+              {/* Right Column */}
+              <View style={styles.column}>
+                {rightColumn.map((item) => (
+                  <ExploreCard key={item.id} item={item} />
+                ))}
+              </View>
+            </View>
+          ) : (
+            <View style={styles.emptyBox}>
+              <View style={styles.emptyIcon}>
+                <Feather name="search" size={22} color="#b2ff59" />
               </View>
               <Text style={styles.emptyTitle}>No generations found</Text>
-              <Text style={styles.emptySub}>
-                No community posts match "{searchQuery}". Try searching for another style or prompt.
+              <Text style={styles.emptyDesc}>
+                No generations match "{searchQuery}". Try searching for another style or prompt.
               </Text>
               <TouchableOpacity
                 onPress={() => {
                   setSearchQuery('');
                   setSelectedCategory('All');
                 }}
-                style={styles.clearButton}
+                style={styles.clearBtn}
               >
-                <Text style={styles.clearButtonText}>Clear Filters</Text>
+                <Text style={styles.clearBtnText}>Reset Search</Text>
               </TouchableOpacity>
             </View>
-          }
-        />
+          )}
+        </ScrollView>
       </View>
     </AestheticBackdrop>
   );
 }
 
 const styles = StyleSheet.create({
-  headerBar: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 10,
+  headerContainer: {
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 8,
     backgroundColor: 'rgba(5, 9, 6, 0.95)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  titleRow: {
+  titleGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
-  iconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
+  iconBox: {
+    width: 34,
+    height: 34,
+    borderRadius: 11,
     backgroundColor: 'rgba(178, 255, 89, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.35)',
+    borderColor: 'rgba(178, 255, 89, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  titleText: {
+  headerTitle: {
     color: '#ffffff',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
-  subtitleText: {
+  headerSubtitle: {
     color: '#9ca3af',
-    fontSize: 11,
+    fontSize: 10.5,
     marginTop: 1,
   },
   countBadge: {
     backgroundColor: 'rgba(178, 255, 89, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.35)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    borderColor: 'rgba(178, 255, 89, 0.3)',
+    paddingHorizontal: 9,
+    paddingVertical: 3,
     borderRadius: 999,
   },
-  countBadgeText: {
+  countText: {
     color: '#b2ff59',
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: 'bold',
     fontFamily: 'monospace',
   },
-  searchBox: {
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    marginBottom: 12,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    marginBottom: 8,
   },
   searchInput: {
     flex: 1,
     color: '#ffffff',
-    fontSize: 13,
+    fontSize: 12,
     padding: 0,
   },
-  categoryChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 12,
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 10,
     borderWidth: 1,
   },
   chipActive: {
@@ -238,56 +258,64 @@ const styles = StyleSheet.create({
     borderColor: '#b2ff59',
   },
   chipInactive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   chipText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
   },
-  emptyContainer: {
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-    borderRadius: 24,
+  gridContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  column: {
+    flex: 1,
+    gap: 10,
+  },
+  emptyBox: {
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+    borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 24,
+    marginTop: 20,
   },
-  emptyIconCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+  emptyIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: 'rgba(178, 255, 89, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.35)',
+    borderColor: 'rgba(178, 255, 89, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   emptyTitle: {
     color: '#ffffff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 3,
   },
-  emptySub: {
+  emptyDesc: {
     color: '#9ca3af',
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
-  clearButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 9,
+  clearBtn: {
+    paddingHorizontal: 18,
+    paddingVertical: 8,
     borderRadius: 999,
     backgroundColor: '#b2ff59',
   },
-  clearButtonText: {
+  clearBtnText: {
     color: '#0b1405',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
   },
 });
