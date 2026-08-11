@@ -134,16 +134,14 @@ export function ExploreCard({
     .runOnJS(true)
     .onEnd(onToggleFlip);
 
-  const isLandscape = item.aspectRatio === '16:9';
-
   return (
     <View
       style={[
         styles.cardWrapper,
         {
-          aspectRatio: item.numericRatio,
+          aspectRatio: isFlipped ? undefined : item.numericRatio,
+          minHeight: isFlipped ? 180 : undefined,
           width: '100%',
-          minHeight: isLandscape ? 150 : undefined,
         },
       ]}
     >
@@ -230,18 +228,15 @@ export function ExploreCard({
                   <Feather name="zap" size={11} color="#b2ff59" />
                   <Text style={styles.backHeaderText}>{item.model}</Text>
                 </View>
-                <TouchableOpacity
-                  onPress={onToggleFlip}
-                  style={styles.closeBtn}
-                >
+                <View style={styles.closeBtn}>
                   <Feather name="x" size={12} color="#ffffff" />
-                </TouchableOpacity>
+                </View>
               </View>
 
               {/* Prompt Text Box */}
-              <View style={[styles.promptBox, isLandscape && { padding: 4, marginVertical: 2 }]}>
+              <View style={styles.promptBox}>
                 <Text style={styles.promptLabel}>PROMPT</Text>
-                <Text style={styles.promptText} numberOfLines={isLandscape ? 2 : 5}>
+                <Text style={styles.promptText} numberOfLines={5}>
                   {`"${item.prompt}"`}
                 </Text>
               </View>

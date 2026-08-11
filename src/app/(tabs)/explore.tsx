@@ -16,7 +16,7 @@ export default function Explore() {
   const insets = useSafeAreaInsets();
   const [flippedId, setFlippedId] = useState<string | null>(null);
 
-  // Distribute items into left/right columns by assigning each item to the currently shorter column
+  // Distribute items into left/right columns by tracking exact aspect-ratio heights
   const { leftColumn, rightColumn } = useMemo(() => {
     const left: ExploreItem[] = [];
     const right: ExploreItem[] = [];
@@ -24,13 +24,14 @@ export default function Explore() {
     let rightHeight = 0;
 
     EXPLORE_ITEMS.forEach((item) => {
-      const estimatedHeight = item.aspectRatio === '16:9' ? 160 : 230;
+      // Relative height = 1 / numericRatio
+      const relativeHeight = 1 / item.numericRatio;
       if (leftHeight <= rightHeight) {
         left.push(item);
-        leftHeight += estimatedHeight;
+        leftHeight += relativeHeight;
       } else {
         right.push(item);
-        rightHeight += estimatedHeight;
+        rightHeight += relativeHeight;
       }
     });
 
