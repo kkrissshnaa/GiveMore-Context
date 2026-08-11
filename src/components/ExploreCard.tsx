@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,26 +11,41 @@ import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
 import { ExploreItem } from '../data/exploreData';
 
 interface ExploreCardProps {
   item: ExploreItem;
+  isFlipped: boolean;
+  onToggleFlip: () => void;
   onRemixPrompt?: (prompt: string, model: string) => void;
 }
 
-export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
+export function ExploreCard({
+  item,
+  isFlipped,
+  onToggleFlip,
+  onRemixPrompt,
+}: ExploreCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(item.likesCount);
-  const [isFlipped, setIsFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // 3D Flip Animation Value (0: Front, 1: Back)
-  const flipAnim = useRef(new Animated.Value(0)).current;
+  const flipAnim = useRef(new Animated.Value(isFlipped ? 1 : 0)).current;
 
   // Double Tap Heart Animation
   const heartScale = useRef(new Animated.Value(0)).current;
   const heartOpacity = useRef(new Animated.Value(0)).current;
+
+  // React to prop changes so other cards revert back automatically
+  useEffect(() => {
+    Animated.spring(flipAnim, {
+      toValue: isFlipped ? 1 : 0,
+      friction: 8,
+      tension: 25,
+      useNativeDriver: true,
+    }).start();
+  }, [isFlipped]);
 
   // 3D Flip Interpolations
   const frontInterpolate = flipAnim.interpolate({
@@ -42,16 +57,6 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
     inputRange: [0, 1],
     outputRange: ['180deg', '360deg'],
   });
-
-  const flipCard = (toBack: boolean) => {
-    Animated.spring(flipAnim, {
-      toValue: toBack ? 1 : 0,
-      friction: 8,
-      tension: 25,
-      useNativeDriver: true,
-    }).start();
-    setIsFlipped(toBack);
-  };
 
   const triggerHeartPop = () => {
     heartScale.setValue(0);
@@ -110,40 +115,40 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
     }
   };
 
-  // Native Gesture Handler Gestures for Mobile & Web
+  // Native Gestures: Double Tap to Like, Single Tap to Flip
   const doubleTapGesture = Gesture.Tap()
     .numberOfTaps(2)
     .maxDuration(300)
-    .onEnd(() => {
-      'worklet';
-      runOnJS(handleDoubleTapLike)();
-    });
+    .runOnJS(true)
+    .onEnd(handleDoubleTapLike);
 
   const singleTapGesture = Gesture.Tap()
     .numberOfTaps(1)
-    .requireExternalGestureToFail(doubleTapGesture)
-    .onEnd(() => {
-      'worklet';
-      runOnJS(flipCard)(true);
-    });
+    .runOnJS(true)
+    .onEnd(onToggleFlip);
 
   const frontGestures = Gesture.Exclusive(doubleTapGesture, singleTapGesture);
 
   const backTapGesture = Gesture.Tap()
     .numberOfTaps(1)
-    .onEnd(() => {
-      'worklet';
-      runOnJS(flipCard)(false);
-    });
+    .runOnJS(true)
+    .onEnd(onToggleFlip);
 
-  // Pinterest layout image height variations based on aspect ratio
   const isLandscape = item.aspectRatio === '16:9';
-  const cardHeight = isLandscape ? 160 : 230;
 
   return (
-    <View style={styles.cardWrapper}>
-      <View style={{ height: cardHeight, position: 'relative', width: '100%' }}>
-        {/* FRONT FACE (IMAGE) */}
+    <View
+      style={[
+        styles.cardWrapper,
+        {
+          aspectRatio: item.numericRatio,
+          width: '100%',
+          minHeight: isLandscape ? 150 : undefined,
+        },
+      ]}
+    >
+      <View style={{ flex: 1, position: 'relative', width: '100%' }}>
+        {/* FRONT FACE (CLEAN PINTEREST IMAGE WITH LIKE BADGE) */}
         <Animated.View
           pointerEvents={isFlipped ? 'none' : 'auto'}
           style={[
@@ -164,35 +169,22 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
                 transition={200}
               />
 
-              {/* Top Model & Aspect Ratio Badge */}
-              <View style={styles.badgeTop} pointerEvents="none">
-                <Text style={styles.badgeModel}>{item.model}</Text>
-                <Text style={styles.badgeDot}>·</Text>
-                <Text style={styles.badgeRatio}>{item.aspectRatio}</Text>
-              </View>
-
-              {/* Bottom Floating Info */}
-              <View style={styles.badgeBottom}>
-                <View style={styles.flipHint} pointerEvents="none">
-                  <Feather name="rotate-cw" size={9} color="#ffffff" />
-                  <Text style={styles.flipHintText}>Tap to flip</Text>
-                </View>
-
-                {/* Like Heart Button */}
+              {/* Like Icon & Counter Pill Overlay at Bottom Right */}
+              <View style={styles.likeBadgeContainer}>
                 <TouchableOpacity
                   onPress={toggleHeartButton}
-                  style={styles.heartButton}
+                  style={styles.likeBadge}
                   activeOpacity={0.8}
                 >
                   <Feather
                     name="heart"
-                    size={12}
+                    size={11}
                     color={isLiked ? '#f43f5e' : '#ffffff'}
                     fill={isLiked ? '#f43f5e' : 'none'}
                   />
                   <Text
                     style={[
-                      styles.heartCount,
+                      styles.likeCountText,
                       { color: isLiked ? '#f43f5e' : '#ffffff' },
                     ]}
                   >
@@ -218,12 +210,11 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
           </GestureDetector>
         </Animated.View>
 
-        {/* BACK FACE (PROMPT, ASPECT RATIO, MODEL NAME) */}
+        {/* BACK FACE (PROMPT, MODEL NAME, ASPECT RATIO) */}
         <Animated.View
           pointerEvents={isFlipped ? 'auto' : 'none'}
           style={[
             styles.cardFace,
-            styles.backFace,
             {
               transform: [{ perspective: 1000 }, { rotateY: backInterpolate }],
               backfaceVisibility: 'hidden',
@@ -240,7 +231,7 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
                   <Text style={styles.backHeaderText}>{item.model}</Text>
                 </View>
                 <TouchableOpacity
-                  onPress={() => flipCard(false)}
+                  onPress={onToggleFlip}
                   style={styles.closeBtn}
                 >
                   <Feather name="x" size={12} color="#ffffff" />
@@ -248,13 +239,10 @@ export function ExploreCard({ item, onRemixPrompt }: ExploreCardProps) {
               </View>
 
               {/* Prompt Text Box */}
-              <View style={styles.promptBox}>
+              <View style={[styles.promptBox, isLandscape && { padding: 4, marginVertical: 2 }]}>
                 <Text style={styles.promptLabel}>PROMPT</Text>
-                <Text
-                  style={styles.promptText}
-                  numberOfLines={isLandscape ? 3 : 5}
-                >
-                  "{item.prompt}"
+                <Text style={styles.promptText} numberOfLines={isLandscape ? 2 : 5}>
+                  {`"${item.prompt}"`}
                 </Text>
               </View>
 
@@ -321,9 +309,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  backFace: {
-    // zIndex handled dynamically
-  },
   touchable: {
     flex: 1,
     width: '100%',
@@ -335,72 +320,24 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 16,
   },
-  badgeTop: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  badgeModel: {
-    color: '#b2ff59',
-    fontSize: 9.5,
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-  },
-  badgeDot: {
-    color: 'rgba(255, 255, 255, 0.4)',
-    fontSize: 9.5,
-  },
-  badgeRatio: {
-    color: '#ffffff',
-    fontSize: 9.5,
-    fontFamily: 'monospace',
-  },
-  badgeBottom: {
+  likeBadgeContainer: {
     position: 'absolute',
     bottom: 8,
-    left: 8,
     right: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    zIndex: 5,
   },
-  flipHint: {
+  likeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    gap: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
   },
-  flipHintText: {
-    color: '#ffffff',
-    fontSize: 9,
-    fontWeight: '500',
-  },
-  heartButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  heartCount: {
+  likeCountText: {
     fontSize: 9.5,
     fontWeight: 'bold',
     fontFamily: 'monospace',
