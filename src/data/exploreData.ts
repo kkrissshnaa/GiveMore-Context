@@ -9,14 +9,7 @@ export interface ExploreItem {
   seed: number;
   guidanceScale: number;
   category: 'Graphic Art' | 'Noir & Comic' | 'Cinematic' | 'Minimalist';
-  creator: {
-    name: string;
-    handle: string;
-    avatarColor: string;
-    initials: string;
-  };
   likesCount: number;
-  commentsCount: number;
   createdAt: string;
 }
 
@@ -32,15 +25,8 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     seed: 8492041,
     guidanceScale: 7.5,
     category: 'Noir & Comic',
-    creator: {
-      name: 'Elena Rostova',
-      handle: '@elena_art',
-      avatarColor: '#f43f5e',
-      initials: 'ER',
-    },
     likesCount: 342,
-    commentsCount: 28,
-    createdAt: '2 hours ago',
+    createdAt: '2h ago',
   },
   {
     id: 'exp-2',
@@ -53,15 +39,8 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     seed: 1928374,
     guidanceScale: 6.0,
     category: 'Graphic Art',
-    creator: {
-      name: 'Marcus Chen',
-      handle: '@marcus_design',
-      avatarColor: '#b2ff59',
-      initials: 'MC',
-    },
     likesCount: 589,
-    commentsCount: 42,
-    createdAt: '4 hours ago',
+    createdAt: '4h ago',
   },
   {
     id: 'exp-3',
@@ -74,15 +53,8 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     seed: 9940128,
     guidanceScale: 8.0,
     category: 'Cinematic',
-    creator: {
-      name: 'Tariq Al-Mansoor',
-      handle: '@tariq_lens',
-      avatarColor: '#eab308',
-      initials: 'TA',
-    },
     likesCount: 1240,
-    commentsCount: 95,
-    createdAt: '6 hours ago',
+    createdAt: '6h ago',
   },
   {
     id: 'exp-4',
@@ -95,15 +67,8 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     seed: 4509218,
     guidanceScale: 7.0,
     category: 'Noir & Comic',
-    creator: {
-      name: 'Sabrina Torres',
-      handle: '@sabrina_graphics',
-      avatarColor: '#a855f7',
-      initials: 'ST',
-    },
     likesCount: 875,
-    commentsCount: 64,
-    createdAt: '12 hours ago',
+    createdAt: '12h ago',
   },
   {
     id: 'exp-5',
@@ -116,15 +81,8 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     seed: 3829104,
     guidanceScale: 6.5,
     category: 'Minimalist',
-    creator: {
-      name: 'Devon Vance',
-      handle: '@devon_type',
-      avatarColor: '#06b6d4',
-      initials: 'DV',
-    },
     likesCount: 412,
-    commentsCount: 19,
-    createdAt: '1 day ago',
+    createdAt: '1d ago',
   },
   {
     id: 'exp-6',
@@ -137,14 +95,63 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     seed: 7362910,
     guidanceScale: 7.5,
     category: 'Noir & Comic',
-    creator: {
-      name: 'Kaito Tanaka',
-      handle: '@kaito_ink',
-      avatarColor: '#3b82f6',
-      initials: 'KT',
-    },
     likesCount: 630,
-    commentsCount: 37,
-    createdAt: '1 day ago',
+    createdAt: '1d ago',
+  },
+  {
+    id: 'exp-7',
+    image: require('../../assets/images/explore/explore_3.jpg'),
+    title: 'Golden Hour Desert Vista',
+    prompt: 'Breathtaking aerial photograph of Sahara sand dunes, dramatic shadows, warm golden light over barren desert mountains, cinematic horizon, 8k resolution photo',
+    model: 'Krea AI v2',
+    aspectRatio: '16:9',
+    dimensions: '1920 x 1080',
+    seed: 5549120,
+    guidanceScale: 8.5,
+    category: 'Cinematic',
+    likesCount: 940,
+    createdAt: '2d ago',
+  },
+  {
+    id: 'exp-8',
+    image: require('../../assets/images/explore/explore_4.jpg'),
+    title: 'Graffiti Hero Scrapbook',
+    prompt: 'Dynamic comic book cover design, Spider-Man eyes framing, cutout text overlays, vibrant crimson halftone texture, energetic street art collage',
+    model: 'Flux 1.1 Pro',
+    aspectRatio: '16:9',
+    dimensions: '1920 x 1080',
+    seed: 2289410,
+    guidanceScale: 7.2,
+    category: 'Noir & Comic',
+    likesCount: 710,
+    createdAt: '2d ago',
+  },
+  {
+    id: 'exp-9',
+    image: require('../../assets/images/explore/explore_2.png'),
+    title: 'Swiss Type Vinyl Cover',
+    prompt: 'Minimalist Swiss graphic poster, bold black typography on light gray canvas, red vinyl record halftone stack, vintage audio cassette diagram details',
+    model: 'Ideogram v2',
+    aspectRatio: '1:1',
+    dimensions: '1024 x 1024',
+    seed: 8819230,
+    guidanceScale: 6.2,
+    category: 'Graphic Art',
+    likesCount: 520,
+    createdAt: '3d ago',
+  },
+  {
+    id: 'exp-10',
+    image: require('../../assets/images/explore/explore_5.jpg'),
+    title: 'Minimal Record Tracklist',
+    prompt: 'Editorial graphic design poster, centered stacked vinyl illustration in halftone red, sleek track list sidebar on graph paper texture background',
+    model: 'Ideogram v2',
+    aspectRatio: '1:1',
+    dimensions: '1024 x 1024',
+    seed: 6710492,
+    guidanceScale: 6.8,
+    category: 'Minimalist',
+    likesCount: 380,
+    createdAt: '3d ago',
   },
 ];
