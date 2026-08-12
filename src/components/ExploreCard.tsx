@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Animated,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
@@ -12,6 +13,18 @@ import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ExploreItem } from '../data/exploreData';
+
+const HELVETICA_FONT = Platform.select({
+  ios: 'Helvetica',
+  android: 'sans-serif',
+  default: 'Helvetica, Arial, sans-serif',
+});
+
+const HELVETICA_BOLD = Platform.select({
+  ios: 'Helvetica-Bold',
+  android: 'sans-serif-medium',
+  default: 'Helvetica, Arial, sans-serif',
+});
 
 interface ExploreCardProps {
   item: ExploreItem;
@@ -176,7 +189,7 @@ export function ExploreCard({
                 >
                   <Feather
                     name="heart"
-                    size={11}
+                    size={13}
                     color={isLiked ? '#f43f5e' : '#ffffff'}
                     fill={isLiked ? '#f43f5e' : 'none'}
                   />
@@ -225,11 +238,11 @@ export function ExploreCard({
               {/* Top Header */}
               <View style={styles.backHeader}>
                 <View style={styles.backHeaderTitle}>
-                  <Feather name="zap" size={11} color="#b2ff59" />
+                  <Feather name="zap" size={14} color="#b2ff59" />
                   <Text style={styles.backHeaderText}>{item.model}</Text>
                 </View>
                 <View style={styles.closeBtn}>
-                  <Feather name="x" size={12} color="#ffffff" />
+                  <Feather name="x" size={14} color="#ffffff" />
                 </View>
               </View>
 
@@ -261,7 +274,7 @@ export function ExploreCard({
                 >
                   <Feather
                     name={copied ? 'check' : 'copy'}
-                    size={11}
+                    size={13}
                     color={copied ? '#b2ff59' : '#ffffff'}
                   />
                   <Text style={[styles.btnCopyText, copied && { color: '#b2ff59' }]}>
@@ -270,7 +283,7 @@ export function ExploreCard({
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={handleRemix} style={styles.btnRemix}>
-                  <Feather name="corner-up-right" size={11} color="#0b1405" />
+                  <Feather name="corner-up-right" size={13} color="#0b1405" />
                   <Text style={styles.btnRemixText}>Use</Text>
                 </TouchableOpacity>
               </View>
@@ -324,18 +337,19 @@ const styles = StyleSheet.create({
   likeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    paddingHorizontal: 8,
-    paddingVertical: 3.5,
+    gap: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   likeCountText: {
-    fontSize: 9.5,
+    fontSize: 11,
     fontWeight: 'bold',
-    fontFamily: 'monospace',
+    fontFamily: HELVETICA_BOLD,
+    letterSpacing: -0.3,
   },
   heartOverlay: {
     position: 'absolute',
@@ -363,25 +377,26 @@ const styles = StyleSheet.create({
   backHeaderTitle: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   backHeaderText: {
     color: '#b2ff59',
-    fontSize: 10.5,
+    fontSize: 12,
     fontWeight: 'bold',
-    fontFamily: 'monospace',
+    fontFamily: HELVETICA_BOLD,
+    letterSpacing: -0.4,
   },
   closeBtn: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   promptBox: {
-    marginVertical: 4,
-    padding: 8,
+    marginVertical: 6,
+    padding: 9,
     borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 1,
@@ -390,62 +405,67 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   promptLabel: {
-    color: '#9ca3af',
-    fontSize: 8.5,
+    color: '#b2ff59',
+    fontSize: 9.5,
     fontWeight: 'bold',
-    letterSpacing: 1,
-    marginBottom: 2,
-    fontFamily: 'monospace',
+    letterSpacing: 0.2,
+    marginBottom: 3,
+    fontFamily: HELVETICA_BOLD,
   },
   promptText: {
     color: '#ffffff',
-    fontSize: 10.5,
-    lineHeight: 15,
+    fontSize: 11.5,
+    fontWeight: '400',
+    fontFamily: HELVETICA_FONT,
+    lineHeight: 16.5,
+    letterSpacing: -0.1,
   },
   specsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 4,
+    gap: 5,
     marginBottom: 6,
   },
   specBadgeHighlight: {
     backgroundColor: 'rgba(178, 255, 89, 0.15)',
     borderWidth: 1,
     borderColor: 'rgba(178, 255, 89, 0.3)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 5,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
   },
   specBadge: {
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 5,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
   },
   specLabel: {
     color: '#9ca3af',
-    fontSize: 8.5,
-    fontFamily: 'monospace',
+    fontSize: 9.5,
+    fontFamily: HELVETICA_FONT,
   },
   specValueGreen: {
     color: '#b2ff59',
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: 'bold',
-    fontFamily: 'monospace',
+    fontFamily: HELVETICA_BOLD,
+    letterSpacing: -0.2,
   },
   specValue: {
     color: '#ffffff',
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: 'bold',
-    fontFamily: 'monospace',
+    fontFamily: HELVETICA_BOLD,
+    letterSpacing: -0.2,
   },
   actionRow: {
     flexDirection: 'row',
@@ -454,8 +474,8 @@ const styles = StyleSheet.create({
   },
   btnCopy: {
     flex: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 8,
     borderRadius: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
@@ -463,7 +483,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 5,
   },
   btnCopyActive: {
     backgroundColor: 'rgba(178, 255, 89, 0.2)',
@@ -471,23 +491,27 @@ const styles = StyleSheet.create({
   },
   btnCopyText: {
     color: '#ffffff',
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 'bold',
+    fontFamily: HELVETICA_BOLD,
+    letterSpacing: -0.3,
   },
   btnRemix: {
     flex: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 8,
     borderRadius: 8,
     backgroundColor: '#b2ff59',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 5,
   },
   btnRemixText: {
     color: '#0b1405',
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 'bold',
+    fontFamily: HELVETICA_BOLD,
+    letterSpacing: -0.3,
   },
 });
