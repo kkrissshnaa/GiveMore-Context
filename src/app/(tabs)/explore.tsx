@@ -5,12 +5,25 @@ import {
   FlatList,
   StatusBar,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../../components/AestheticBackdrop';
 import { ExploreCard } from '../../components/ExploreCard';
 import { EXPLORE_ITEMS, ExploreItem } from '../../data/exploreData';
+
+const HELVETICA_FONT = Platform.select({
+  ios: 'Helvetica',
+  android: 'sans-serif',
+  default: 'Helvetica, Arial, sans-serif',
+});
+
+const HELVETICA_BOLD = Platform.select({
+  ios: 'Helvetica-Bold',
+  android: 'sans-serif-medium',
+  default: 'Helvetica, Arial, sans-serif',
+});
 
 export default function Explore() {
   const insets = useSafeAreaInsets();
@@ -48,7 +61,7 @@ export default function Explore() {
           <View style={styles.headerTop}>
             <View style={styles.titleGroup}>
               <View style={styles.iconBox}>
-                <Feather name="compass" size={18} color="#b2ff59" />
+                <Feather name="compass" size={24} color="#b2ff59" />
               </View>
               <View>
                 <Text style={styles.headerTitle}>Explore</Text>
@@ -68,7 +81,7 @@ export default function Explore() {
           contentContainerStyle={{
             paddingHorizontal: 10,
             paddingTop: 6,
-            paddingBottom: insets.bottom + 80,
+            paddingBottom: insets.bottom + 120,
           }}
           renderItem={() => (
             <View style={styles.gridContainer}>
@@ -109,9 +122,9 @@ export default function Explore() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 8,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 10,
   },
   headerTop: {
     flexDirection: 'row',
@@ -121,27 +134,33 @@ const styles = StyleSheet.create({
   titleGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   iconBox: {
-    width: 34,
-    height: 34,
-    borderRadius: 11,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: 'rgba(178, 255, 89, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.3)',
+    borderColor: 'rgba(178, 255, 89, 0.35)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     color: '#ffffff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 25,
+    fontWeight: '700',
+    fontFamily: HELVETICA_BOLD,
+    letterSpacing: -0.6,
+    lineHeight: 27,
   },
   headerSubtitle: {
-    color: '#9ca3af',
-    fontSize: 10.5,
-    marginTop: 1,
+    color: '#b2ff59',
+    fontSize: 12.5,
+    fontWeight: '400',
+    fontFamily: HELVETICA_FONT,
+    marginTop: 0,
+    letterSpacing: -0.2,
   },
   gridContainer: {
     flexDirection: 'row',
