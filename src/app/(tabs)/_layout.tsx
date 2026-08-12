@@ -21,25 +21,25 @@ export default function TabLayout() {
         tabBarStyle: {
           position: 'absolute',
           bottom: safeBottom,
-          left: 20,
-          right: 20,
-          height: 60,
-          borderRadius: 30,
-          backgroundColor: 'rgba(8, 14, 9, 0.92)',
+          left: 76,
+          right: 76,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: 'rgba(8, 14, 9, 0.94)',
           borderTopWidth: 0,
           borderWidth: 1,
           borderColor: 'rgba(255, 255, 255, 0.16)',
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 10 },
-          shadowOpacity: 0.5,
-          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.45,
+          shadowRadius: 14,
           elevation: 12,
           paddingBottom: 0,
           paddingTop: 0,
-          paddingHorizontal: 12,
+          paddingHorizontal: 6,
         },
         tabBarItemStyle: {
-          height: 60,
+          height: 52,
           justifyContent: 'center',
           alignItems: 'center',
           padding: 0,
@@ -53,7 +53,7 @@ export default function TabLayout() {
           title: 'Explore',
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
-              <Feather name="compass" size={22} color={color} />
+              <Feather name="compass" size={19} color={color} />
             </View>
           ),
         }}
@@ -65,7 +65,7 @@ export default function TabLayout() {
           href: '/',
           tabBarIcon: () => (
             <View style={styles.pseudo3dCircle}>
-              <Feather name="zap" size={25} color="#060e03" />
+              <Feather name="zap" size={20} color="#060e03" />
             </View>
           ),
         }}
@@ -76,7 +76,7 @@ export default function TabLayout() {
           title: 'Settings',
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
-              <Feather name="settings" size={22} color={color} />
+              <Feather name="settings" size={19} color={color} />
             </View>
           ),
         }}
@@ -87,9 +87,9 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   iconWrapper: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -99,13 +99,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(178, 255, 89, 0.35)',
   },
   pseudo3dCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#b2ff59',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -4,
     borderWidth: 2,
     borderColor: '#d2ff8c',
     borderTopColor: '#ffffff',
@@ -113,9 +112,9 @@ const styles = StyleSheet.create({
     borderLeftColor: '#c4ff75',
     borderRightColor: '#93e82b',
     shadowColor: '#b2ff59',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.65,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });
