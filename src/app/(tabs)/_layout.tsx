@@ -1,7 +1,6 @@
-import React from 'react';
-import { StyleSheet, View, Platform } from 'react-native';
-import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
@@ -21,8 +20,6 @@ export default function TabLayout() {
         tabBarStyle: {
           position: 'absolute',
           bottom: safeBottom,
-          left: 76,
-          right: 76,
           height: 52,
           borderRadius: 26,
           backgroundColor: 'rgba(8, 14, 9, 0.94)',
