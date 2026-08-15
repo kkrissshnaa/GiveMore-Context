@@ -1,28 +1,26 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { Feather } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
+import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
   Image,
   Keyboard,
   Platform,
+  ScrollView,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  KeyboardAvoidingView,
-  ScrollView,
-  Switch
+  View
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as ImagePicker from 'expo-image-picker';
-import * as Clipboard from 'expo-clipboard';
-import { useNavigation } from 'expo-router';
-import { ReferenceCanvasModal, CanvasRegion } from '../components/ReferenceCanvasModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
-import { saveChat, ChatItem } from '../lib/chatService';
+import { CanvasRegion, ReferenceCanvasModal } from '../components/ReferenceCanvasModal';
 import { chatEvents } from '../lib/chatEvents';
+import { ChatItem, saveChat } from '../lib/chatService';
 
 function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
   const [pulseAnim] = useState(() => new Animated.Value(0.35));
@@ -58,7 +56,7 @@ function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
   };
 
   return (
-    <View 
+    <View
       className="w-full mt-1 rounded-[24px] overflow-hidden bg-white/10 border border-white/20 p-4 justify-between relative shadow-2xl backdrop-blur-xl"
       style={getAspectRatioStyle(aspectRatio)}
     >
@@ -72,7 +70,7 @@ function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
 
       {/* Center glowing skeleton placeholder */}
       <View className="items-center justify-center my-auto z-10">
-        <Animated.View 
+        <Animated.View
           className="w-16 h-16 rounded-full bg-[#b2ff59]/20 border border-[#b2ff59]/60 items-center justify-center mb-3 shadow-[0_0_35px_rgba(178,255,89,0.4)]"
           style={{ opacity: pulseAnim, transform: [{ scale: pulseAnim.interpolate({ inputRange: [0.35, 0.85], outputRange: [0.95, 1.05] }) }] }}
         >
@@ -93,9 +91,9 @@ function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
       </View>
 
       {/* Background pulsing layer */}
-      <Animated.View 
-        className="absolute inset-0 bg-[#b2ff59]/5" 
-        style={{ opacity: pulseAnim }} 
+      <Animated.View
+        className="absolute inset-0 bg-[#b2ff59]/5"
+        style={{ opacity: pulseAnim }}
       />
     </View>
   );
@@ -139,10 +137,10 @@ export default function Index() {
 
   const saveCurrentChatIfNeeded = useCallback(async () => {
     const hasData = Boolean(
-      (prompt && prompt.trim().length > 0) || 
-      activePrompt !== null || 
-      imageUrl !== null || 
-      referenceImages.length > 0 || 
+      (prompt && prompt.trim().length > 0) ||
+      activePrompt !== null ||
+      imageUrl !== null ||
+      referenceImages.length > 0 ||
       canvasRegions.length > 0
     );
     if (hasData) {
@@ -369,303 +367,303 @@ export default function Index() {
         {renderIconBtn('plus', 'bg-[#b2ff59]', '#0b1405', 'border-white/40 shadow-[0_0_20px_rgba(178,255,89,0.5)]', handleCreateNewChat)}
       </View>
 
-        <ScrollView 
-          className="flex-1 z-10" 
-          contentContainerStyle={{ paddingBottom: 24, paddingTop: 2 }}
-          onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
-          onContentSizeChange={(_, h) => setContentHeight(h)}
-          scrollEnabled={contentHeight > containerHeight + 5}
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-        >
-          {/* Empty State */}
-          {!imageUrl && !loading && !errorText ? (
-             <View className="items-center px-4 pt-10">
-               {/* Liquid Glass Emblem */}
-               <View className="w-[66px] h-[66px] rounded-full bg-[#b2ff59] shadow-[0_0_40px_rgba(178,255,89,0.6)] border border-white/50 mb-6 items-center justify-center">
-                 <Feather name="zap" size={28} color="#0b1405" />
-               </View>
-               <Text className="text-[22px] font-bold text-white mb-3 tracking-tight font-display">Nothing generated yet</Text>
-               <Text className="text-[14px] text-[#bababa] text-center max-w-[290px] leading-5 mb-6 font-sans">
-                 Write a prompt, attach references, or compose a layout in Reference Canvas to control where things go.
-               </Text>
-               
-               <View className="flex-row flex-wrap justify-center gap-2">
-                 {suggestions.map((text, i) => (
-                   <TouchableOpacity 
-                    key={i} 
-                    onPress={() => setPrompt(text)} 
-                    className="px-[15px] py-2 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30 shadow-sm backdrop-blur-md active:bg-[#b2ff59]/25 active:border-[#b2ff59]/60"
-                   >
-                     <Text className="text-xs font-semibold text-[#b2ff59] font-sans">{text}</Text>
-                   </TouchableOpacity>
-                 ))}
-               </View>
-             </View>
-          ) : (
-             <View className="px-4 pt-0">
-                {/* Status / Results */}
-                {loading && (
-                  <ImageSkeleton aspectRatio={aspectRatio} />
-                )}
-                {errorText && (
-                  <Text className="text-red-400 text-center mt-2 text-sm font-medium font-sans">{errorText}</Text>
-                )}
-                {imageUrl && (
-                  <View 
-                    className="w-full mt-1 rounded-[24px] overflow-hidden bg-white/10 border border-white/20 p-2 shadow-2xl backdrop-blur-xl"
-                    style={getAspectRatioStyle(aspectRatio)}
-                  >
-                    <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[16px]" resizeMode="cover" />
-                  </View>
-                )}
-                {activePrompt && (loading || imageUrl || errorText) && (
-                  <View className="mt-3 p-4 bg-[#0e170d]/85 border border-[#b2ff59]/35 rounded-[22px] shadow-lg backdrop-blur-md">
-                    <View className="flex-row items-center justify-between mb-2">
-                      <View className="flex-row items-center gap-2">
-                        <Feather name="command" size={13} color="#b2ff59" />
-                        <Text className="text-[10px] font-bold text-[#b2ff59] uppercase tracking-widest font-mono">Prompt</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <TouchableOpacity 
-                          onPress={() => setPrompt(activePrompt)} 
-                          className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30"
-                        >
-                          <Feather name="edit-3" size={11} color="#b2ff59" />
-                          <Text className="text-[11px] font-medium text-[#b2ff59] font-sans">Reuse</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                          onPress={() => copyPrompt(activePrompt)} 
-                          className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30"
-                        >
-                          <Feather name={copied ? "check" : "copy"} size={11} color="#b2ff59" />
-                          <Text className="text-[11px] font-medium font-sans text-[#b2ff59]">
-                            {copied ? 'Copied!' : 'Copy'}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                    <Text className="text-white text-[13.5px] font-medium leading-5 font-sans">{activePrompt}</Text>
-                  </View>
-                )}
-             </View>
-          )}
-        </ScrollView>
+      <ScrollView
+        className="flex-1 z-10"
+        contentContainerStyle={{ paddingBottom: 24, paddingTop: 2 }}
+        onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
+        onContentSizeChange={(_, h) => setContentHeight(h)}
+        scrollEnabled={contentHeight > containerHeight + 5}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+      >
+        {/* Empty State */}
+        {!imageUrl && !loading && !errorText ? (
+          <View className="items-center px-4 pt-10">
+            {/* Liquid Glass Emblem */}
+            <View className="w-[66px] h-[66px] rounded-full bg-[#b2ff59] shadow-[0_0_40px_rgba(178,255,89,0.6)] border border-white/50 mb-6 items-center justify-center">
+              <Feather name="zap" size={28} color="#0b1405" />
+            </View>
+            <Text className="text-[22px] font-bold text-white mb-3 tracking-tight font-display">Nothing generated yet</Text>
+            <Text className="text-[14px] text-[#bababa] text-center max-w-[290px] leading-5 mb-6 font-sans">
+              Write prompt, attach references, or compose a layout in Reference Canvas to control where things go.
+            </Text>
 
-        {/* Bottom Prompt Bar (Liquid Glass Dock) */}
-        <Animated.View 
-          className="px-3 pt-2 z-30" 
-          style={{ 
-            paddingBottom: Animated.add(
-              keyboardHeightAnim, 
-              keyboardHeightAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [Math.max(insets.bottom, 12), 10],
-                extrapolate: 'clamp',
-              })
-            ) 
-          }}
-        >
-          <View className="bg-[#091209]/90 border border-white/20 rounded-[32px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.9)] backdrop-blur-2xl">
-            {/* Expanded Panel */}
-            {expanded && (
-              <View className="px-4 pt-4 pb-2">
-                {/* Model */}
-                <View className="mb-4">
-                  <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Model</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row flex-nowrap" contentContainerStyle={{gap: 8}}>
-                    {models.map((m) => (
-                      <TouchableOpacity 
-                        key={m.name} 
-                        onPress={() => setModel(m.name)}
-                        className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${model === m.name ? 'bg-[#b2ff59]/20 border-[#b2ff59]/70 shadow-[0_0_12px_rgba(178,255,89,0.3)]' : 'bg-white/5 border-white/10'}`}
-                      >
-                        <View className="w-4 h-4 rounded-[5px] items-center justify-center" style={{ backgroundColor: m.dotBg }}>
-                          <Text className="text-[8px] font-bold text-black font-mono">{m.short}</Text>
-                        </View>
-                        <Text className={`text-xs font-medium font-sans ${model === m.name ? 'text-white font-bold' : 'text-[#bababa]'}`}>{m.name}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-
-                {/* Canvas Switch */}
-                <View className="flex-row items-center justify-between py-3 border-t border-b border-white/10 mb-4">
-                  <View>
-                    <Text className="text-[13px] font-bold text-white font-display">Reference Canvas</Text>
-                    <Text className="text-[11px] text-[#8a8385] mt-0.5 font-sans">Compose regions for the model to follow</Text>
-                  </View>
-                  <Switch 
-                    value={canvasEnabled} 
-                    onValueChange={(val) => {
-                      setCanvasEnabled(val);
-                      if (val) setCanvasModalVisible(true);
-                    }} 
-                    trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#b2ff59' }} 
-                    thumbColor="white"
-                    ios_backgroundColor="rgba(255,255,255,0.12)"
-                  />
-                </View>
-
-                {/* Aspect Ratio */}
-                <View className="mb-4">
-                  <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Aspect ratio</Text>
-                  <View className="flex-row flex-wrap gap-2">
-                    {aspectRatios.map((ratio) => (
-                      <TouchableOpacity 
-                        key={ratio} 
-                        onPress={() => setAspectRatio(ratio)}
-                        className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${aspectRatio === ratio ? 'bg-[#b2ff59]/20 border-[#b2ff59]/70 shadow-[0_0_12px_rgba(178,255,89,0.3)]' : 'bg-white/5 border-white/10'}`}
-                      >
-                        <View className={`border-[1.5px] rounded-[2.5px] ${aspectRatio === ratio ? 'border-[#b2ff59]' : 'border-[#bababa]'}`} 
-                          style={{
-                            width: ratio === '16:9' ? 16 : ratio === '4:5' ? 11 : ratio === '9:16' ? 9 : 13,
-                            height: ratio === '16:9' ? 9 : ratio === '4:5' ? 14 : ratio === '9:16' ? 16 : 13
-                          }} 
-                        />
-                        <Text className={`text-xs font-medium font-mono ${aspectRatio === ratio ? 'text-white font-bold' : 'text-[#bababa]'}`}>{ratio}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-
-                {/* Quality */}
-                <View className="mb-2">
-                  <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Quality</Text>
-                  <View className="flex-row flex-wrap gap-2">
-                    {qualities.map((q) => (
-                      <TouchableOpacity 
-                        key={q.name} 
-                        onPress={() => setQuality(q.name)}
-                        className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${quality === q.name ? 'bg-[#b2ff59]/20 border-[#b2ff59]/70 shadow-[0_0_12px_rgba(178,255,89,0.3)]' : 'bg-white/5 border-white/10'}`}
-                      >
-                        <Feather name={q.icon} size={13} color={quality === q.name ? '#b2ff59' : '#bababa'} />
-                        <Text className={`text-xs font-medium font-sans ${quality === q.name ? 'text-white font-bold' : 'text-[#bababa]'}`}>{q.name}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {/* Selected Reference Images Carousel */}
-            {referenceImages.length > 0 && (
-              <View className="px-4 pt-3 pb-2 border-b border-white/10">
-                <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] font-display">
-                    Reference Images ({referenceImages.length})
-                  </Text>
-                  <TouchableOpacity onPress={() => setReferenceImages([])}>
-                    <Text className="text-[11px] font-bold text-[#b2ff59] font-display">Clear all</Text>
-                  </TouchableOpacity>
-                </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-                  {referenceImages.map((uri, index) => (
-                    <View key={`${uri}-${index}`} className="relative w-12 h-12 rounded-[10px] overflow-hidden border border-white/20">
-                      <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
-                      <TouchableOpacity 
-                        onPress={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-black/80 rounded-full w-4 h-4 items-center justify-center border border-white/40"
-                      >
-                        <Feather name="x" size={10} color="white" />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                  <TouchableOpacity 
-                    onPress={pickImage} 
-                    className="w-12 h-12 rounded-[10px] border border-dashed border-white/30 items-center justify-center bg-white/5"
-                  >
-                    <Feather name="plus" size={16} color="#bababa" />
-                  </TouchableOpacity>
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Main Prompt Row */}
-            <View className="flex-row items-end px-3.5 py-3">
-              <TouchableOpacity onPress={pickImage} className="w-10 h-10 rounded-[10px] border-[1.5px] border-dashed border-[#b2ff59]/35 items-center justify-center bg-[#b2ff59]/5 mr-2.5">
-                {referenceImages.length > 0 ? (
-                  <View className="relative w-full h-full rounded-[8px] overflow-hidden">
-                    <Image source={{ uri: referenceImages[referenceImages.length - 1] }} className="w-full h-full" resizeMode="cover" />
-                    {referenceImages.length > 1 && (
-                      <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                        <Text className="text-white text-[10px] font-bold font-mono">+{referenceImages.length}</Text>
-                      </View>
-                    )}
-                  </View>
-                ) : (
-                  <Feather name="image" size={18} color="#b2ff59" />
-                )}
-              </TouchableOpacity>
-              
-              <View className="flex-1 justify-center mr-2">
-                {canvasRegions.length > 0 && (
-                  <View className="flex-row items-center mb-1">
-                    <TouchableOpacity 
-                      onPress={() => setCanvasModalVisible(true)}
-                      className="flex-row items-center gap-1.5 px-3 py-1 rounded-full bg-[#162713] border border-[#b2ff59]/60 shadow-[0_0_10px_rgba(178,255,89,0.25)]"
-                    >
-                      <Feather name="layers" size={12} color="#b2ff59" />
-                      <Text className="text-[11.5px] font-bold text-white font-display">
-                        Layout · {canvasRegions.length}
-                      </Text>
-                      <TouchableOpacity 
-                        onPress={() => {
-                          setCanvasRegions([]);
-                          setCanvasEnabled(false);
-                        }}
-                        className="ml-1 pl-1 border-l border-white/20"
-                      >
-                        <Feather name="x" size={12} color="#bababa" />
-                      </TouchableOpacity>
-                    </TouchableOpacity>
-                  </View>
-                )}
-                <TextInput 
-                  className="text-white text-[14px] font-sans font-medium max-h-[110px] min-h-[40px] py-1.5 px-1"
-                  placeholder="Describe the shot, scene, or edit…"
-                  placeholderTextColor="#8a8385"
-                  multiline
-                  scrollEnabled={true}
-                  value={prompt}
-                  onChangeText={setPrompt}
-                  onFocus={() => setExpanded(false)}
-                  style={{ textAlignVertical: 'top' }}
-                />
-              </View>
-              
-              <View className="flex-row items-center gap-2">
-                <TouchableOpacity className="w-10 h-10 items-center justify-center" onPress={() => setExpanded(!expanded)}>
-                  <Feather name={expanded ? "chevron-down" : "chevron-up"} size={24} color="#b2ff59" />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  onPress={loading ? stopGeneration : generateImage}
-                  activeOpacity={0.7}
-                  className="w-10 h-10 rounded-full bg-[#b2ff59] items-center justify-center shadow-[0_0_24px_rgba(178,255,89,0.6)] border border-white/40"
+            <View className="flex-row flex-wrap justify-center gap-2">
+              {suggestions.map((text, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setPrompt(text)}
+                  className="px-[15px] py-2 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30 shadow-sm backdrop-blur-md active:bg-[#b2ff59]/25 active:border-[#b2ff59]/60"
                 >
-                  {loading ? (
-                    <View className="w-3.5 h-3.5 bg-[#0b1405] rounded-[3px]" />
-                  ) : (
-                    <Feather name="arrow-up" size={20} color="#0b1405" />
-                  )}
+                  <Text className="text-xs font-semibold text-[#b2ff59] font-sans">{text}</Text>
                 </TouchableOpacity>
-              </View>
+              ))}
             </View>
           </View>
-        </Animated.View>
+        ) : (
+          <View className="px-4 pt-0">
+            {/* Status / Results */}
+            {loading && (
+              <ImageSkeleton aspectRatio={aspectRatio} />
+            )}
+            {errorText && (
+              <Text className="text-red-400 text-center mt-2 text-sm font-medium font-sans">{errorText}</Text>
+            )}
+            {imageUrl && (
+              <View
+                className="w-full mt-1 rounded-[24px] overflow-hidden bg-white/10 border border-white/20 p-2 shadow-2xl backdrop-blur-xl"
+                style={getAspectRatioStyle(aspectRatio)}
+              >
+                <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[16px]" resizeMode="cover" />
+              </View>
+            )}
+            {activePrompt && (loading || imageUrl || errorText) && (
+              <View className="mt-3 p-4 bg-[#0e170d]/85 border border-[#b2ff59]/35 rounded-[22px] shadow-lg backdrop-blur-md">
+                <View className="flex-row items-center justify-between mb-2">
+                  <View className="flex-row items-center gap-2">
+                    <Feather name="command" size={13} color="#b2ff59" />
+                    <Text className="text-[10px] font-bold text-[#b2ff59] uppercase tracking-widest font-mono">Prompt</Text>
+                  </View>
+                  <View className="flex-row items-center gap-2">
+                    <TouchableOpacity
+                      onPress={() => setPrompt(activePrompt)}
+                      className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30"
+                    >
+                      <Feather name="edit-3" size={11} color="#b2ff59" />
+                      <Text className="text-[11px] font-medium text-[#b2ff59] font-sans">Reuse</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => copyPrompt(activePrompt)}
+                      className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#b2ff59]/10 border border-[#b2ff59]/30"
+                    >
+                      <Feather name={copied ? "check" : "copy"} size={11} color="#b2ff59" />
+                      <Text className="text-[11px] font-medium font-sans text-[#b2ff59]">
+                        {copied ? 'Copied!' : 'Copy'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <Text className="text-white text-[13.5px] font-medium leading-5 font-sans">{activePrompt}</Text>
+              </View>
+            )}
+          </View>
+        )}
+      </ScrollView>
 
-        <ReferenceCanvasModal
-          visible={canvasModalVisible}
-          onClose={() => setCanvasModalVisible(false)}
-          aspectRatio={aspectRatio}
-          regions={canvasRegions}
-          onSaveRegions={(newRegions) => {
-            setCanvasRegions(newRegions);
-            setCanvasEnabled(newRegions.length > 0);
-          }}
-        />
+      {/* Bottom Prompt Bar (Liquid Glass Dock) */}
+      <Animated.View
+        className="px-3 pt-2 z-30"
+        style={{
+          paddingBottom: Animated.add(
+            keyboardHeightAnim,
+            keyboardHeightAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [Math.max(insets.bottom, 12), 10],
+              extrapolate: 'clamp',
+            })
+          )
+        }}
+      >
+        <View className="bg-[#091209]/90 border border-white/20 rounded-[32px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.9)] backdrop-blur-2xl">
+          {/* Expanded Panel */}
+          {expanded && (
+            <View className="px-4 pt-4 pb-2">
+              {/* Model */}
+              <View className="mb-4">
+                <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Model</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row flex-nowrap" contentContainerStyle={{ gap: 8 }}>
+                  {models.map((m) => (
+                    <TouchableOpacity
+                      key={m.name}
+                      onPress={() => setModel(m.name)}
+                      className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${model === m.name ? 'bg-[#b2ff59]/20 border-[#b2ff59]/70 shadow-[0_0_12px_rgba(178,255,89,0.3)]' : 'bg-white/5 border-white/10'}`}
+                    >
+                      <View className="w-4 h-4 rounded-[5px] items-center justify-center" style={{ backgroundColor: m.dotBg }}>
+                        <Text className="text-[8px] font-bold text-black font-mono">{m.short}</Text>
+                      </View>
+                      <Text className={`text-xs font-medium font-sans ${model === m.name ? 'text-white font-bold' : 'text-[#bababa]'}`}>{m.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              {/* Canvas Switch */}
+              <View className="flex-row items-center justify-between py-3 border-t border-b border-white/10 mb-4">
+                <View>
+                  <Text className="text-[13px] font-bold text-white font-display">Reference Canvas</Text>
+                  <Text className="text-[11px] text-[#8a8385] mt-0.5 font-sans">Compose regions for the model to follow</Text>
+                </View>
+                <Switch
+                  value={canvasEnabled}
+                  onValueChange={(val) => {
+                    setCanvasEnabled(val);
+                    if (val) setCanvasModalVisible(true);
+                  }}
+                  trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#b2ff59' }}
+                  thumbColor="white"
+                  ios_backgroundColor="rgba(255,255,255,0.12)"
+                />
+              </View>
+
+              {/* Aspect Ratio */}
+              <View className="mb-4">
+                <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Aspect ratio</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {aspectRatios.map((ratio) => (
+                    <TouchableOpacity
+                      key={ratio}
+                      onPress={() => setAspectRatio(ratio)}
+                      className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${aspectRatio === ratio ? 'bg-[#b2ff59]/20 border-[#b2ff59]/70 shadow-[0_0_12px_rgba(178,255,89,0.3)]' : 'bg-white/5 border-white/10'}`}
+                    >
+                      <View className={`border-[1.5px] rounded-[2.5px] ${aspectRatio === ratio ? 'border-[#b2ff59]' : 'border-[#bababa]'}`}
+                        style={{
+                          width: ratio === '16:9' ? 16 : ratio === '4:5' ? 11 : ratio === '9:16' ? 9 : 13,
+                          height: ratio === '16:9' ? 9 : ratio === '4:5' ? 14 : ratio === '9:16' ? 16 : 13
+                        }}
+                      />
+                      <Text className={`text-xs font-medium font-mono ${aspectRatio === ratio ? 'text-white font-bold' : 'text-[#bababa]'}`}>{ratio}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Quality */}
+              <View className="mb-2">
+                <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Quality</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {qualities.map((q) => (
+                    <TouchableOpacity
+                      key={q.name}
+                      onPress={() => setQuality(q.name)}
+                      className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${quality === q.name ? 'bg-[#b2ff59]/20 border-[#b2ff59]/70 shadow-[0_0_12px_rgba(178,255,89,0.3)]' : 'bg-white/5 border-white/10'}`}
+                    >
+                      <Feather name={q.icon} size={13} color={quality === q.name ? '#b2ff59' : '#bababa'} />
+                      <Text className={`text-xs font-medium font-sans ${quality === q.name ? 'text-white font-bold' : 'text-[#bababa]'}`}>{q.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Selected Reference Images Carousel */}
+          {referenceImages.length > 0 && (
+            <View className="px-4 pt-3 pb-2 border-b border-white/10">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] font-display">
+                  Reference Images ({referenceImages.length})
+                </Text>
+                <TouchableOpacity onPress={() => setReferenceImages([])}>
+                  <Text className="text-[11px] font-bold text-[#b2ff59] font-display">Clear all</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                {referenceImages.map((uri, index) => (
+                  <View key={`${uri}-${index}`} className="relative w-12 h-12 rounded-[10px] overflow-hidden border border-white/20">
+                    <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
+                    <TouchableOpacity
+                      onPress={() => removeImage(index)}
+                      className="absolute top-1 right-1 bg-black/80 rounded-full w-4 h-4 items-center justify-center border border-white/40"
+                    >
+                      <Feather name="x" size={10} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                <TouchableOpacity
+                  onPress={pickImage}
+                  className="w-12 h-12 rounded-[10px] border border-dashed border-white/30 items-center justify-center bg-white/5"
+                >
+                  <Feather name="plus" size={16} color="#bababa" />
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Main Prompt Row */}
+          <View className="flex-row items-end px-3.5 py-3">
+            <TouchableOpacity onPress={pickImage} className="w-10 h-10 rounded-[10px] border-[1.5px] border-dashed border-[#b2ff59]/35 items-center justify-center bg-[#b2ff59]/5 mr-2.5">
+              {referenceImages.length > 0 ? (
+                <View className="relative w-full h-full rounded-[8px] overflow-hidden">
+                  <Image source={{ uri: referenceImages[referenceImages.length - 1] }} className="w-full h-full" resizeMode="cover" />
+                  {referenceImages.length > 1 && (
+                    <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                      <Text className="text-white text-[10px] font-bold font-mono">+{referenceImages.length}</Text>
+                    </View>
+                  )}
+                </View>
+              ) : (
+                <Feather name="image" size={18} color="#b2ff59" />
+              )}
+            </TouchableOpacity>
+
+            <View className="flex-1 justify-center mr-2">
+              {canvasRegions.length > 0 && (
+                <View className="flex-row items-center mb-1">
+                  <TouchableOpacity
+                    onPress={() => setCanvasModalVisible(true)}
+                    className="flex-row items-center gap-1.5 px-3 py-1 rounded-full bg-[#162713] border border-[#b2ff59]/60 shadow-[0_0_10px_rgba(178,255,89,0.25)]"
+                  >
+                    <Feather name="layers" size={12} color="#b2ff59" />
+                    <Text className="text-[11.5px] font-bold text-white font-display">
+                      Layout · {canvasRegions.length}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setCanvasRegions([]);
+                        setCanvasEnabled(false);
+                      }}
+                      className="ml-1 pl-1 border-l border-white/20"
+                    >
+                      <Feather name="x" size={12} color="#bababa" />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
+              )}
+              <TextInput
+                className="text-white text-[14px] font-sans font-medium max-h-[110px] min-h-[40px] py-1.5 px-1"
+                placeholder="Describe the shot, scene, or edit…"
+                placeholderTextColor="#8a8385"
+                multiline
+                scrollEnabled={true}
+                value={prompt}
+                onChangeText={setPrompt}
+                onFocus={() => setExpanded(false)}
+                style={{ textAlignVertical: 'top' }}
+              />
+            </View>
+
+            <View className="flex-row items-center gap-2">
+              <TouchableOpacity className="w-10 h-10 items-center justify-center" onPress={() => setExpanded(!expanded)}>
+                <Feather name={expanded ? "chevron-down" : "chevron-up"} size={24} color="#b2ff59" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={loading ? stopGeneration : generateImage}
+                activeOpacity={0.7}
+                className="w-10 h-10 rounded-full bg-[#b2ff59] items-center justify-center shadow-[0_0_24px_rgba(178,255,89,0.6)] border border-white/40"
+              >
+                {loading ? (
+                  <View className="w-3.5 h-3.5 bg-[#0b1405] rounded-[3px]" />
+                ) : (
+                  <Feather name="arrow-up" size={20} color="#0b1405" />
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Animated.View>
+
+      <ReferenceCanvasModal
+        visible={canvasModalVisible}
+        onClose={() => setCanvasModalVisible(false)}
+        aspectRatio={aspectRatio}
+        regions={canvasRegions}
+        onSaveRegions={(newRegions) => {
+          setCanvasRegions(newRegions);
+          setCanvasEnabled(newRegions.length > 0);
+        }}
+      />
     </AestheticBackdrop>
   );
 }
