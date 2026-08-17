@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import {
   View,
   Text,
@@ -34,7 +34,7 @@ interface ExploreCardProps {
   onRemixPrompt?: (prompt: string, model: string) => void;
 }
 
-export function ExploreCard({
+export const ExploreCard = memo(function ExploreCard({
   item,
   isFlipped,
   onToggleFlip,
@@ -58,12 +58,12 @@ export function ExploreCard({
   const heartScale = useRef(new Animated.Value(0)).current;
   const heartOpacity = useRef(new Animated.Value(0)).current;
 
-  // React to prop changes so other cards revert back automatically
+  // React to prop changes with high frame-rate spring Easing
   useEffect(() => {
     Animated.spring(flipAnim, {
       toValue: isFlipped ? 1 : 0,
-      friction: 8,
-      tension: 25,
+      friction: 7,
+      tension: 35,
       useNativeDriver: true,
     }).start();
   }, [isFlipped]);
@@ -77,6 +77,17 @@ export function ExploreCard({
   const backInterpolate = flipAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['180deg', '360deg'],
+  });
+
+  // Midpoint opacity crossfade to completely eliminate backface mirroring flicker
+  const frontOpacity = flipAnim.interpolate({
+    inputRange: [0, 0.49, 0.5, 1],
+    outputRange: [1, 1, 0, 0],
+  });
+
+  const backOpacity = flipAnim.interpolate({
+    inputRange: [0, 0.5, 0.51, 1],
+    outputRange: [0, 0, 1, 1],
   });
 
   const triggerHeartPop = () => {
@@ -139,7 +150,7 @@ export function ExploreCard({
   // Native Gestures: Double Tap to Like, Single Tap to Flip
   const doubleTapGesture = Gesture.Tap()
     .numberOfTaps(2)
-    .maxDuration(300)
+    .maxDuration(250)
     .runOnJS(true)
     .onEnd(handleDoubleTapLike);
 
@@ -160,20 +171,20 @@ export function ExploreCard({
       style={[
         styles.cardWrapper,
         {
-          aspectRatio: isFlipped ? undefined : trueRatio,
-          minHeight: isFlipped ? 180 : undefined,
+          aspectRatio: trueRatio,
           width: '100%',
         },
       ]}
     >
       <View style={{ flex: 1, position: 'relative', width: '100%' }}>
-        {/* FRONT FACE (CLEAN PINTEREST IMAGE WITH LIKE BADGE) */}
+        {/* FRONT FACE (CLEAN PINTEREST IMAGE WITH LIKE BADGE & FLIP BUTTON) */}
         <Animated.View
           pointerEvents={isFlipped ? 'none' : 'auto'}
           style={[
             styles.cardFace,
             {
               transform: [{ perspective: 1000 }, { rotateY: frontInterpolate }],
+              opacity: frontOpacity,
               backfaceVisibility: 'hidden',
               zIndex: isFlipped ? 1 : 2,
             },
@@ -197,7 +208,7 @@ export function ExploreCard({
                 >
                   <Feather
                     name="heart"
-                    size={13}
+                    size={12}
                     color={isLiked ? '#f43f5e' : '#ffffff'}
                     fill={isLiked ? '#f43f5e' : 'none'}
                   />
@@ -236,6 +247,7 @@ export function ExploreCard({
             styles.cardFace,
             {
               transform: [{ perspective: 1000 }, { rotateY: backInterpolate }],
+              opacity: backOpacity,
               backfaceVisibility: 'hidden',
               zIndex: isFlipped ? 2 : 1,
             },
@@ -246,11 +258,11 @@ export function ExploreCard({
               {/* Top Header */}
               <View style={styles.backHeader}>
                 <View style={styles.backHeaderTitle}>
-                  <Feather name="zap" size={14} color="#b2ff59" />
+                  <Feather name="zap" size={13} color="#b2ff59" />
                   <Text style={styles.backHeaderText}>{item.model}</Text>
                 </View>
                 <TouchableOpacity onPress={onToggleFlip} style={styles.closeBtn}>
-                  <Feather name="x" size={14} color="#ffffff" />
+                  <Feather name="x" size={13} color="#ffffff" />
                 </TouchableOpacity>
               </View>
 
@@ -259,7 +271,7 @@ export function ExploreCard({
                 <TouchableOpacity
                   onPress={handleCopyPrompt}
                   style={[styles.btnCopy, copied && styles.btnCopyActive]}
-                  activeOpacity={0.8}
+                  activeOpacity={0.7}
                 >
                   <Feather
                     name={copied ? 'check' : 'copy'}
@@ -274,7 +286,7 @@ export function ExploreCard({
                 <TouchableOpacity
                   onPress={handleRemix}
                   style={styles.btnRemix}
-                  activeOpacity={0.8}
+                  activeOpacity={0.7}
                 >
                   <Feather name="corner-up-right" size={14} color="#0b1405" />
                   <Text style={styles.btnRemixText}>Use</Text>
@@ -298,7 +310,7 @@ export function ExploreCard({
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   cardWrapper: {
@@ -342,16 +354,16 @@ const styles = StyleSheet.create({
   likeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 9,
+    paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   likeCountText: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.3,
@@ -382,19 +394,19 @@ const styles = StyleSheet.create({
   backHeaderTitle: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
   },
   backHeaderText: {
     color: '#b2ff59',
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.4,
   },
   closeBtn: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: 'rgba(255, 255, 255, 0.14)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -404,68 +416,68 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    marginVertical: 12,
+    gap: 6,
+    marginVertical: 10,
   },
   specsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 5,
-    marginBottom: 4,
+    gap: 4,
+    marginBottom: 2,
   },
   specBadgeHighlight: {
     backgroundColor: 'rgba(178, 255, 89, 0.15)',
     borderWidth: 1,
     borderColor: 'rgba(178, 255, 89, 0.3)',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
     borderRadius: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
   specBadge: {
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
     borderRadius: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
   specLabel: {
     color: '#9ca3af',
-    fontSize: 9.5,
+    fontSize: 9,
     fontFamily: HELVETICA_FONT,
   },
   specValueGreen: {
     color: '#b2ff59',
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.2,
   },
   specValue: {
     color: '#ffffff',
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.2,
   },
   btnCopy: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderRadius: 9,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.18)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 5,
   },
   btnCopyActive: {
     backgroundColor: 'rgba(178, 255, 89, 0.2)',
@@ -473,25 +485,25 @@ const styles = StyleSheet.create({
   },
   btnCopyText: {
     color: '#ffffff',
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.3,
   },
   btnRemix: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderRadius: 9,
     backgroundColor: '#b2ff59',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 5,
   },
   btnRemixText: {
     color: '#0b1405',
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.3,
