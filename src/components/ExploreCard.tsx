@@ -6,6 +6,7 @@ import {
   Animated,
   StyleSheet,
   Platform,
+  Image as RNImage,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
@@ -42,6 +43,13 @@ export function ExploreCard({
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(item.likesCount);
   const [copied, setCopied] = useState(false);
+
+  // Dynamically resolve true asset ratio to ensure zero crop
+  const assetSource = RNImage.resolveAssetSource(item.image);
+  const trueRatio =
+    assetSource && assetSource.width && assetSource.height
+      ? assetSource.width / assetSource.height
+      : item.numericRatio;
 
   // 3D Flip Animation Value (0: Front, 1: Back)
   const flipAnim = useRef(new Animated.Value(isFlipped ? 1 : 0)).current;
@@ -152,7 +160,7 @@ export function ExploreCard({
       style={[
         styles.cardWrapper,
         {
-          aspectRatio: isFlipped ? undefined : item.numericRatio,
+          aspectRatio: isFlipped ? undefined : trueRatio,
           minHeight: isFlipped ? 180 : undefined,
           width: '100%',
         },
@@ -176,7 +184,7 @@ export function ExploreCard({
               <Image
                 source={item.image}
                 style={styles.cardImage}
-                contentFit="cover"
+                contentFit="contain"
                 transition={200}
               />
 
@@ -221,7 +229,7 @@ export function ExploreCard({
           </GestureDetector>
         </Animated.View>
 
-        {/* BACK FACE (PROMPT, MODEL NAME, ASPECT RATIO) */}
+        {/* BACK FACE (CTA BUTTONS: COPY & USE, MODEL NAME, ASPECT RATIO) */}
         <Animated.View
           pointerEvents={isFlipped ? 'auto' : 'none'}
           style={[
@@ -241,17 +249,36 @@ export function ExploreCard({
                   <Feather name="zap" size={14} color="#b2ff59" />
                   <Text style={styles.backHeaderText}>{item.model}</Text>
                 </View>
-                <View style={styles.closeBtn}>
+                <TouchableOpacity onPress={onToggleFlip} style={styles.closeBtn}>
                   <Feather name="x" size={14} color="#ffffff" />
-                </View>
+                </TouchableOpacity>
               </View>
 
-              {/* Prompt Text Box */}
-              <View style={styles.promptBox}>
-                <Text style={styles.promptLabel}>PROMPT</Text>
-                <Text style={styles.promptText} numberOfLines={5}>
-                  {`"${item.prompt}"`}
-                </Text>
+              {/* Action CTA Buttons (In Place of Prompt) */}
+              <View style={styles.ctaContainer}>
+                <TouchableOpacity
+                  onPress={handleCopyPrompt}
+                  style={[styles.btnCopy, copied && styles.btnCopyActive]}
+                  activeOpacity={0.8}
+                >
+                  <Feather
+                    name={copied ? 'check' : 'copy'}
+                    size={14}
+                    color={copied ? '#b2ff59' : '#ffffff'}
+                  />
+                  <Text style={[styles.btnCopyText, copied && { color: '#b2ff59' }]}>
+                    {copied ? 'Copied' : 'Copy'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleRemix}
+                  style={styles.btnRemix}
+                  activeOpacity={0.8}
+                >
+                  <Feather name="corner-up-right" size={14} color="#0b1405" />
+                  <Text style={styles.btnRemixText}>Use</Text>
+                </TouchableOpacity>
               </View>
 
               {/* Specs Row */}
@@ -264,28 +291,6 @@ export function ExploreCard({
                   <Text style={styles.specLabel}>Ratio:</Text>
                   <Text style={styles.specValue}>{item.aspectRatio}</Text>
                 </View>
-              </View>
-
-              {/* Action Buttons */}
-              <View style={styles.actionRow}>
-                <TouchableOpacity
-                  onPress={handleCopyPrompt}
-                  style={[styles.btnCopy, copied && styles.btnCopyActive]}
-                >
-                  <Feather
-                    name={copied ? 'check' : 'copy'}
-                    size={13}
-                    color={copied ? '#b2ff59' : '#ffffff'}
-                  />
-                  <Text style={[styles.btnCopyText, copied && { color: '#b2ff59' }]}>
-                    {copied ? 'Copied' : 'Copy'}
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={handleRemix} style={styles.btnRemix}>
-                  <Feather name="corner-up-right" size={13} color="#0b1405" />
-                  <Text style={styles.btnRemixText}>Use</Text>
-                </TouchableOpacity>
               </View>
             </View>
           </GestureDetector>
@@ -394,37 +399,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  promptBox: {
-    marginVertical: 6,
-    padding: 9,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+  ctaContainer: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
-  },
-  promptLabel: {
-    color: '#b2ff59',
-    fontSize: 9.5,
-    fontWeight: 'bold',
-    letterSpacing: 0.2,
-    marginBottom: 3,
-    fontFamily: HELVETICA_BOLD,
-  },
-  promptText: {
-    color: '#ffffff',
-    fontSize: 11.5,
-    fontWeight: '400',
-    fontFamily: HELVETICA_FONT,
-    lineHeight: 16.5,
-    letterSpacing: -0.1,
+    gap: 8,
+    marginVertical: 12,
   },
   specsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 5,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   specBadgeHighlight: {
     backgroundColor: 'rgba(178, 255, 89, 0.15)',
@@ -467,23 +454,18 @@ const styles = StyleSheet.create({
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.2,
   },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
   btnCopy: {
     flex: 1,
-    paddingVertical: 7,
+    paddingVertical: 10,
     paddingHorizontal: 8,
-    borderRadius: 8,
+    borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
+    gap: 6,
   },
   btnCopyActive: {
     backgroundColor: 'rgba(178, 255, 89, 0.2)',
@@ -491,25 +473,25 @@ const styles = StyleSheet.create({
   },
   btnCopyText: {
     color: '#ffffff',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.3,
   },
   btnRemix: {
     flex: 1,
-    paddingVertical: 7,
+    paddingVertical: 10,
     paddingHorizontal: 8,
-    borderRadius: 8,
+    borderRadius: 10,
     backgroundColor: '#b2ff59',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
+    gap: 6,
   },
   btnRemixText: {
     color: '#0b1405',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.3,

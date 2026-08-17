@@ -6,6 +6,7 @@ import {
   StatusBar,
   StyleSheet,
   Platform,
+  Image as RNImage,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,8 +38,12 @@ export default function Explore() {
     let rightHeight = 0;
 
     EXPLORE_ITEMS.forEach((item) => {
-      // Relative height = 1 / numericRatio
-      const relativeHeight = 1 / item.numericRatio;
+      const assetSource = RNImage.resolveAssetSource(item.image);
+      const ratio =
+        assetSource && assetSource.width && assetSource.height
+          ? assetSource.width / assetSource.height
+          : item.numericRatio;
+      const relativeHeight = 1 / ratio;
       if (leftHeight <= rightHeight) {
         left.push(item);
         leftHeight += relativeHeight;
