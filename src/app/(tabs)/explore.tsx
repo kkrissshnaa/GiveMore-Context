@@ -66,7 +66,7 @@ export default function Explore() {
           <View style={styles.headerTop}>
             <View style={styles.titleGroup}>
               <View style={styles.iconBox}>
-                <Feather name="compass" size={24} color="#b2ff59" />
+                <Feather name="compass" size={22} color="#b2ff59" />
               </View>
               <View>
                 <Text style={styles.headerTitle}>Explore</Text>
@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     fontWeight: '400',
     fontFamily: HELVETICA_FONT,
-    marginTop: 0,
     letterSpacing: -0.2,
   },
   gridContainer: {
