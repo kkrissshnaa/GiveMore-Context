@@ -2,6 +2,32 @@ import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
+
+function SoftRadialGlow({ size, id, opacity = 0.35 }: { size: number; id: string; opacity?: number }) {
+  return (
+    <View style={{ position: 'absolute', width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Svg height={size} width={size} viewBox={`0 0 ${size} ${size}`}>
+        <Defs>
+          <RadialGradient
+            id={id}
+            cx="50%"
+            cy="50%"
+            r="50%"
+            fx="50%"
+            fy="50%"
+          >
+            <Stop offset="0%" stopColor="#E5FF1F" stopOpacity={opacity} />
+            <Stop offset="40%" stopColor="#E5FF1F" stopOpacity={opacity * 0.45} />
+            <Stop offset="75%" stopColor="#E5FF1F" stopOpacity={opacity * 0.12} />
+            <Stop offset="100%" stopColor="#E5FF1F" stopOpacity="0" />
+          </RadialGradient>
+        </Defs>
+        <Circle cx={size / 2} cy={size / 2} r={size / 2} fill={`url(#${id})`} />
+      </Svg>
+    </View>
+  );
+}
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -15,13 +41,16 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarActiveTintColor: '#b2ff59',
+        tabBarActiveTintColor: '#E5FF1F',
         tabBarInactiveTintColor: '#8a8385',
         tabBarStyle: {
           position: 'absolute',
-          bottom: safeBottom,
-          height: 52,
-          borderRadius: 26,
+          bottom: safeBottom + 3,
+          left: 0,
+          right: 0,
+          marginHorizontal: 25,
+          height: 64,
+          borderRadius: 32,
           backgroundColor: 'rgba(8, 14, 9, 0.94)',
           borderTopWidth: 0,
           borderWidth: 1,
@@ -33,14 +62,25 @@ export default function TabLayout() {
           elevation: 12,
           paddingBottom: 0,
           paddingTop: 0,
-          paddingHorizontal: 6,
+          paddingHorizontal: 12,
+          justifyContent: 'center',
+          alignItems: 'center',
+          overflow: 'visible',
         },
         tabBarItemStyle: {
-          height: 52,
+          height: 64,
           justifyContent: 'center',
           alignItems: 'center',
           padding: 0,
           margin: 0,
+          overflow: 'visible',
+        },
+        tabBarIconStyle: {
+          width: '100%',
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          overflow: 'visible',
         },
       }}
     >
@@ -49,8 +89,11 @@ export default function TabLayout() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ color, focused }) => (
-            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
-              <Feather name="compass" size={19} color={color} />
+            <View style={styles.iconContainer}>
+              {focused && <SoftRadialGlow size={68} id="explore-tab-glow" opacity={0.35} />}
+              <View style={styles.iconWrapper}>
+                <Feather name="compass" size={28} color={color} />
+              </View>
             </View>
           ),
         }}
@@ -61,8 +104,11 @@ export default function TabLayout() {
           title: 'Generate',
           href: '/',
           tabBarIcon: () => (
-            <View style={styles.pseudo3dCircle}>
-              <Feather name="zap" size={20} color="#060e03" />
+            <View style={styles.iconContainer}>
+              <SoftRadialGlow size={108} id="generate-hero-glow" opacity={0.45} />
+              <View style={styles.pseudo3dCircle}>
+                <Feather name="zap" size={30} color="#060e03" />
+              </View>
             </View>
           ),
         }}
@@ -72,8 +118,11 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ color, focused }) => (
-            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
-              <Feather name="settings" size={19} color={color} />
+            <View style={styles.iconContainer}>
+              {focused && <SoftRadialGlow size={68} id="settings-tab-glow" opacity={0.35} />}
+              <View style={styles.iconWrapper}>
+                <Feather name="settings" size={28} color={color} />
+              </View>
             </View>
           ),
         }}
@@ -83,35 +132,25 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
   iconWrapper: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activeIconWrapper: {
-    backgroundColor: 'rgba(178, 255, 89, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.35)',
-  },
   pseudo3dCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#b2ff59',
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#E5FF1F',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#d2ff8c',
-    borderTopColor: '#ffffff',
-    borderBottomColor: '#75be1d',
-    borderLeftColor: '#c4ff75',
-    borderRightColor: '#93e82b',
-    shadowColor: '#b2ff59',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
-    elevation: 6,
+    borderColor: '#ffffff',
   },
 });

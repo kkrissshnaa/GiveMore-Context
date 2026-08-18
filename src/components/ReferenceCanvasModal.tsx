@@ -17,6 +17,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
+import Svg, { Defs, RadialGradient, Stop, Ellipse } from 'react-native-svg';
 
 const dismissKeyboard = () => {
   Keyboard.dismiss();
@@ -172,11 +173,11 @@ function RegionItem({
       <Animated.View
         collapsable={false}
         style={animatedStyle}
-        className="rounded-[16px] border-[1.5px] border-[#b2ff59] bg-[#b2ff59]/20 p-2 justify-between z-10 shadow-[0_0_15px_rgba(178,255,89,0.3)]"
+        className="rounded-[16px] border-[1.5px] border-[#E5FF1F] bg-[#E5FF1F]/20 p-2 justify-between z-10 shadow-[0_0_15px_rgba(229,255,31,0.3)]"
       >
         {/* Region Header: Badge & Delete Button */}
         <View className="flex-row items-center justify-between z-20">
-          <View className="w-5 h-5 rounded-full bg-[#b2ff59] items-center justify-center shadow-md">
+          <View className="w-5 h-5 rounded-full bg-[#E5FF1F] items-center justify-center shadow-md">
             <Text className="text-[10px] font-bold text-[#0b1405] font-mono">{index + 1}</Text>
           </View>
 
@@ -203,8 +204,8 @@ function RegionItem({
 
         {/* Resize Handle (Bottom-Right Corner) */}
         <GestureDetector gesture={resizeGesture}>
-          <View className="absolute bottom-1 right-1 w-6 h-6 items-center justify-center bg-black/70 rounded-full border border-[#b2ff59]/80 z-30">
-            <Feather name="maximize-2" size={10} color="#b2ff59" />
+          <View className="absolute bottom-1 right-1 w-6 h-6 items-center justify-center bg-black/70 rounded-full border border-[#E5FF1F]/80 z-30">
+            <Feather name="maximize-2" size={10} color="#E5FF1F" />
           </View>
         </GestureDetector>
       </Animated.View>
@@ -433,9 +434,9 @@ export function ReferenceCanvasModal({
                           position: 'absolute',
                           borderRadius: 16,
                           borderWidth: 2,
-                          borderColor: '#b2ff59',
+                          borderColor: '#E5FF1F',
                           borderStyle: 'dashed',
-                          backgroundColor: 'rgba(178, 255, 89, 0.25)',
+                          backgroundColor: 'rgba(229, 255, 31, 0.25)',
                           zIndex: 30,
                         },
                       ]}
@@ -444,7 +445,7 @@ export function ReferenceCanvasModal({
                     {/* Empty State Overlay */}
                     {localRegions.length === 0 && (
                       <View className="absolute inset-0 items-center justify-center p-4 pointer-events-none">
-                        <Feather name="edit-3" size={24} color="rgba(178, 255, 89, 0.6)" />
+                        <Feather name="edit-3" size={24} color="rgba(229, 255, 31, 0.6)" />
                         <Text className="text-white/40 text-xs font-sans font-semibold mt-2 text-center">
                           Touch & drag anywhere to draw a region
                         </Text>
@@ -482,14 +483,48 @@ export function ReferenceCanvasModal({
                 {localRegions.length} {localRegions.length === 1 ? 'region' : 'regions'}
               </Text>
 
-              <TouchableOpacity
-                onPress={handleDone}
-                className="px-6 py-2.5 rounded-full bg-[#b2ff59] shadow-lg shadow-[#b2ff59]/40 items-center justify-center border border-white/20"
-              >
-                <Text className="text-[13.5px] font-bold text-[#0b1405] font-display">
-                  Done
-                </Text>
-              </TouchableOpacity>
+              <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+                <View
+                  pointerEvents="none"
+                  style={{
+                    position: 'absolute',
+                    top: -18,
+                    bottom: -18,
+                    left: -20,
+                    right: -20,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Svg height={76} width={124} viewBox="0 0 124 76">
+                    <Defs>
+                      <RadialGradient
+                        id="doneBtnFeatherGlow"
+                        cx="50%"
+                        cy="50%"
+                        r="50%"
+                        fx="50%"
+                        fy="50%"
+                      >
+                        <Stop offset="0%" stopColor="#E5FF1F" stopOpacity="0.25" />
+                        <Stop offset="35%" stopColor="#E5FF1F" stopOpacity="0.10" />
+                        <Stop offset="70%" stopColor="#E5FF1F" stopOpacity="0.02" />
+                        <Stop offset="100%" stopColor="#E5FF1F" stopOpacity="0" />
+                      </RadialGradient>
+                    </Defs>
+                    <Ellipse cx={62} cy={38} rx={62} ry={38} fill="url(#doneBtnFeatherGlow)" />
+                  </Svg>
+                </View>
+                <TouchableOpacity
+                  onPress={handleDone}
+                  activeOpacity={0.8}
+                  className="px-6 py-2.5 rounded-full bg-[#E5FF1F] items-center justify-center border border-white/40 shadow-md shadow-[#E5FF1F]/15"
+                >
+                  <Text className="text-[13.5px] font-bold text-[#0b1405] font-display">
+                    Done
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
           </View>

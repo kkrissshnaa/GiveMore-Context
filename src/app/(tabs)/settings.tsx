@@ -44,7 +44,7 @@ export default function Settings() {
           <View style={styles.headerTop}>
             <View style={styles.titleGroup}>
               <View style={styles.iconBox}>
-                <Feather name="settings" size={24} color="#b2ff59" />
+                <Feather name="settings" size={24} color="#E5FF1F" />
               </View>
               <View>
                 <Text style={styles.headerTitle}>Settings</Text>
@@ -79,7 +79,7 @@ export default function Settings() {
               <Switch
                 value={haptics}
                 onValueChange={setHaptics}
-                trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#b2ff59' }}
+                trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={haptics ? '#0b1405' : '#ffffff'}
               />
             </View>
@@ -94,7 +94,7 @@ export default function Settings() {
               <Switch
                 value={autoSave}
                 onValueChange={setAutoSave}
-                trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#b2ff59' }}
+                trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={autoSave ? '#0b1405' : '#ffffff'}
               />
             </View>
@@ -109,7 +109,7 @@ export default function Settings() {
               <Switch
                 value={highRes}
                 onValueChange={setHighRes}
-                trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#b2ff59' }}
+                trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={highRes ? '#0b1405' : '#ffffff'}
               />
             </View>
@@ -136,7 +136,7 @@ export default function Settings() {
               </View>
               <View style={styles.badgeContainer}>
                 <Text style={styles.badgeText}>{defaultModel}</Text>
-                <Feather name="chevron-right" size={14} color="#b2ff59" />
+                <Feather name="chevron-right" size={14} color="#E5FF1F" />
               </View>
             </TouchableOpacity>
           </View>
@@ -195,9 +195,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: 'rgba(178, 255, 89, 0.15)',
+    backgroundColor: 'rgba(229, 255, 31, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.35)',
+    borderColor: 'rgba(229, 255, 31, 0.35)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     lineHeight: 27,
   },
   headerSubtitle: {
-    color: '#b2ff59',
+    color: '#E5FF1F',
     fontSize: 12.5,
     fontWeight: '400',
     fontFamily: HELVETICA_FONT,
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   sectionHeader: {
-    color: '#b2ff59',
+    color: '#E5FF1F',
     fontSize: 10,
     fontWeight: '700',
     fontFamily: HELVETICA_BOLD,
@@ -272,22 +272,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(178, 255, 89, 0.15)',
+    backgroundColor: 'rgba(229, 255, 31, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.3)',
+    borderColor: 'rgba(229, 255, 31, 0.3)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
   badgeText: {
-    color: '#b2ff59',
+    color: '#E5FF1F',
     fontSize: 11,
     fontWeight: '700',
     fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.2,
   },
   versionText: {
-    color: '#b2ff59',
+    color: '#E5FF1F',
     fontSize: 12,
     fontWeight: '700',
     fontFamily: HELVETICA_BOLD,

@@ -19,12 +19,12 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
       className="flex-row items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/[0.03] active:bg-white/[0.08] mb-1.5 border border-white/[0.05]"
     >
       <View className="flex-row items-center gap-3">
-        <Feather name={icon} size={17} color="#b2ff59" />
+        <Feather name={icon} size={17} color="#E5FF1F" />
         <Text className="text-white text-xs font-semibold font-sans">{label}</Text>
       </View>
       {badge && (
-        <View className="bg-[#b2ff59]/20 border border-[#b2ff59]/40 px-2 py-0.5 rounded-full">
-          <Text className="text-[#b2ff59] text-[10px] font-bold font-mono">{badge}</Text>
+        <View className="bg-[#E5FF1F]/20 border border-[#E5FF1F]/40 px-2 py-0.5 rounded-full">
+          <Text className="text-[#E5FF1F] text-[10px] font-bold font-mono">{badge}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -108,15 +108,15 @@ function CustomDrawerContent(props: any) {
         {/* Logo */}
         <View className="px-2 pb-8">
           <Text className="text-[22px] font-bold leading-tight text-white font-display">give more</Text>
-          <Text className="text-[22px] font-bold leading-tight text-[#b2ff59] font-display">—context</Text>
+          <Text className="text-[22px] font-bold leading-tight text-[#E5FF1F] font-display">—context</Text>
         </View>
 
         {/* New Generation Button */}
         <TouchableOpacity
           onPress={handleNewChat}
-          className="flex-row items-center gap-3 px-3 py-3 mb-5 rounded-[16px] bg-[#b2ff59]/15 border border-[#b2ff59]/40"
+          className="flex-row items-center gap-3 px-3 py-3 mb-5 rounded-[16px] bg-[#E5FF1F]/15 border border-[#E5FF1F]/40"
         >
-          <View className="w-[30px] h-[30px] rounded-full bg-[#b2ff59] items-center justify-center shadow-lg shadow-[#b2ff59]/40">
+          <View className="w-[30px] h-[30px] rounded-full bg-[#E5FF1F] items-center justify-center shadow-lg shadow-[#E5FF1F]/40">
             <Feather name="plus" size={14} color="#0b1405" />
           </View>
           <Text className="text-[13.5px] font-bold text-white font-display">New generation</Text>
@@ -141,7 +141,7 @@ function CustomDrawerContent(props: any) {
                 onPress={() => handleSelectChat(chat)}
                 className="flex-row items-center gap-2.5 px-3 py-2.5 mb-1 rounded-[14px] bg-white/5 border border-white/5 active:bg-white/10"
               >
-                <Feather name="message-square" size={15} color="#b2ff59" />
+                <Feather name="message-square" size={15} color="#E5FF1F" />
                 <View className="flex-1 overflow-hidden">
                   <Text className="text-[13px] font-medium text-white font-sans" numberOfLines={1}>
                     {chat.title}
@@ -154,7 +154,7 @@ function CustomDrawerContent(props: any) {
             ))}
             {loadingMore && (
               <View className="py-3 items-center">
-                <ActivityIndicator size="small" color="#b2ff59" />
+                <ActivityIndicator size="small" color="#E5FF1F" />
               </View>
             )}
           </>
@@ -165,12 +165,12 @@ function CustomDrawerContent(props: any) {
       {/* Account Bottom */}
       <View className="p-4 border-t border-white/5 mb-4">
         <View className="flex-row items-center gap-3 px-3 py-3 rounded-[16px] bg-white/5 border border-white/10">
-          <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#b2ff59]/40">
-            <Text className="text-[12.5px] font-bold text-[#b2ff59] font-display">KV</Text>
+          <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#E5FF1F]/40">
+            <Text className="text-[12.5px] font-bold text-[#E5FF1F] font-display">KV</Text>
           </View>
           <View className="flex-1">
             <Text className="text-[12.5px] font-bold text-white font-display">Krishna</Text>
-            <Text className="text-[10.5px] font-bold text-[#b2ff59] mt-0.5 font-sans">Pro plan</Text>
+            <Text className="text-[10.5px] font-bold text-[#E5FF1F] mt-0.5 font-sans">Pro plan</Text>
           </View>
           <Feather name="chevron-right" size={15} color="#8a8385" />
         </View>
@@ -187,12 +187,12 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           drawerStyle: {
-            backgroundColor: '#050906',
+            backgroundColor: '#070801',
             width: '76%',
             maxWidth: 300,
           },
           sceneStyle: {
-            backgroundColor: '#050906',
+            backgroundColor: '#070801',
           }
         }}
       >

@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
+  Easing,
   useSharedValue,
   withRepeat,
   withTiming,
-  Easing,
 } from 'react-native-reanimated';
-import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
+import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 export interface NeatGreenGradientProps {
   speed?: number; // Wave speed scale
@@ -15,14 +15,14 @@ export interface NeatGreenGradientProps {
 }
 
 /**
- * Neat 3D Mesh Wave Gradient Component (Lemon Preset Green Adaptation)
+ * Neat 3D Mesh Wave Gradient Component (#E5FF1F Yellow-Lime Adaptation)
  * Inspired by https://neat.firecms.co/
  * 
  * Color Mapping:
- * - Color 1 (Primary Accent): #B2FF59 (Electric Lime Green)
- * - Color 2 (Shadow Depth):   #061B0A (Deep Emerald Forest)
- * - Color 3 (Highlight Aura): #D8FCDA (Soft Mint Ice Highlight)
- * - Base Color:               #050B06 (Midnight Dark Green)
+ * - Color 1 (Primary Accent): #E5FF1F (Electric Yellow-Lime)
+ * - Color 2 (Shadow Depth):   #1B1E02 (Deep Olive Shadow)
+ * - Color 3 (Highlight Aura): #F5FFA8 (Soft Ice Yellow Highlight)
+ * - Base Color:               #070801 (Midnight Dark Base)
  */
 export function NeatGreenGradient({
   speed = 1.0,
@@ -50,9 +50,9 @@ export function NeatGreenGradient({
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {/* Base Dark Midnight Green Linear Gradient */}
+      {/* Base Dark Midnight Linear Gradient */}
       <LinearGradient
-        colors={['#050B06', '#08140A', '#040804']}
+        colors={['#080902', '#121404', '#060701']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -67,7 +67,7 @@ export function NeatGreenGradient({
         style={StyleSheet.absoluteFill}
       >
         <Defs>
-          {/* Main Electric Lime Wave Blob (#B2FF59) */}
+          {/* Main Electric Yellow-Lime Wave Blob (#E5FF1F) */}
           <RadialGradient
             id="neatPrimaryLimeWave"
             cx="48%"
@@ -76,55 +76,55 @@ export function NeatGreenGradient({
             fx="42%"
             fy="30%"
           >
-            <Stop offset="0%" stopColor="#B2FF59" stopOpacity="0.75" />
-            <Stop offset="18%" stopColor="#9DEE45" stopOpacity="0.62" />
-            <Stop offset="35%" stopColor="#7CD22B" stopOpacity="0.45" />
-            <Stop offset="52%" stopColor="#58B218" stopOpacity="0.28" />
-            <Stop offset="70%" stopColor="#358B0A" stopOpacity="0.14" />
-            <Stop offset="88%" stopColor="#195B03" stopOpacity="0.04" />
-            <Stop offset="100%" stopColor="#050B06" stopOpacity="0" />
+            <Stop offset="0%" stopColor="#E5FF1F" stopOpacity="0.75" />
+            <Stop offset="18%" stopColor="#DAF51A" stopOpacity="0.62" />
+            <Stop offset="35%" stopColor="#C2DE14" stopOpacity="0.45" />
+            <Stop offset="52%" stopColor="#9DB50F" stopOpacity="0.28" />
+            <Stop offset="70%" stopColor="#748709" stopOpacity="0.14" />
+            <Stop offset="88%" stopColor="#4B5904" stopOpacity="0.04" />
+            <Stop offset="100%" stopColor="#070801" stopOpacity="0" />
           </RadialGradient>
 
-          {/* Soft Mint Ice Highlight Aura (#D8FCDA - Specular Highlights: 7) */}
+          {/* Soft Ice Yellow Highlight Aura (#F5FFA8) */}
           <RadialGradient
             id="neatMintHighlightAura"
             cx="22%"
             cy="15%"
             r="55%"
           >
-            <Stop offset="0%" stopColor="#EBFDEB" stopOpacity="0.65" />
-            <Stop offset="20%" stopColor="#D8FCDA" stopOpacity="0.48" />
-            <Stop offset="40%" stopColor="#A8F6AC" stopOpacity="0.30" />
-            <Stop offset="62%" stopColor="#6EE075" stopOpacity="0.15" />
-            <Stop offset="82%" stopColor="#35A63D" stopOpacity="0.04" />
-            <Stop offset="100%" stopColor="#050B06" stopOpacity="0" />
+            <Stop offset="0%" stopColor="#FAFFD6" stopOpacity="0.65" />
+            <Stop offset="20%" stopColor="#F5FFA8" stopOpacity="0.48" />
+            <Stop offset="40%" stopColor="#EEFF7A" stopOpacity="0.30" />
+            <Stop offset="62%" stopColor="#E2F84B" stopOpacity="0.15" />
+            <Stop offset="82%" stopColor="#A2B51F" stopOpacity="0.04" />
+            <Stop offset="100%" stopColor="#070801" stopOpacity="0" />
           </RadialGradient>
 
-          {/* Deep Emerald Shadow Depth (#061B0A - Shadows: 4) */}
+          {/* Deep Olive Shadow Depth (#1B1E02) */}
           <RadialGradient
             id="neatEmeraldShadowDepth"
             cx="80%"
             cy="70%"
             r="70%"
           >
-            <Stop offset="0%" stopColor="#0E3D16" stopOpacity="0.85" />
-            <Stop offset="25%" stopColor="#0A2D0F" stopOpacity="0.68" />
-            <Stop offset="50%" stopColor="#061B0A" stopOpacity="0.48" />
-            <Stop offset="75%" stopColor="#041006" stopOpacity="0.22" />
-            <Stop offset="100%" stopColor="#050B06" stopOpacity="0" />
+            <Stop offset="0%" stopColor="#232803" stopOpacity="0.85" />
+            <Stop offset="25%" stopColor="#1B1E02" stopOpacity="0.68" />
+            <Stop offset="50%" stopColor="#111401" stopOpacity="0.48" />
+            <Stop offset="75%" stopColor="#0A0C01" stopOpacity="0.22" />
+            <Stop offset="100%" stopColor="#070801" stopOpacity="0" />
           </RadialGradient>
 
-          {/* Secondary Bottom-Right Lime Light Refraction */}
+          {/* Secondary Bottom-Right Yellow-Lime Light Refraction */}
           <RadialGradient
             id="neatBottomLimeRefraction"
             cx="75%"
             cy="45%"
             r="50%"
           >
-            <Stop offset="0%" stopColor="#8BEB35" stopOpacity="0.42" />
-            <Stop offset="30%" stopColor="#63C61B" stopOpacity="0.26" />
-            <Stop offset="60%" stopColor="#3C950A" stopOpacity="0.12" />
-            <Stop offset="100%" stopColor="#050B06" stopOpacity="0" />
+            <Stop offset="0%" stopColor="#DCFF33" stopOpacity="0.42" />
+            <Stop offset="30%" stopColor="#BCE018" stopOpacity="0.26" />
+            <Stop offset="60%" stopColor="#8EAA0D" stopOpacity="0.12" />
+            <Stop offset="100%" stopColor="#070801" stopOpacity="0" />
           </RadialGradient>
         </Defs>
 
