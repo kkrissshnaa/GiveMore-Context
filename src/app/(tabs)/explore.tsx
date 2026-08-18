@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Platform,
   Image as RNImage,
+  RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,11 +45,20 @@ export default function Explore() {
   const insets = useSafeAreaInsets();
   const [flippedId, setFlippedId] = useState<string | null>(null);
   const [exploreItems, setExploreItems] = useState<ExploreItem[]>(EXPLORE_ITEMS);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadExploreItems = useCallback(async () => {
     const items = await getPublicExploreItems();
     setExploreItems(items);
   }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadExploreItems();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 400);
+  }, [loadExploreItems]);
 
   useEffect(() => {
     loadExploreItems();
@@ -61,102 +72,121 @@ export default function Explore() {
   // - 16:9 images span BOTH columns across full-width rows (taking 2 full-width rows for consecutive 16:9 items)
   // - 9:16 images occupy 1 column and span 2 rows height (paired with 2 stacked 1:1 cards)
   // - 1:1 images sit side-by-side in balanced 2-column rows
+  // Auto-Fix Gapless Grid Masonry Bin-Packing Algorithm:
+  // Eliminates empty spaces and hollow grid cells by dynamically pairing items
+  // and auto-expanding leftover items into full-width hero cards.
   const feedRows = useMemo(() => {
     const rows: FeedRow[] = [];
-    let i = 0;
+    const pool = [...exploreItems];
 
     const is169 = (item: ExploreItem) => {
       if (item.aspectRatio === '16:9') return true;
       const src = typeof item.image === 'object' ? RNImage.resolveAssetSource(item.image) : null;
-      const ratio =
-        src && src.width && src.height ? src.width / src.height : item.numericRatio;
+      const ratio = src && src.width && src.height ? src.width / src.height : item.numericRatio;
       return ratio > 1.3;
     };
 
     const is916 = (item: ExploreItem) => {
       if (item.aspectRatio === '9:16') return true;
       const src = typeof item.image === 'object' ? RNImage.resolveAssetSource(item.image) : null;
-      const ratio =
-        src && src.width && src.height ? src.width / src.height : item.numericRatio;
+      const ratio = src && src.width && src.height ? src.width / src.height : item.numericRatio;
       return ratio < 0.7;
     };
 
     let tallToggle = false;
 
-    while (i < exploreItems.length) {
-      const item = exploreItems[i];
+    while (pool.length > 0) {
+      const current = pool.shift()!;
 
-      // 1. 16:9 Widescreen -> Full Width (Both Columns)
-      if (is169(item)) {
+      // 1. 16:9 Widescreen -> Spans Full Width (100% width)
+      if (is169(current)) {
         rows.push({
-          id: `full-${item.id}`,
+          id: `full-${current.id}`,
           type: 'full-width',
-          item,
+          item: current,
         });
-        i++;
       }
-      // 2. 9:16 Tall Portrait -> 1 column spanning 2 rows height
-      else if (is916(item)) {
-        const tallItem = item;
-        let stackedTopItem: ExploreItem | undefined = undefined;
-        let stackedBottomItem: ExploreItem | undefined = undefined;
-
-        let lookAhead = i + 1;
-        if (
-          lookAhead < exploreItems.length &&
-          !is169(exploreItems[lookAhead]) &&
-          !is916(exploreItems[lookAhead])
-        ) {
-          stackedTopItem = exploreItems[lookAhead];
-          lookAhead++;
-          if (
-            lookAhead < exploreItems.length &&
-            !is169(exploreItems[lookAhead]) &&
-            !is916(exploreItems[lookAhead])
-          ) {
-            stackedBottomItem = exploreItems[lookAhead];
-            lookAhead++;
+      // 2. 9:16 Tall Portrait -> Pair with 2 stacked standard items from remaining pool
+      else if (is916(current)) {
+        const tallItem = current;
+        const stackedIndices: number[] = [];
+        for (let idx = 0; idx < pool.length; idx++) {
+          if (!is169(pool[idx]) && !is916(pool[idx])) {
+            stackedIndices.push(idx);
+            if (stackedIndices.length === 2) break;
           }
         }
 
-        rows.push({
-          id: `tall-${tallItem.id}`,
-          type: 'tall-portrait',
-          tallItem,
-          stackedTopItem,
-          stackedBottomItem,
-          tallPosition: tallToggle ? 'right' : 'left',
-        });
+        if (stackedIndices.length === 2) {
+          const secondIdx = stackedIndices[1];
+          const firstIdx = stackedIndices[0];
+          const stackedBottomItem = pool.splice(secondIdx, 1)[0];
+          const stackedTopItem = pool.splice(firstIdx, 1)[0];
 
-        tallToggle = !tallToggle;
-        i = lookAhead;
-      }
-      // 3. Standard 1:1 items -> Pair side by side in 2 columns
-      else {
-        const leftItem = item;
-        let rightItem: ExploreItem | undefined = undefined;
-
-        if (
-          i + 1 < exploreItems.length &&
-          !is169(exploreItems[i + 1]) &&
-          !is916(exploreItems[i + 1])
-        ) {
-          rightItem = exploreItems[i + 1];
-          i++;
+          rows.push({
+            id: `tall-${tallItem.id}`,
+            type: 'tall-portrait',
+            tallItem,
+            stackedTopItem,
+            stackedBottomItem,
+            tallPosition: tallToggle ? 'right' : 'left',
+          });
+          tallToggle = !tallToggle;
+        } else if (stackedIndices.length === 1) {
+          const stackedTopItem = pool.splice(stackedIndices[0], 1)[0];
+          rows.push({
+            id: `tall-${tallItem.id}`,
+            type: 'tall-portrait',
+            tallItem,
+            stackedTopItem,
+            tallPosition: tallToggle ? 'right' : 'left',
+          });
+          tallToggle = !tallToggle;
+        } else {
+          // Look for another tall item to pair side-by-side or auto-fit full width
+          const otherTallIdx = pool.findIndex((item) => is916(item));
+          if (otherTallIdx !== -1) {
+            const rightTall = pool.splice(otherTallIdx, 1)[0];
+            rows.push({
+              id: `row-tall-${tallItem.id}-${rightTall.id}`,
+              type: 'two-column',
+              leftItem: tallItem,
+              rightItem: rightTall,
+            });
+          } else {
+            rows.push({
+              id: `full-tall-${tallItem.id}`,
+              type: 'full-width',
+              item: tallItem,
+            });
+          }
         }
-
-        rows.push({
-          id: `row-${leftItem.id}-${rightItem ? rightItem.id : 'single'}`,
-          type: 'two-column',
-          leftItem,
-          rightItem,
-        });
-        i++;
+      }
+      // 3. Standard items -> Pair side by side or auto-expand single leftover to full-width (NO GAPS)
+      else {
+        const leftItem = current;
+        const partnerIdx = pool.findIndex((item) => !is169(item));
+        if (partnerIdx !== -1) {
+          const rightItem = pool.splice(partnerIdx, 1)[0];
+          rows.push({
+            id: `row-${leftItem.id}-${rightItem.id}`,
+            type: 'two-column',
+            leftItem,
+            rightItem,
+          });
+        } else {
+          // Single leftover item -> Auto-fit full width hero card (Eliminates empty spaces!)
+          rows.push({
+            id: `full-single-${leftItem.id}`,
+            type: 'full-width',
+            item: leftItem,
+          });
+        }
       }
     }
 
     return rows;
-  }, []);
+  }, [exploreItems]);
 
   return (
     <AestheticBackdrop style={{ flex: 1 }}>
@@ -185,6 +215,15 @@ export default function Explore() {
           data={feedRows}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor="#E5FF1F"
+              colors={['#E5FF1F']}
+              progressBackgroundColor="#0b1405"
+            />
+          }
           contentContainerStyle={{
             paddingHorizontal: 10,
             paddingTop: 6,
@@ -200,6 +239,7 @@ export default function Explore() {
                   <ExploreCard
                     item={fullItem}
                     isFlipped={flippedId === fullItem.id}
+                    overrideAspectRatio={16 / 9}
                     onToggleFlip={() =>
                       setFlippedId(flippedId === fullItem.id ? null : fullItem.id)
                     }
@@ -213,11 +253,15 @@ export default function Explore() {
               const { tallItem, stackedTopItem, stackedBottomItem, tallPosition } = row;
               const isTallLeft = tallPosition === 'left';
 
+              // Height of 2 stacked 1:1 cards + 10px gap matches ratio ~ 0.485 (1 : 2.06)
+              const tallRatio = (stackedTopItem && stackedBottomItem) ? 0.485 : (stackedTopItem ? 1.0 : 0.5625);
+
               const tallCardComponent = (
                 <View style={styles.column}>
                   <ExploreCard
                     item={tallItem}
                     isFlipped={flippedId === tallItem.id}
+                    overrideAspectRatio={tallRatio}
                     onToggleFlip={() =>
                       setFlippedId(flippedId === tallItem.id ? null : tallItem.id)
                     }
@@ -231,6 +275,7 @@ export default function Explore() {
                     <ExploreCard
                       item={stackedTopItem}
                       isFlipped={flippedId === stackedTopItem.id}
+                      overrideAspectRatio={1.0}
                       onToggleFlip={() =>
                         setFlippedId(
                           flippedId === stackedTopItem.id ? null : stackedTopItem.id
@@ -242,6 +287,7 @@ export default function Explore() {
                     <ExploreCard
                       item={stackedBottomItem}
                       isFlipped={flippedId === stackedBottomItem.id}
+                      overrideAspectRatio={1.0}
                       onToggleFlip={() =>
                         setFlippedId(
                           flippedId === stackedBottomItem.id ? null : stackedBottomItem.id
@@ -279,6 +325,7 @@ export default function Explore() {
                   <ExploreCard
                     item={leftItem}
                     isFlipped={flippedId === leftItem.id}
+                    overrideAspectRatio={1.0}
                     onToggleFlip={() =>
                       setFlippedId(flippedId === leftItem.id ? null : leftItem.id)
                     }
@@ -291,6 +338,7 @@ export default function Explore() {
                     <ExploreCard
                       item={rightItem}
                       isFlipped={flippedId === rightItem.id}
+                      overrideAspectRatio={1.0}
                       onToggleFlip={() =>
                         setFlippedId(flippedId === rightItem.id ? null : rightItem.id)
                       }
