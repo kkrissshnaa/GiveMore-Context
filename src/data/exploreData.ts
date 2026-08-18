@@ -12,6 +12,7 @@ export interface ExploreItem {
   category: 'Graphic Art' | 'Noir & Comic' | 'Cinematic' | 'Minimalist';
   likesCount: number;
   createdAt: string;
+  isUserPublished?: boolean;
 }
 
 export const EXPLORE_ITEMS: ExploreItem[] = [

@@ -193,7 +193,7 @@ export const ExploreCard = memo(function ExploreCard({
           <GestureDetector gesture={frontGestures}>
             <View style={styles.touchable}>
               <Image
-                source={item.image}
+                source={typeof item.image === 'string' ? { uri: item.image } : item.image}
                 style={styles.cardImage}
                 contentFit="contain"
                 transition={200}
