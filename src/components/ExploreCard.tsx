@@ -32,6 +32,7 @@ interface ExploreCardProps {
   isFlipped: boolean;
   onToggleFlip: () => void;
   onRemixPrompt?: (prompt: string, model: string) => void;
+  overrideAspectRatio?: number;
 }
 
 export const ExploreCard = memo(function ExploreCard({
@@ -39,17 +40,19 @@ export const ExploreCard = memo(function ExploreCard({
   isFlipped,
   onToggleFlip,
   onRemixPrompt,
+  overrideAspectRatio,
 }: ExploreCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(item.likesCount);
   const [copied, setCopied] = useState(false);
 
-  // Dynamically resolve true asset ratio to ensure zero crop
+  // Dynamically resolve ratio
   const assetSource = RNImage.resolveAssetSource(item.image);
-  const trueRatio =
+  const detectedRatio =
     assetSource && assetSource.width && assetSource.height
       ? assetSource.width / assetSource.height
       : item.numericRatio;
+  const effectiveRatio = overrideAspectRatio ?? detectedRatio;
 
   // 3D Flip Animation Value (0: Front, 1: Back)
   const flipAnim = useRef(new Animated.Value(isFlipped ? 1 : 0)).current;
@@ -171,7 +174,7 @@ export const ExploreCard = memo(function ExploreCard({
       style={[
         styles.cardWrapper,
         {
-          aspectRatio: trueRatio,
+          aspectRatio: effectiveRatio,
           width: '100%',
         },
       ]}
@@ -195,7 +198,7 @@ export const ExploreCard = memo(function ExploreCard({
               <Image
                 source={typeof item.image === 'string' ? { uri: item.image } : item.image}
                 style={styles.cardImage}
-                contentFit="contain"
+                contentFit="cover"
                 transition={200}
               />
 

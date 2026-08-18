@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -19,8 +19,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
 import { CanvasRegion, ReferenceCanvasModal } from '../components/ReferenceCanvasModal';
-import { ShareModal } from '../components/ShareModal';
 import { downloadAndSaveImage } from '../lib/imageActions';
+import { publishItemToExplore } from '../lib/exploreService';
 import { chatEvents } from '../lib/chatEvents';
 import { ChatItem, saveChat } from '../lib/chatService';
 
@@ -134,9 +134,10 @@ export default function Index() {
   const [currentChatId, setCurrentChatId] = useState<string>(() => `chat_${Date.now()}_${Math.floor(Math.random() * 1000)}`);
   const [createdAt, setCreatedAt] = useState<string>(() => new Date().toISOString());
 
-  const [shareModalVisible, setShareModalVisible] = useState(false);
   const [actionToast, setActionToast] = useState<string | null>(null);
   const [downloadingDirect, setDownloadingDirect] = useState(false);
+  const [publishingExplore, setPublishingExplore] = useState(false);
+  const [publishedSuccess, setPublishedSuccess] = useState(false);
 
   const handleDirectDownload = async () => {
     if (!imageUrl) return;
@@ -144,12 +145,36 @@ export default function Index() {
     try {
       const res = await downloadAndSaveImage(imageUrl);
       setActionToast(res.message);
-      setTimeout(() => setActionToast(null), 3000);
+      setTimeout(() => setActionToast(null), 3500);
     } catch (err: any) {
       setActionToast(err?.message || 'Download failed');
-      setTimeout(() => setActionToast(null), 3000);
+      setTimeout(() => setActionToast(null), 3500);
     } finally {
       setDownloadingDirect(false);
+    }
+  };
+
+  const handlePublishToExplore = async () => {
+    if (!imageUrl) return;
+    setPublishingExplore(true);
+    try {
+      await publishItemToExplore({
+        imageUrl,
+        prompt: activePrompt || prompt || 'New generation',
+        model,
+        aspectRatio,
+      });
+      setPublishedSuccess(true);
+      setActionToast('Published to Explore page! 🚀');
+      setTimeout(() => {
+        setActionToast(null);
+        setPublishedSuccess(false);
+      }, 4500);
+    } catch (err: any) {
+      setActionToast('Failed to publish to Explore page.');
+      setTimeout(() => setActionToast(null), 3500);
+    } finally {
+      setPublishingExplore(false);
     }
   };
 
@@ -446,7 +471,7 @@ export default function Index() {
                   <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[16px]" resizeMode="cover" />
                 </View>
 
-                {/* Quick Action Bar: Download & Share */}
+                {/* Quick Action Bar: Download & Publish to Explore */}
                 <View className="flex-row items-center justify-between mt-3 px-1 gap-2">
                   <TouchableOpacity
                     onPress={handleDirectDownload}
@@ -459,22 +484,39 @@ export default function Index() {
                     ) : (
                       <Feather name="download" size={14} color="#E5FF1F" />
                     )}
-                    <Text className="text-[12px] font-bold text-[#E5FF1F] font-display">Download</Text>
+                    <Text className="text-[12px] font-bold text-[#E5FF1F] font-display">
+                      {downloadingDirect ? 'Saving…' : 'Download'}
+                    </Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    onPress={() => setShareModalVisible(true)}
+                    onPress={handlePublishToExplore}
+                    disabled={publishingExplore}
                     activeOpacity={0.7}
                     className="flex-1 flex-row items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-[#E5FF1F] border border-white/40 shadow-md shadow-[#E5FF1F]/30"
                   >
-                    <Feather name="share-2" size={14} color="#0b1405" />
-                    <Text className="text-[12px] font-bold text-[#0b1405] font-display">Share & Publish</Text>
+                    {publishingExplore ? (
+                      <ActivityIndicator size="small" color="#0b1405" />
+                    ) : (
+                      <Feather name="globe" size={14} color="#0b1405" />
+                    )}
+                    <Text className="text-[12px] font-bold text-[#0b1405] font-display">
+                      {publishingExplore ? 'Publishing…' : 'Publish to Explore'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
 
                 {actionToast && (
-                  <View className="mt-2.5 p-2.5 rounded-xl bg-[#E5FF1F]/20 border border-[#E5FF1F]/50 items-center">
-                    <Text className="text-[11.5px] font-bold text-[#E5FF1F] font-sans">{actionToast}</Text>
+                  <View className="mt-2.5 p-2.5 rounded-xl bg-[#E5FF1F]/20 border border-[#E5FF1F]/50 flex-row items-center justify-between px-3">
+                    <Text className="text-[11.5px] font-bold text-[#E5FF1F] font-sans flex-1">{actionToast}</Text>
+                    {publishedSuccess && (
+                      <TouchableOpacity
+                        onPress={() => router.push('/(tabs)/explore')}
+                        className="px-2.5 py-1 rounded-full bg-[#E5FF1F] border border-white/40"
+                      >
+                        <Text className="text-[10.5px] font-bold text-[#0b1405] font-display">View Feed →</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 )}
               </View>
@@ -727,15 +769,6 @@ export default function Index() {
           setCanvasRegions(newRegions);
           setCanvasEnabled(newRegions.length > 0);
         }}
-      />
-
-      <ShareModal
-        visible={shareModalVisible}
-        onClose={() => setShareModalVisible(false)}
-        imageUrl={imageUrl}
-        prompt={activePrompt || prompt}
-        model={model}
-        aspectRatio={aspectRatio}
       />
     </AestheticBackdrop>
   );
