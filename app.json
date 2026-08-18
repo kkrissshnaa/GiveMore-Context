@@ -42,7 +42,15 @@
       "expo-font",
       "expo-image",
       "expo-status-bar",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-sharing",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow GiveMore to save generated images to your photo gallery.",
+          "savePhotosPermission": "Allow GiveMore to save generated images to your photo gallery."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

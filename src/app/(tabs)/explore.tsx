@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../../components/AestheticBackdrop';
 import { ExploreCard } from '../../components/ExploreCard';
 import { EXPLORE_ITEMS, ExploreItem } from '../../data/exploreData';
+import { getPublicExploreItems, exploreEvents } from '../../lib/exploreService';
 
 const HELVETICA_FONT = Platform.select({
   ios: 'Helvetica',
@@ -41,6 +42,20 @@ type FeedRow =
 export default function Explore() {
   const insets = useSafeAreaInsets();
   const [flippedId, setFlippedId] = useState<string | null>(null);
+  const [exploreItems, setExploreItems] = useState<ExploreItem[]>(EXPLORE_ITEMS);
+
+  const loadExploreItems = useCallback(async () => {
+    const items = await getPublicExploreItems();
+    setExploreItems(items);
+  }, []);
+
+  useEffect(() => {
+    loadExploreItems();
+    const unsub = exploreEvents.subscribe(() => {
+      loadExploreItems();
+    });
+    return () => unsub();
+  }, [loadExploreItems]);
 
   // Group items into dynamic rows:
   // - 16:9 images span BOTH columns across full-width rows (taking 2 full-width rows for consecutive 16:9 items)
@@ -52,7 +67,7 @@ export default function Explore() {
 
     const is169 = (item: ExploreItem) => {
       if (item.aspectRatio === '16:9') return true;
-      const src = RNImage.resolveAssetSource(item.image);
+      const src = typeof item.image === 'object' ? RNImage.resolveAssetSource(item.image) : null;
       const ratio =
         src && src.width && src.height ? src.width / src.height : item.numericRatio;
       return ratio > 1.3;
@@ -60,7 +75,7 @@ export default function Explore() {
 
     const is916 = (item: ExploreItem) => {
       if (item.aspectRatio === '9:16') return true;
-      const src = RNImage.resolveAssetSource(item.image);
+      const src = typeof item.image === 'object' ? RNImage.resolveAssetSource(item.image) : null;
       const ratio =
         src && src.width && src.height ? src.width / src.height : item.numericRatio;
       return ratio < 0.7;
@@ -68,8 +83,8 @@ export default function Explore() {
 
     let tallToggle = false;
 
-    while (i < EXPLORE_ITEMS.length) {
-      const item = EXPLORE_ITEMS[i];
+    while (i < exploreItems.length) {
+      const item = exploreItems[i];
 
       // 1. 16:9 Widescreen -> Full Width (Both Columns)
       if (is169(item)) {
@@ -88,18 +103,18 @@ export default function Explore() {
 
         let lookAhead = i + 1;
         if (
-          lookAhead < EXPLORE_ITEMS.length &&
-          !is169(EXPLORE_ITEMS[lookAhead]) &&
-          !is916(EXPLORE_ITEMS[lookAhead])
+          lookAhead < exploreItems.length &&
+          !is169(exploreItems[lookAhead]) &&
+          !is916(exploreItems[lookAhead])
         ) {
-          stackedTopItem = EXPLORE_ITEMS[lookAhead];
+          stackedTopItem = exploreItems[lookAhead];
           lookAhead++;
           if (
-            lookAhead < EXPLORE_ITEMS.length &&
-            !is169(EXPLORE_ITEMS[lookAhead]) &&
-            !is916(EXPLORE_ITEMS[lookAhead])
+            lookAhead < exploreItems.length &&
+            !is169(exploreItems[lookAhead]) &&
+            !is916(exploreItems[lookAhead])
           ) {
-            stackedBottomItem = EXPLORE_ITEMS[lookAhead];
+            stackedBottomItem = exploreItems[lookAhead];
             lookAhead++;
           }
         }
@@ -122,11 +137,11 @@ export default function Explore() {
         let rightItem: ExploreItem | undefined = undefined;
 
         if (
-          i + 1 < EXPLORE_ITEMS.length &&
-          !is169(EXPLORE_ITEMS[i + 1]) &&
-          !is916(EXPLORE_ITEMS[i + 1])
+          i + 1 < exploreItems.length &&
+          !is169(exploreItems[i + 1]) &&
+          !is916(exploreItems[i + 1])
         ) {
-          rightItem = EXPLORE_ITEMS[i + 1];
+          rightItem = exploreItems[i + 1];
           i++;
         }
 

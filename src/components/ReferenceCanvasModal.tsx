@@ -9,6 +9,7 @@ import {
   LayoutChangeEvent,
   StyleSheet,
   Keyboard,
+  ScrollView,
 } from 'react-native';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
@@ -45,8 +46,12 @@ interface RegionItemProps {
   index: number;
   canvasWidth: number;
   canvasHeight: number;
+  isSelected: boolean;
+  onSelect: () => void;
   onUpdateRegion: (updated: CanvasRegion) => void;
   onRemoveRegion: (id: string) => void;
+  onBringToFront: (id: string) => void;
+  onSendToBack: (id: string) => void;
 }
 
 let nextRegionId = 0;
@@ -57,8 +62,12 @@ function RegionItem({
   index,
   canvasWidth,
   canvasHeight,
+  isSelected,
+  onSelect,
   onUpdateRegion,
   onRemoveRegion,
+  onBringToFront,
+  onSendToBack,
 }: RegionItemProps) {
   const posX = useSharedValue(region.x);
   const posY = useSharedValue(region.y);
@@ -72,9 +81,12 @@ function RegionItem({
 
   const onUpdateRef = useRef(onUpdateRegion);
   const regionRef = useRef(region);
+  const onSelectRef = useRef(onSelect);
+
   useEffect(() => {
     onUpdateRef.current = onUpdateRegion;
     regionRef.current = region;
+    onSelectRef.current = onSelect;
   });
 
   useEffect(() => {
@@ -84,7 +96,7 @@ function RegionItem({
     posH.value = region.height;
   }, [region.x, region.y, region.width, region.height, posX, posY, posW, posH]);
 
-  const commitUpdate = React.useCallback((x: number, y: number, w: number, h: number) => {
+  const commitUpdate = useCallback((x: number, y: number, w: number, h: number) => {
     onUpdateRef.current({
       ...regionRef.current,
       x,
@@ -94,12 +106,17 @@ function RegionItem({
     });
   }, []);
 
+  const triggerSelectJS = useCallback(() => {
+    onSelectRef.current();
+  }, []);
+
   // Move Gesture (Pan inside region)
   const moveGesture = React.useMemo(() => {
     return Gesture.Pan()
       .onStart(() => {
         'worklet';
         runOnJS(dismissKeyboard)();
+        runOnJS(triggerSelectJS)();
         startPosX.value = posX.value;
         startPosY.value = posY.value;
       })
@@ -124,8 +141,7 @@ function RegionItem({
           posH.value
         );
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasWidth, canvasHeight]);
+  }, [canvasWidth, canvasHeight, commitUpdate, triggerSelectJS]);
 
   // Resize Gesture (Pan on bottom-right handle)
   const resizeGesture = React.useMemo(() => {
@@ -133,6 +149,7 @@ function RegionItem({
       .onStart(() => {
         'worklet';
         runOnJS(dismissKeyboard)();
+        runOnJS(triggerSelectJS)();
         startPosW.value = posW.value;
         startPosH.value = posH.value;
       })
@@ -157,8 +174,7 @@ function RegionItem({
           posH.value
         );
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasWidth, canvasHeight]);
+  }, [canvasWidth, canvasHeight, commitUpdate, triggerSelectJS]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     position: 'absolute',
@@ -166,6 +182,7 @@ function RegionItem({
     top: `${posY.value}%`,
     width: `${posW.value}%`,
     height: `${posH.value}%`,
+    zIndex: isSelected ? 100 : index + 10,
   }));
 
   return (
@@ -173,39 +190,74 @@ function RegionItem({
       <Animated.View
         collapsable={false}
         style={animatedStyle}
-        className="rounded-[16px] border-[1.5px] border-[#E5FF1F] bg-[#E5FF1F]/20 p-2 justify-between z-10 shadow-[0_0_15px_rgba(229,255,31,0.3)]"
+        className={`rounded-[16px] border-[1.5px] p-2 justify-between ${
+          isSelected
+            ? 'border-[#E5FF1F] bg-[#E5FF1F]/30 shadow-[0_0_20px_rgba(229,255,31,0.5)]'
+            : 'border-white/40 bg-black/60 shadow-md'
+        }`}
       >
         {/* Region Header: Badge & Delete Button */}
         <View className="flex-row items-center justify-between z-20">
-          <View className="w-5 h-5 rounded-full bg-[#E5FF1F] items-center justify-center shadow-md">
-            <Text className="text-[10px] font-bold text-[#0b1405] font-mono">{index + 1}</Text>
-          </View>
-
           <TouchableOpacity
-            onPress={() => onRemoveRegion(region.id)}
-            className="w-5 h-5 rounded-full bg-black/80 border border-white/40 items-center justify-center"
+            onPress={onSelect}
+            activeOpacity={0.7}
+            className={`w-5 h-5 rounded-full items-center justify-center shadow-md border ${
+              isSelected ? 'bg-[#E5FF1F] border-white/60' : 'bg-black/80 border-white/30'
+            }`}
           >
-            <Feather name="x" size={11} color="white" />
+            <Text className={`text-[10px] font-bold font-mono ${isSelected ? 'text-[#0b1405]' : 'text-white'}`}>
+              {index + 1}
+            </Text>
           </TouchableOpacity>
+
+          <View className="flex-row items-center gap-1">
+            {isSelected && (
+              <>
+                <TouchableOpacity
+                  onPress={() => onBringToFront(region.id)}
+                  className="w-5 h-5 rounded-full bg-black/80 border border-[#E5FF1F]/70 items-center justify-center"
+                >
+                  <Feather name="arrow-up" size={10} color="#E5FF1F" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => onSendToBack(region.id)}
+                  className="w-5 h-5 rounded-full bg-black/80 border border-white/40 items-center justify-center"
+                >
+                  <Feather name="arrow-down" size={10} color="white" />
+                </TouchableOpacity>
+              </>
+            )}
+            <TouchableOpacity
+              onPress={() => onRemoveRegion(region.id)}
+              className="w-5 h-5 rounded-full bg-black/80 border border-white/40 items-center justify-center ml-0.5"
+            >
+              <Feather name="x" size={11} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Text Input for Region Description */}
         <View className="flex-1 mt-1 justify-start">
           <TextInput
             value={region.prompt}
+            onFocus={onSelect}
             onChangeText={(text) => onUpdateRegion({ ...region, prompt: text })}
             placeholder="e.g. product bottle, warm light"
             placeholderTextColor="rgba(255, 255, 255, 0.45)"
             multiline
-            className="text-white text-[11px] font-sans font-semibold p-0 leading-3.5"
+            className={`text-[11px] font-sans font-semibold p-0 leading-3.5 ${
+              isSelected ? 'text-white font-bold' : 'text-white/80'
+            }`}
             style={{ textAlignVertical: 'top' }}
           />
         </View>
 
         {/* Resize Handle (Bottom-Right Corner) */}
         <GestureDetector gesture={resizeGesture}>
-          <View className="absolute bottom-1 right-1 w-6 h-6 items-center justify-center bg-black/70 rounded-full border border-[#E5FF1F]/80 z-30">
-            <Feather name="maximize-2" size={10} color="#E5FF1F" />
+          <View className={`absolute bottom-1 right-1 w-6 h-6 items-center justify-center rounded-full border z-30 ${
+            isSelected ? 'bg-[#E5FF1F] border-white/80' : 'bg-black/70 border-white/40'
+          }`}>
+            <Feather name="maximize-2" size={10} color={isSelected ? '#0b1405' : '#E5FF1F'} />
           </View>
         </GestureDetector>
       </Animated.View>
@@ -222,12 +274,17 @@ export function ReferenceCanvasModal({
 }: ReferenceCanvasModalProps) {
   const [prevVisible, setPrevVisible] = useState(visible);
   const [localRegions, setLocalRegions] = useState<CanvasRegion[]>(initialRegions || []);
+  const [selectedRegionId, setSelectedRegionId] = useState<string | null>(
+    (initialRegions && initialRegions.length > 0) ? initialRegions[initialRegions.length - 1].id : null
+  );
   const [canvasLayout, setCanvasLayout] = useState<{ width: number; height: number }>({ width: 300, height: 300 });
 
   if (prevVisible !== visible) {
     setPrevVisible(visible);
     if (visible) {
-      setLocalRegions(initialRegions || []);
+      const regs = initialRegions || [];
+      setLocalRegions(regs);
+      setSelectedRegionId(regs.length > 0 ? regs[regs.length - 1].id : null);
     }
   }
 
@@ -267,8 +324,9 @@ export function ReferenceCanvasModal({
     const percentW = Math.min(100 - percentX, (absW / cW) * 100);
     const percentH = Math.min(100 - percentY, (absH / cH) * 100);
 
+    const newId = generateRegionId();
     const newRegion: CanvasRegion = {
-      id: generateRegionId(),
+      id: newId,
       x: percentX,
       y: percentY,
       width: percentW,
@@ -277,6 +335,7 @@ export function ReferenceCanvasModal({
     };
 
     setLocalRegions((prev) => [...prev, newRegion]);
+    setSelectedRegionId(newId);
   }, []);
 
   const handleDrawEnd = useCallback((sX: number, sY: number, cX: number, cY: number) => {
@@ -328,7 +387,6 @@ export function ReferenceCanvasModal({
         'worklet';
         isDrawing.value = false;
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const drawingBoxStyle = useAnimatedStyle(() => {
@@ -354,11 +412,40 @@ export function ReferenceCanvasModal({
   };
 
   const handleRemoveRegion = (id: string) => {
-    setLocalRegions((prev) => prev.filter((r) => r.id !== id));
+    setLocalRegions((prev) => {
+      const remaining = prev.filter((r) => r.id !== id);
+      if (selectedRegionId === id) {
+        setSelectedRegionId(remaining.length > 0 ? remaining[remaining.length - 1].id : null);
+      }
+      return remaining;
+    });
+  };
+
+  const bringToFront = (id: string) => {
+    setLocalRegions((prev) => {
+      const idx = prev.findIndex((r) => r.id === id);
+      if (idx < 0 || idx === prev.length - 1) return prev;
+      const target = prev[idx];
+      const rest = prev.filter((r) => r.id !== id);
+      return [...rest, target];
+    });
+    setSelectedRegionId(id);
+  };
+
+  const sendToBack = (id: string) => {
+    setLocalRegions((prev) => {
+      const idx = prev.findIndex((r) => r.id === id);
+      if (idx <= 0) return prev;
+      const target = prev[idx];
+      const rest = prev.filter((r) => r.id !== id);
+      return [target, ...rest];
+    });
+    setSelectedRegionId(id);
   };
 
   const clearAll = () => {
     setLocalRegions([]);
+    setSelectedRegionId(null);
   };
 
   const handleDone = () => {
@@ -389,13 +476,13 @@ export function ReferenceCanvasModal({
           <View className="bg-[#120d0f] rounded-t-[32px] border-t border-white/10 p-5 pb-8 max-h-[92%] flex-col">
             
             {/* Header */}
-            <View className="flex-row items-start justify-between mb-3">
+            <View className="flex-row items-start justify-between mb-2">
               <View className="flex-1 pr-4">
                 <Text className="text-[20px] font-bold text-white mb-0.5">
                   Reference Canvas
                 </Text>
                 <Text className="text-[12.5px] text-[#8a8385] leading-4">
-                  Drag to draw an area, then drag to move or scale objects.
+                  Drag to draw layered objects. Tap a layer number to select & edit overlapping objects.
                 </Text>
               </View>
               <TouchableOpacity
@@ -406,6 +493,40 @@ export function ReferenceCanvasModal({
               </TouchableOpacity>
             </View>
 
+            {/* Layer Selector Bar */}
+            {localRegions.length > 0 && (
+              <View className="w-full my-2">
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+                  {localRegions.map((region, idx) => {
+                    const isSelected = region.id === selectedRegionId;
+                    return (
+                      <TouchableOpacity
+                        key={region.id}
+                        onPress={() => setSelectedRegionId(region.id)}
+                        className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-full border ${
+                          isSelected
+                            ? 'bg-[#E5FF1F] border-[#E5FF1F] shadow-[0_0_12px_rgba(229,255,31,0.4)]'
+                            : 'bg-white/10 border-white/20'
+                        }`}
+                      >
+                        <View className={`w-4 h-4 rounded-full items-center justify-center ${isSelected ? 'bg-[#0b1405]' : 'bg-white/20'}`}>
+                          <Text className={`text-[9px] font-bold font-mono ${isSelected ? 'text-[#E5FF1F]' : 'text-white'}`}>
+                            {idx + 1}
+                          </Text>
+                        </View>
+                        <Text
+                          className={`text-[11.5px] font-medium font-sans max-w-[110px] ${isSelected ? 'text-[#0b1405] font-bold' : 'text-white'}`}
+                          numberOfLines={1}
+                        >
+                          {region.prompt.trim() || `Object ${idx + 1}`}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            )}
+
             {/* Dynamic Aspect Ratio Canvas Container */}
             <View className="w-full items-center my-2">
               <View
@@ -413,7 +534,7 @@ export function ReferenceCanvasModal({
                 className="w-full rounded-[24px] bg-[#181315] border border-white/15 overflow-hidden relative justify-center items-center"
                 style={{
                   aspectRatio: getCanvasAspectRatio(),
-                  maxHeight: aspectRatio === '9:16' ? 360 : 320,
+                  maxHeight: aspectRatio === '9:16' ? 340 : 300,
                 }}
               >
                 {/* Layer 1: Drawing Gesture Background */}
@@ -437,7 +558,7 @@ export function ReferenceCanvasModal({
                           borderColor: '#E5FF1F',
                           borderStyle: 'dashed',
                           backgroundColor: 'rgba(229, 255, 31, 0.25)',
-                          zIndex: 30,
+                          zIndex: 200,
                         },
                       ]}
                     />
@@ -454,7 +575,7 @@ export function ReferenceCanvasModal({
                   </View>
                 </GestureDetector>
 
-                {/* Layer 2: Interactive Regions Overlay (positioned as sibling, not nested in Layer 1's GestureDetector) */}
+                {/* Layer 2: Interactive Regions Overlay */}
                 <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
                   {localRegions.map((region, idx) => (
                     <RegionItem
@@ -463,8 +584,12 @@ export function ReferenceCanvasModal({
                       index={idx}
                       canvasWidth={canvasLayout.width}
                       canvasHeight={canvasLayout.height}
+                      isSelected={region.id === selectedRegionId}
+                      onSelect={() => setSelectedRegionId(region.id)}
                       onUpdateRegion={handleUpdateRegion}
                       onRemoveRegion={handleRemoveRegion}
+                      onBringToFront={bringToFront}
+                      onSendToBack={sendToBack}
                     />
                   ))}
                 </View>
@@ -480,7 +605,7 @@ export function ReferenceCanvasModal({
               </TouchableOpacity>
 
               <Text className="text-[12.5px] font-semibold text-[#8a8385] font-mono">
-                {localRegions.length} {localRegions.length === 1 ? 'region' : 'regions'}
+                {localRegions.length} {localRegions.length === 1 ? 'object' : 'objects'}
               </Text>
 
               <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>

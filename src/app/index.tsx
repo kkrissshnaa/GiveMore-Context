@@ -19,6 +19,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
 import { CanvasRegion, ReferenceCanvasModal } from '../components/ReferenceCanvasModal';
+import { ShareModal } from '../components/ShareModal';
+import { downloadAndSaveImage } from '../lib/imageActions';
 import { chatEvents } from '../lib/chatEvents';
 import { ChatItem, saveChat } from '../lib/chatService';
 
@@ -132,16 +134,36 @@ export default function Index() {
   const [currentChatId, setCurrentChatId] = useState<string>(() => `chat_${Date.now()}_${Math.floor(Math.random() * 1000)}`);
   const [createdAt, setCreatedAt] = useState<string>(() => new Date().toISOString());
 
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [actionToast, setActionToast] = useState<string | null>(null);
+  const [downloadingDirect, setDownloadingDirect] = useState(false);
+
+  const handleDirectDownload = async () => {
+    if (!imageUrl) return;
+    setDownloadingDirect(true);
+    try {
+      const res = await downloadAndSaveImage(imageUrl);
+      setActionToast(res.message);
+      setTimeout(() => setActionToast(null), 3000);
+    } catch (err: any) {
+      setActionToast(err?.message || 'Download failed');
+      setTimeout(() => setActionToast(null), 3000);
+    } finally {
+      setDownloadingDirect(false);
+    }
+  };
+
   const [keyboardHeightAnim] = useState(() => new Animated.Value(0));
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const saveCurrentChatIfNeeded = useCallback(async () => {
+    const activeCanvasRegions = canvasEnabled ? canvasRegions : [];
     const hasData = Boolean(
       (prompt && prompt.trim().length > 0) ||
       activePrompt !== null ||
       imageUrl !== null ||
       referenceImages.length > 0 ||
-      canvasRegions.length > 0
+      activeCanvasRegions.length > 0
     );
     if (hasData) {
       const chatToSave: ChatItem = {
@@ -154,13 +176,13 @@ export default function Index() {
         aspectRatio,
         quality,
         referenceImages,
-        canvasRegions,
+        canvasRegions: activeCanvasRegions,
         createdAt,
       };
       await saveChat(chatToSave);
       chatEvents.emitChatSaved();
     }
-  }, [prompt, activePrompt, imageUrl, referenceImages, canvasRegions, model, aspectRatio, quality, currentChatId, createdAt]);
+  }, [prompt, activePrompt, imageUrl, referenceImages, canvasRegions, canvasEnabled, model, aspectRatio, quality, currentChatId, createdAt]);
 
   const handleCreateNewChat = useCallback(async () => {
     await saveCurrentChatIfNeeded();
@@ -287,7 +309,11 @@ export default function Index() {
   };
 
   const generateImage = async () => {
-    if (!prompt.trim() && canvasRegions.length === 0) return;
+    const effectiveCanvasRegions = canvasEnabled && canvasRegions.length > 0 ? canvasRegions : [];
+    if (canvasEnabled && effectiveCanvasRegions.length === 0) {
+      setCanvasEnabled(false);
+    }
+    if (!prompt.trim() && effectiveCanvasRegions.length === 0) return;
 
     let currentPrompt = prompt.trim();
 
@@ -319,7 +345,7 @@ export default function Index() {
           aspectRatio,
           referenceImage: referenceImages[0] || null,
           referenceImages,
-          canvasRegions,
+          canvasRegions: effectiveCanvasRegions,
           model,
           quality,
         }),
@@ -412,11 +438,45 @@ export default function Index() {
               <Text className="text-red-400 text-center mt-2 text-sm font-medium font-sans">{errorText}</Text>
             )}
             {imageUrl && (
-              <View
-                className="w-full mt-1 rounded-[24px] overflow-hidden bg-white/10 border border-white/20 p-2 shadow-2xl backdrop-blur-xl"
-                style={getAspectRatioStyle(aspectRatio)}
-              >
-                <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[16px]" resizeMode="cover" />
+              <View className="w-full mt-1">
+                <View
+                  className="w-full rounded-[24px] overflow-hidden bg-white/10 border border-white/20 p-2 shadow-2xl backdrop-blur-xl"
+                  style={getAspectRatioStyle(aspectRatio)}
+                >
+                  <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[16px]" resizeMode="cover" />
+                </View>
+
+                {/* Quick Action Bar: Download & Share */}
+                <View className="flex-row items-center justify-between mt-3 px-1 gap-2">
+                  <TouchableOpacity
+                    onPress={handleDirectDownload}
+                    disabled={downloadingDirect}
+                    activeOpacity={0.7}
+                    className="flex-1 flex-row items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-[#0b1405]/90 border border-[#E5FF1F]/40 backdrop-blur-md"
+                  >
+                    {downloadingDirect ? (
+                      <ActivityIndicator size="small" color="#E5FF1F" />
+                    ) : (
+                      <Feather name="download" size={14} color="#E5FF1F" />
+                    )}
+                    <Text className="text-[12px] font-bold text-[#E5FF1F] font-display">Download</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => setShareModalVisible(true)}
+                    activeOpacity={0.7}
+                    className="flex-1 flex-row items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-[#E5FF1F] border border-white/40 shadow-md shadow-[#E5FF1F]/30"
+                  >
+                    <Feather name="share-2" size={14} color="#0b1405" />
+                    <Text className="text-[12px] font-bold text-[#0b1405] font-display">Share & Publish</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {actionToast && (
+                  <View className="mt-2.5 p-2.5 rounded-xl bg-[#E5FF1F]/20 border border-[#E5FF1F]/50 items-center">
+                    <Text className="text-[11.5px] font-bold text-[#E5FF1F] font-sans">{actionToast}</Text>
+                  </View>
+                )}
               </View>
             )}
             {activePrompt && (loading || imageUrl || errorText) && (
@@ -499,7 +559,11 @@ export default function Index() {
                   value={canvasEnabled}
                   onValueChange={(val) => {
                     setCanvasEnabled(val);
-                    if (val) setCanvasModalVisible(true);
+                    if (val) {
+                      setCanvasModalVisible(true);
+                    } else {
+                      setCanvasRegions([]);
+                    }
                   }}
                   trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                   thumbColor="white"
@@ -599,7 +663,7 @@ export default function Index() {
             </TouchableOpacity>
 
             <View className="flex-1 justify-center mr-2">
-              {canvasRegions.length > 0 && (
+              {canvasEnabled && canvasRegions.length > 0 && (
                 <View className="flex-row items-center mb-1">
                   <TouchableOpacity
                     onPress={() => setCanvasModalVisible(true)}
@@ -663,6 +727,15 @@ export default function Index() {
           setCanvasRegions(newRegions);
           setCanvasEnabled(newRegions.length > 0);
         }}
+      />
+
+      <ShareModal
+        visible={shareModalVisible}
+        onClose={() => setShareModalVisible(false)}
+        imageUrl={imageUrl}
+        prompt={activePrompt || prompt}
+        model={model}
+        aspectRatio={aspectRatio}
       />
     </AestheticBackdrop>
   );
