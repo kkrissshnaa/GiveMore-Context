@@ -153,7 +153,7 @@ export default function Explore() {
           <View style={styles.headerTop}>
             <View style={styles.titleGroup}>
               <View style={styles.iconBox}>
-                <Feather name="compass" size={22} color="#b2ff59" />
+                <Feather name="compass" size={22} color="#E5FF1F" />
               </View>
               <View>
                 <Text style={styles.headerTitle}>Explore</Text>
@@ -313,9 +313,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: 'rgba(178, 255, 89, 0.15)',
+    backgroundColor: 'rgba(229, 255, 31, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.35)',
+    borderColor: 'rgba(229, 255, 31, 0.35)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     lineHeight: 27,
   },
   headerSubtitle: {
-    color: '#b2ff59',
+    color: '#E5FF1F',
     fontSize: 12.5,
     fontWeight: '400',
     fontFamily: HELVETICA_FONT,
