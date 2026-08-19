@@ -166,7 +166,7 @@ export default function SignInScreen() {
               style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }}
               className="text-sm font-medium mt-1"
             >
-              Sign in to continue with <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }}>give more —context</Text>
+              Sign in to continue with <Text style={{ fontFamily: HELVETICA_BOLD, fontWeight: '900', color: '#E5FF1F' }}>Givemore-Context</Text>
             </Text>
           </View>
 
@@ -182,40 +182,6 @@ export default function SignInScreen() {
               </Text>
             </View>
           )}
-
-          {/* Google SSO Button */}
-          <TouchableOpacity
-            onPress={handleGoogleSignIn}
-            disabled={googleLoading || loading}
-            activeOpacity={0.8}
-            className="flex-row items-center justify-center gap-3 py-3.5 px-4 rounded-2xl bg-white/[0.07] border border-white/15 active:bg-white/[0.12] mb-6"
-          >
-            {googleLoading ? (
-              <ActivityIndicator size="small" color="#E5FF1F" />
-            ) : (
-              <>
-                <FontAwesome name="google" size={17} color="#E5FF1F" />
-                <Text
-                  style={{ fontFamily: HELVETICA_BOLD }}
-                  className="text-white text-sm font-semibold"
-                >
-                  Continue with Google
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-
-          {/* Divider */}
-          <View className="flex-row items-center mb-6">
-            <View className="flex-1 h-[1px] bg-white/10" />
-            <Text
-              style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }}
-              className="px-3 text-xs font-bold uppercase tracking-wider"
-            >
-              or username / email
-            </Text>
-            <View className="flex-1 h-[1px] bg-white/10" />
-          </View>
 
           {/* Identifier Input */}
           <View className="mb-4">
@@ -280,6 +246,40 @@ export default function SignInScreen() {
               >
                 Sign In
               </Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Divider */}
+          <View className="flex-row items-center mb-6">
+            <View className="flex-1 h-[1px] bg-white/10" />
+            <Text
+              style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }}
+              className="px-3 text-xs font-bold uppercase tracking-wider"
+            >
+              or continue with
+            </Text>
+            <View className="flex-1 h-[1px] bg-white/10" />
+          </View>
+
+          {/* Google SSO Button */}
+          <TouchableOpacity
+            onPress={handleGoogleSignIn}
+            disabled={googleLoading || loading}
+            activeOpacity={0.8}
+            className="flex-row items-center justify-center gap-3 py-3.5 px-4 rounded-2xl bg-white/[0.07] border border-white/15 active:bg-white/[0.12] mb-6"
+          >
+            {googleLoading ? (
+              <ActivityIndicator size="small" color="#E5FF1F" />
+            ) : (
+              <>
+                <FontAwesome name="google" size={17} color="#E5FF1F" />
+                <Text
+                  style={{ fontFamily: HELVETICA_BOLD }}
+                  className="text-white text-sm font-semibold"
+                >
+                  Continue with Google
+                </Text>
+              </>
             )}
           </TouchableOpacity>
 
