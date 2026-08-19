@@ -8,19 +8,19 @@
 @import "nativewind/theme";
 
 @theme {
-  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --color-primary-green: #E5FF1F;
   --color-primary-emerald: #5bb754;
 }
 
 .font-display {
-  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .font-sans {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .font-mono {

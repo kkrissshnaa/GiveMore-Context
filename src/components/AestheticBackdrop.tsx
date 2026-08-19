@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, ViewStyle, useWindowDimensions, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { NeatGreenGradient } from './NeatGreenGradient';
 
@@ -19,9 +19,10 @@ export function AestheticBackdrop({
   fullWindowAlign = true,
 }: AestheticBackdropProps) {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const screen = Dimensions.get('screen');
 
-  const backdropWidth = fullWindowAlign && windowWidth > 0 ? windowWidth : '100%';
-  const backdropHeight = fullWindowAlign && windowHeight > 0 ? windowHeight : '100%';
+  const backdropWidth = Math.max(windowWidth, screen.width);
+  const backdropHeight = Math.max(windowHeight, screen.height) + 120;
 
   return (
     <View style={[styles.container, style]}>
@@ -37,8 +38,8 @@ export function AestheticBackdrop({
               position: 'absolute',
               top: 0,
               left: 0,
-              width: backdropWidth as any,
-              height: backdropHeight as any,
+              width: backdropWidth,
+              height: backdropHeight,
               opacity: 0.20,
             }}
             contentFit="cover"

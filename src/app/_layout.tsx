@@ -4,14 +4,26 @@ import { Feather } from '@expo/vector-icons';
 import { router } from "expo-router";
 import { Drawer, DrawerContentScrollView } from "expo-router/drawer";
 import React, { useState, useEffect, useCallback, Component, ReactNode } from 'react';
-import { Text, TouchableOpacity, View, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent, Linking } from "react-native";
+import { Text, TouchableOpacity, View, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent, Linking, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ClerkProvider, useUser, useAuth } from '@clerk/expo';
 import { tokenCache } from '../lib/tokenCache';
-import "../../global.css";
+import { StatusBar } from 'expo-status-bar';
 import { getChats, ChatItem } from '../lib/chatService';
 import { chatEvents } from '../lib/chatEvents';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
+
+const HELVETICA_FONT = Platform.select({
+  ios: 'Helvetica',
+  android: 'sans-serif',
+  default: 'Helvetica, Arial, sans-serif',
+});
+
+const HELVETICA_BOLD = Platform.select({
+  ios: 'Helvetica-Bold',
+  android: 'sans-serif-medium',
+  default: 'Helvetica, Arial, sans-serif',
+});
 
 const clerkPublishableKey = (process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '').trim();
 
@@ -94,11 +106,11 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
     >
       <View className="flex-row items-center gap-3">
         <Feather name={icon} size={17} color="#E5FF1F" />
-        <Text className="text-white text-xs font-semibold font-sans">{label}</Text>
+        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-white text-xs font-semibold">{label}</Text>
       </View>
       {badge && (
         <View className="bg-[#E5FF1F]/20 border border-[#E5FF1F]/40 px-2 py-0.5 rounded-full">
-          <Text className="text-[#E5FF1F] text-[10px] font-bold font-mono">{badge}</Text>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[#E5FF1F] text-[10px] font-bold">{badge}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -115,24 +127,26 @@ function UserAccountSection({
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useAuth();
 
-  const userDisplayName = user?.fullName || user?.primaryEmailAddress?.emailAddress || 'User';
+  const userDisplayName = user?.username || user?.fullName || user?.primaryEmailAddress?.emailAddress || 'User';
   const userEmail = user?.primaryEmailAddress?.emailAddress || '';
-  const userInitials = (user?.firstName ? user.firstName[0] : '') + (user?.lastName ? user.lastName[0] : userEmail[0] || 'U');
+  const userInitials = user?.username
+    ? user.username.slice(0, 2)
+    : (user?.firstName ? user.firstName[0] : '') + (user?.lastName ? user.lastName[0] : userEmail[0] || 'U');
 
   if (isLoaded && isSignedIn) {
     return (
       <View className="flex-row items-center justify-between px-3 py-3 rounded-[16px] bg-white/5 border border-white/10">
         <View className="flex-row items-center gap-3 flex-1 overflow-hidden mr-2">
           <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#E5FF1F]/40">
-            <Text className="text-[12.5px] font-bold text-[#E5FF1F] font-display uppercase">
+            <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[12.5px] font-bold text-[#E5FF1F] uppercase">
               {userInitials.toUpperCase()}
             </Text>
           </View>
           <View className="flex-1 overflow-hidden">
-            <Text className="text-[12.5px] font-bold text-white font-display" numberOfLines={1}>
+            <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[12.5px] font-bold text-white" numberOfLines={1}>
               {userDisplayName}
             </Text>
-            <Text className="text-[10.5px] font-bold text-[#E5FF1F] mt-0.5 font-sans" numberOfLines={1}>
+            <Text style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }} className="text-[10.5px] font-medium mt-0.5" numberOfLines={1}>
               Authenticated
             </Text>
           </View>
@@ -157,7 +171,7 @@ function UserAccountSection({
         activeOpacity={0.8}
       >
         <Feather name="log-in" size={15} color="#E5FF1F" />
-        <Text className="text-white text-xs font-bold font-display">Sign In</Text>
+        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-white text-xs font-bold">Sign In</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -166,7 +180,7 @@ function UserAccountSection({
         activeOpacity={0.8}
       >
         <Feather name="user-plus" size={15} color="#070801" />
-        <Text className="text-[#070801] text-xs font-bold font-display">Sign Up</Text>
+        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[#070801] text-xs font-bold">Sign Up</Text>
       </TouchableOpacity>
     </View>
   );
@@ -253,8 +267,8 @@ function CustomDrawerContent(props: any) {
       >
         {/* Logo */}
         <View className="px-2 pb-8">
-          <Text className="text-[22px] font-bold leading-tight text-white font-display">give more</Text>
-          <Text className="text-[22px] font-bold leading-tight text-[#E5FF1F] font-display">—context</Text>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[22px] font-bold leading-tight text-white">give more</Text>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[22px] font-bold leading-tight text-[#E5FF1F]">—context</Text>
         </View>
 
         {/* New Generation Button */}
@@ -265,7 +279,7 @@ function CustomDrawerContent(props: any) {
           <View className="w-[30px] h-[30px] rounded-full bg-[#E5FF1F] items-center justify-center shadow-lg shadow-[#E5FF1F]/40">
             <Feather name="plus" size={14} color="#0b1405" />
           </View>
-          <Text className="text-[13.5px] font-bold text-white font-display">New generation</Text>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13.5px] font-bold text-white">New generation</Text>
         </TouchableOpacity>
 
         {/* Nav Items - Explore and Settings only */}
@@ -278,7 +292,7 @@ function CustomDrawerContent(props: any) {
         {history.length > 0 && (
           <>
             <View className="h-[1px] bg-white/10 my-4 mx-2" />
-            <Text className="px-2 mb-2 text-[10px] font-bold uppercase tracking-widest text-[#8a8385] font-display">
+            <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="px-2 mb-2 text-[10px] font-bold uppercase tracking-widest">
               Recent Generations ({history.length})
             </Text>
             {history.map((chat) => (
@@ -289,10 +303,10 @@ function CustomDrawerContent(props: any) {
               >
                 <Feather name="message-square" size={15} color="#E5FF1F" />
                 <View className="flex-1 overflow-hidden">
-                  <Text className="text-[13px] font-medium text-white font-sans" numberOfLines={1}>
+                  <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-medium text-white" numberOfLines={1}>
                     {chat.title}
                   </Text>
-                  <Text className="text-[10px] font-semibold text-[#8a8385] mt-0.5 uppercase tracking-wider font-mono">
+                  <Text style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }} className="text-[10px] font-semibold mt-0.5 uppercase tracking-wider" numberOfLines={1}>
                     {chat.model} · {new Date(chat.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </Text>
                 </View>
@@ -321,7 +335,8 @@ function CustomDrawerContent(props: any) {
 
 function MainDrawerApp() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#070801' }}>
+      <StatusBar style="light" />
       {!isKeyValid && (
         <View className="bg-amber-500/20 border-b border-amber-500/40 p-2.5 items-center justify-center">
           <Text className="text-amber-200 text-xs font-medium text-center font-sans">

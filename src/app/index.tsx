@@ -25,6 +25,18 @@ import { chatEvents } from '../lib/chatEvents';
 import { ChatItem, saveChat } from '../lib/chatService';
 import { useUser, useSession } from '@clerk/expo';
 
+const HELVETICA_FONT = Platform.select({
+  ios: 'Helvetica',
+  android: 'sans-serif',
+  default: 'Helvetica, Arial, sans-serif',
+});
+
+const HELVETICA_BOLD = Platform.select({
+  ios: 'Helvetica-Bold',
+  android: 'sans-serif-medium',
+  default: 'Helvetica, Arial, sans-serif',
+});
+
 function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
   const [pulseAnim] = useState(() => new Animated.Value(0.35));
 
@@ -338,7 +350,7 @@ export default function Index() {
 
   const generateImage = async () => {
     if (!isSignedIn) {
-      router.push('/(auth)/signup');
+      router.push('/(auth)/signin');
       return;
     }
     const effectiveCanvasRegions = canvasEnabled && canvasRegions.length > 0 ? canvasRegions : [];
@@ -419,8 +431,8 @@ export default function Index() {
       <View className="flex-row items-center justify-between px-4 pt-2 pb-3 z-20">
         {renderIconBtn('grid', 'bg-[#E5FF1F]/10 backdrop-blur-md', '#E5FF1F', 'border-[#E5FF1F]/30', () => (navigation as any).toggleDrawer())}
         <View className="items-center flex-1 mx-2">
-          <Text className="text-[10px] tracking-widest uppercase text-[#E5FF1F] font-bold font-display">Generation</Text>
-          <Text className="text-[16px] font-bold text-white mt-0.5 font-display tracking-tight">New generation</Text>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[10px] tracking-widest uppercase text-[#E5FF1F] font-bold">Generation</Text>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[16px] font-bold text-white mt-0.5 tracking-tight">New generation</Text>
         </View>
         {renderIconBtn('plus', 'bg-[#E5FF1F]', '#0b1405', 'border-white/40 shadow-[0_0_20px_rgba(229,255,31,0.5)]', handleCreateNewChat)}
       </View>
@@ -443,8 +455,8 @@ export default function Index() {
             <View className="w-[66px] h-[66px] rounded-full bg-[#E5FF1F] shadow-[0_0_40px_rgba(229,255,31,0.6)] border border-white/50 mb-6 items-center justify-center">
               <Feather name="zap" size={28} color="#0b1405" />
             </View>
-            <Text className="text-[22px] font-bold text-white mb-3 tracking-tight font-display">Nothing generated yet</Text>
-            <Text className="text-[14px] text-[#bababa] text-center max-w-[290px] leading-5 mb-6 font-sans">
+            <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[22px] font-bold text-white mb-3 tracking-tight">Nothing generated yet</Text>
+            <Text style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }} className="text-[14px] text-center max-w-[290px] leading-5 mb-6">
               Write prompt, attach references, or compose a layout in Reference Canvas to control where things go.
             </Text>
 
@@ -455,7 +467,7 @@ export default function Index() {
                   onPress={() => setPrompt(text)}
                   className="px-[15px] py-2 rounded-full bg-[#E5FF1F]/10 border border-[#E5FF1F]/30 shadow-sm backdrop-blur-md active:bg-[#E5FF1F]/25 active:border-[#E5FF1F]/60"
                 >
-                  <Text className="text-xs font-semibold text-[#E5FF1F] font-sans">{text}</Text>
+                  <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-xs font-semibold text-[#E5FF1F]">{text}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -581,7 +593,7 @@ export default function Index() {
             <View className="px-4 pt-4 pb-2">
               {/* Model */}
               <View className="mb-4">
-                <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Model</Text>
+                <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="text-[10px] font-bold tracking-widest uppercase mb-2">Model</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row flex-nowrap" contentContainerStyle={{ gap: 8 }}>
                   {models.map((m) => (
                     <TouchableOpacity
@@ -590,9 +602,9 @@ export default function Index() {
                       className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${model === m.name ? 'bg-[#E5FF1F]/20 border-[#E5FF1F]/70 shadow-[0_0_12px_rgba(229,255,31,0.3)]' : 'bg-white/5 border-white/10'}`}
                     >
                       <View className={`w-4 h-4 rounded-[5px] items-center justify-center ${model === m.name ? 'bg-[#E5FF1F]' : 'bg-[#E5FF1F]/20'}`}>
-                        <Text className={`text-[8px] font-bold font-mono ${model === m.name ? 'text-[#0b1405]' : 'text-[#E5FF1F]'}`}>{m.short}</Text>
+                        <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-[8px] font-bold ${model === m.name ? 'text-[#0b1405]' : 'text-[#E5FF1F]'}`}>{m.short}</Text>
                       </View>
-                      <Text className={`text-xs font-medium font-sans ${model === m.name ? 'text-white font-bold' : 'text-[#bababa]'}`}>{m.name}</Text>
+                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${model === m.name ? 'text-white font-bold' : 'text-[#E5FF1F]'}`}>{m.name}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -601,8 +613,8 @@ export default function Index() {
               {/* Canvas Switch */}
               <View className="flex-row items-center justify-between py-3 border-t border-b border-white/10 mb-4">
                 <View>
-                  <Text className="text-[13px] font-bold text-white font-display">Reference Canvas</Text>
-                  <Text className="text-[11px] text-[#8a8385] mt-0.5 font-sans">Compose regions for the model to follow</Text>
+                  <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-bold text-white">Reference Canvas</Text>
+                  <Text style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }} className="text-[11px] mt-0.5">Compose regions for the model to follow</Text>
                 </View>
                 <Switch
                   value={canvasEnabled}
@@ -622,7 +634,7 @@ export default function Index() {
 
               {/* Aspect Ratio */}
               <View className="mb-4">
-                <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Aspect ratio</Text>
+                <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="text-[10px] font-bold tracking-widest uppercase mb-2">Aspect ratio</Text>
                 <View className="flex-row flex-wrap gap-2">
                   {aspectRatios.map((ratio) => (
                     <TouchableOpacity
@@ -636,7 +648,7 @@ export default function Index() {
                           height: ratio === '16:9' ? 9 : ratio === '4:5' ? 14 : ratio === '9:16' ? 16 : 13
                         }}
                       />
-                      <Text className={`text-xs font-medium font-mono ${aspectRatio === ratio ? 'text-white font-bold' : 'text-[#bababa]'}`}>{ratio}</Text>
+                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${aspectRatio === ratio ? 'text-white font-bold' : 'text-[#E5FF1F]'}`}>{ratio}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -644,7 +656,7 @@ export default function Index() {
 
               {/* Quality */}
               <View className="mb-2">
-                <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">Quality</Text>
+                <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="text-[10px] font-bold tracking-widest uppercase mb-2">Quality</Text>
                 <View className="flex-row flex-wrap gap-2">
                   {qualities.map((q) => (
                     <TouchableOpacity
@@ -652,8 +664,8 @@ export default function Index() {
                       onPress={() => setQuality(q.name)}
                       className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${quality === q.name ? 'bg-[#E5FF1F]/20 border-[#E5FF1F]/70 shadow-[0_0_12px_rgba(229,255,31,0.3)]' : 'bg-white/5 border-white/10'}`}
                     >
-                      <Feather name={q.icon} size={13} color={quality === q.name ? '#E5FF1F' : '#bababa'} />
-                      <Text className={`text-xs font-medium font-sans ${quality === q.name ? 'text-white font-bold' : 'text-[#bababa]'}`}>{q.name}</Text>
+                      <Feather name={q.icon} size={13} color={quality === q.name ? '#E5FF1F' : '#E5FF1F'} />
+                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${quality === q.name ? 'text-white font-bold' : 'text-[#E5FF1F]'}`}>{q.name}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -665,11 +677,11 @@ export default function Index() {
           {referenceImages.length > 0 && (
             <View className="px-4 pt-3 pb-2 border-b border-white/10">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] font-display">
+                <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="text-[10px] font-bold tracking-widest uppercase">
                   Reference Images ({referenceImages.length})
                 </Text>
                 <TouchableOpacity onPress={() => setReferenceImages([])}>
-                  <Text className="text-[11px] font-bold text-[#E5FF1F] font-display">Clear all</Text>
+                  <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[11px] font-bold text-[#E5FF1F]">Clear all</Text>
                 </TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
@@ -737,7 +749,7 @@ export default function Index() {
               <TextInput
                 className="text-white text-[14px] font-sans font-medium max-h-[110px] min-h-[40px] py-1.5 px-1"
                 placeholder="Describe the shot, scene, or edit…"
-                placeholderTextColor="#8a8385"
+                placeholderTextColor="#ffffff"
                 multiline
                 scrollEnabled={true}
                 value={prompt}
