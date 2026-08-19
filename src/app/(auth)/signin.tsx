@@ -197,7 +197,7 @@ export default function SignInScreen() {
                 value={identifier}
                 onChangeText={setIdentifier}
                 placeholder="username or you@example.com"
-                placeholderTextColor="#71717a"
+                placeholderTextColor="#ffffff"
                 autoCapitalize="none"
                 autoCorrect={false}
                 style={{ flex: 1, color: '#fff', fontSize: 14, fontFamily: HELVETICA_FONT }}
@@ -219,7 +219,7 @@ export default function SignInScreen() {
                 value={password}
                 onChangeText={setPassword}
                 placeholder="••••••••"
-                placeholderTextColor="#71717a"
+                placeholderTextColor="#ffffff"
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 style={{ flex: 1, color: '#fff', fontSize: 14, fontFamily: HELVETICA_FONT }}

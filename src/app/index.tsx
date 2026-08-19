@@ -749,7 +749,7 @@ export default function Index() {
               <TextInput
                 className="text-white text-[14px] font-sans font-medium max-h-[110px] min-h-[40px] py-1.5 px-1"
                 placeholder="Describe the shot, scene, or edit…"
-                placeholderTextColor="#8a8385"
+                placeholderTextColor="#ffffff"
                 multiline
                 scrollEnabled={true}
                 value={prompt}

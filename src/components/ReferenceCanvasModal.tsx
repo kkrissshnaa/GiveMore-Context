@@ -243,7 +243,7 @@ function RegionItem({
             onFocus={onSelect}
             onChangeText={(text) => onUpdateRegion({ ...region, prompt: text })}
             placeholder="e.g. product bottle, warm light"
-            placeholderTextColor="rgba(255, 255, 255, 0.45)"
+            placeholderTextColor="#ffffff"
             multiline
             className={`text-[11px] font-sans font-semibold p-0 leading-3.5 ${
               isSelected ? 'text-white font-bold' : 'text-white/80'
