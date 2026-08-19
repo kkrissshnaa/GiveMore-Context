@@ -42,8 +42,25 @@ export default function SignUpScreen() {
       setErrorMessage('Authentication service is initializing. Please wait a moment and try again.');
       return;
     }
-    if (!email.trim() || !password.trim()) {
-      setErrorMessage('Please enter email and password.');
+
+    const cleanUsername = username.trim();
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanUsername) {
+      setErrorMessage('Please choose a unique username.');
+      return;
+    }
+    if (cleanUsername.length < 3) {
+      setErrorMessage('Username must be at least 3 characters long.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_.-]+$/.test(cleanUsername)) {
+      setErrorMessage('Username can only contain letters, numbers, underscores, and hyphens.');
+      return;
+    }
+    if (!cleanEmail || !cleanPassword) {
+      setErrorMessage('Please enter both email and password.');
       return;
     }
 
@@ -51,15 +68,11 @@ export default function SignUpScreen() {
     setErrorMessage(null);
 
     try {
-      const payload: { emailAddress: string; password: string; username?: string } = {
-        emailAddress: email.trim(),
-        password: password.trim(),
-      };
-      if (username.trim()) {
-        payload.username = username.trim();
-      }
-
-      const res = await signUp.create(payload);
+      const res = await signUp.create({
+        username: cleanUsername,
+        emailAddress: cleanEmail,
+        password: cleanPassword,
+      });
 
       if (res.status === 'complete') {
         if (setActive) {
@@ -73,6 +86,27 @@ export default function SignUpScreen() {
       }
     } catch (err: any) {
       console.error('Sign up error details:', err);
+
+      // Check specifically for username uniqueness / conflict
+      const usernameErr = err?.errors?.find((e: any) =>
+        e?.meta?.paramName === 'username' ||
+        e?.code === 'form_identifier_exists' ||
+        e?.message?.toLowerCase()?.includes('username')
+      );
+
+      if (usernameErr) {
+        if (
+          usernameErr.code === 'form_identifier_exists' ||
+          usernameErr.message?.toLowerCase()?.includes('taken') ||
+          usernameErr.longMessage?.toLowerCase()?.includes('taken')
+        ) {
+          setErrorMessage(`The username "${cleanUsername}" is already taken. Please choose a different unique username.`);
+          return;
+        }
+        setErrorMessage(usernameErr.longMessage || usernameErr.message || 'Invalid username.');
+        return;
+      }
+
       const msg =
         err?.errors?.[0]?.longMessage ||
         err?.errors?.[0]?.message ||
