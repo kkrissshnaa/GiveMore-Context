@@ -12,7 +12,7 @@ import {
 import { useOAuth } from '@clerk/expo';
 import { useSignIn } from '@clerk/expo/legacy';
 import { router, useFocusEffect } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
@@ -194,7 +194,7 @@ export default function SignInScreen() {
               <ActivityIndicator size="small" color="#E5FF1F" />
             ) : (
               <>
-                <Feather name="globe" size={18} color="#E5FF1F" />
+                <FontAwesome name="google" size={17} color="#E5FF1F" />
                 <Text
                   style={{ fontFamily: HELVETICA_BOLD }}
                   className="text-white text-sm font-semibold"
