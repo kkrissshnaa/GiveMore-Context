@@ -25,21 +25,21 @@ export default function SignInScreen() {
   const { isLoaded, signIn, setActive } = useSignIn();
   const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Email / Password Sign In
+  // Username or Email / Password Sign In
   const handleEmailSignIn = async () => {
     if (!isLoaded || !signIn) {
       setErrorMessage('Authentication service is initializing. Please wait a moment and try again.');
       return;
     }
-    if (!email.trim() || !password.trim()) {
-      setErrorMessage('Please enter both email and password.');
+    if (!identifier.trim() || !password.trim()) {
+      setErrorMessage('Please enter your username/email and password.');
       return;
     }
 
@@ -48,7 +48,7 @@ export default function SignInScreen() {
 
     try {
       const result = await signIn.create({
-        identifier: email.trim(),
+        identifier: identifier.trim(),
         password: password.trim(),
       });
 
@@ -173,24 +173,23 @@ export default function SignInScreen() {
           <View className="flex-row items-center mb-6">
             <View className="flex-1 h-[1px] bg-white/10" />
             <Text className="px-3 text-xs font-bold text-[#8a8385] uppercase tracking-wider font-mono">
-              or email
+              or username / email
             </Text>
             <View className="flex-1 h-[1px] bg-white/10" />
           </View>
 
-          {/* Email Input */}
+          {/* Identifier Input */}
           <View className="mb-4">
             <Text className="text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider font-mono">
-              Email Address
+              Username or Email
             </Text>
             <View className="flex-row items-center bg-white/[0.05] border border-white/10 rounded-2xl px-4 py-3 focus:border-[#E5FF1F]">
-              <Feather name="mail" size={18} color="#8a8385" style={{ marginRight: 10 }} />
+              <Feather name="user" size={18} color="#8a8385" style={{ marginRight: 10 }} />
               <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="you@example.com"
+                value={identifier}
+                onChangeText={setIdentifier}
+                placeholder="username or you@example.com"
                 placeholderTextColor="#666"
-                keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
                 style={{ flex: 1, color: '#fff', fontSize: 14 }}

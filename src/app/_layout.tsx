@@ -115,9 +115,11 @@ function UserAccountSection({
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useAuth();
 
-  const userDisplayName = user?.fullName || user?.primaryEmailAddress?.emailAddress || 'User';
+  const userDisplayName = user?.username || user?.fullName || user?.primaryEmailAddress?.emailAddress || 'User';
   const userEmail = user?.primaryEmailAddress?.emailAddress || '';
-  const userInitials = (user?.firstName ? user.firstName[0] : '') + (user?.lastName ? user.lastName[0] : userEmail[0] || 'U');
+  const userInitials = user?.username
+    ? user.username.slice(0, 2)
+    : (user?.firstName ? user.firstName[0] : '') + (user?.lastName ? user.lastName[0] : userEmail[0] || 'U');
 
   if (isLoaded && isSignedIn) {
     return (

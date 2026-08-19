@@ -25,6 +25,7 @@ export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
 
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -35,14 +36,14 @@ export default function SignUpScreen() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Email / Password Sign Up (Step 1)
+  // Sign Up (Step 1)
   const handleSignUp = async () => {
     if (!isLoaded || !signUp) {
       setErrorMessage('Authentication service is initializing. Please wait a moment and try again.');
       return;
     }
     if (!email.trim() || !password.trim()) {
-      setErrorMessage('Please enter both email and password.');
+      setErrorMessage('Please enter email and password.');
       return;
     }
 
@@ -50,10 +51,15 @@ export default function SignUpScreen() {
     setErrorMessage(null);
 
     try {
-      const res = await signUp.create({
+      const payload: { emailAddress: string; password: string; username?: string } = {
         emailAddress: email.trim(),
         password: password.trim(),
-      });
+      };
+      if (username.trim()) {
+        payload.username = username.trim();
+      }
+
+      const res = await signUp.create(payload);
 
       if (res.status === 'complete') {
         if (setActive) {
@@ -243,6 +249,25 @@ export default function SignUpScreen() {
                   or email
                 </Text>
                 <View className="flex-1 h-[1px] bg-white/10" />
+              </View>
+
+              {/* Username Input */}
+              <View className="mb-4">
+                <Text className="text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider font-mono">
+                  Username
+                </Text>
+                <View className="flex-row items-center bg-white/[0.05] border border-white/10 rounded-2xl px-4 py-3 focus:border-[#E5FF1F]">
+                  <Feather name="user" size={18} color="#8a8385" style={{ marginRight: 10 }} />
+                  <TextInput
+                    value={username}
+                    onChangeText={setUsername}
+                    placeholder="choose_username"
+                    placeholderTextColor="#666"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    style={{ flex: 1, color: '#fff', fontSize: 14 }}
+                  />
+                </View>
               </View>
 
               {/* Email Input */}
