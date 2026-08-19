@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   settingSubtitle: {
-    color: '#9ca3af',
+    color: '#E5FF1F',
     fontSize: 12,
     fontWeight: '400',
     fontFamily: HELVETICA_FONT,

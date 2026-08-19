@@ -451,12 +451,12 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   specLabel: {
-    color: '#9ca3af',
+    color: '#E5FF1F',
     fontSize: 9,
     fontFamily: HELVETICA_FONT,
   },
   specValueGreen: {
-    color: '#b2ff59',
+    color: '#E5FF1F',
     fontSize: 9.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
@@ -483,8 +483,8 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   btnCopyActive: {
-    backgroundColor: 'rgba(178, 255, 89, 0.2)',
-    borderColor: '#b2ff59',
+    backgroundColor: 'rgba(229, 255, 31, 0.2)',
+    borderColor: '#E5FF1F',
   },
   btnCopyText: {
     color: '#ffffff',
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 6,
     borderRadius: 9,
-    backgroundColor: '#b2ff59',
+    backgroundColor: '#E5FF1F',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

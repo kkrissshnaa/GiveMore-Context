@@ -20,6 +20,18 @@ import { AestheticBackdrop } from '../../components/AestheticBackdrop';
 
 WebBrowser.maybeCompleteAuthSession();
 
+const HELVETICA_FONT = Platform.select({
+  ios: 'Helvetica',
+  android: 'sans-serif',
+  default: 'Helvetica, Arial, sans-serif',
+});
+
+const HELVETICA_BOLD = Platform.select({
+  ios: 'Helvetica-Bold',
+  android: 'sans-serif-medium',
+  default: 'Helvetica, Arial, sans-serif',
+});
+
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
   const { isLoaded, signIn, setActive } = useSignIn();
@@ -144,11 +156,17 @@ export default function SignInScreen() {
 
           {/* Logo & Title */}
           <View className="mb-8">
-            <Text className="text-3xl font-bold text-white font-display">
+            <Text
+              style={{ fontFamily: HELVETICA_BOLD }}
+              className="text-3xl font-bold text-white"
+            >
               Welcome back
             </Text>
-            <Text className="text-sm font-medium text-[#8a8385] mt-1 font-sans">
-              Sign in to continue with <Text className="text-[#E5FF1F] font-bold font-display">give more —context</Text>
+            <Text
+              style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }}
+              className="text-sm font-medium mt-1"
+            >
+              Sign in to continue with <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }}>give more —context</Text>
             </Text>
           </View>
 
@@ -156,7 +174,10 @@ export default function SignInScreen() {
           {errorMessage && (
             <View className="bg-red-500/15 border border-red-500/40 rounded-xl p-3.5 mb-6 flex-row items-center gap-3">
               <Feather name="alert-circle" size={18} color="#ef4444" />
-              <Text className="text-red-300 text-xs font-semibold flex-1 font-sans">
+              <Text
+                style={{ fontFamily: HELVETICA_FONT }}
+                className="text-red-300 text-xs font-semibold flex-1"
+              >
                 {errorMessage}
               </Text>
             </View>
@@ -174,7 +195,10 @@ export default function SignInScreen() {
             ) : (
               <>
                 <Feather name="globe" size={18} color="#E5FF1F" />
-                <Text className="text-white text-sm font-semibold font-display">
+                <Text
+                  style={{ fontFamily: HELVETICA_BOLD }}
+                  className="text-white text-sm font-semibold"
+                >
                   Continue with Google
                 </Text>
               </>
@@ -184,7 +208,10 @@ export default function SignInScreen() {
           {/* Divider */}
           <View className="flex-row items-center mb-6">
             <View className="flex-1 h-[1px] bg-white/10" />
-            <Text className="px-3 text-xs font-bold text-[#8a8385] uppercase tracking-wider font-mono">
+            <Text
+              style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }}
+              className="px-3 text-xs font-bold uppercase tracking-wider"
+            >
               or username / email
             </Text>
             <View className="flex-1 h-[1px] bg-white/10" />
@@ -192,41 +219,47 @@ export default function SignInScreen() {
 
           {/* Identifier Input */}
           <View className="mb-4">
-            <Text className="text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider font-mono">
+            <Text
+              style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }}
+              className="text-xs font-bold mb-2 uppercase tracking-wider"
+            >
               Username or Email
             </Text>
             <View className="flex-row items-center bg-white/[0.05] border border-white/10 rounded-2xl px-4 py-3 focus:border-[#E5FF1F]">
-              <Feather name="user" size={18} color="#8a8385" style={{ marginRight: 10 }} />
+              <Feather name="user" size={18} color="#E5FF1F" style={{ marginRight: 10 }} />
               <TextInput
                 value={identifier}
                 onChangeText={setIdentifier}
                 placeholder="username or you@example.com"
-                placeholderTextColor="#666"
+                placeholderTextColor="#71717a"
                 autoCapitalize="none"
                 autoCorrect={false}
-                style={{ flex: 1, color: '#fff', fontSize: 14 }}
+                style={{ flex: 1, color: '#fff', fontSize: 14, fontFamily: HELVETICA_FONT }}
               />
             </View>
           </View>
 
           {/* Password Input */}
           <View className="mb-6">
-            <Text className="text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider font-mono">
+            <Text
+              style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }}
+              className="text-xs font-bold mb-2 uppercase tracking-wider"
+            >
               Password
             </Text>
             <View className="flex-row items-center bg-white/[0.05] border border-white/10 rounded-2xl px-4 py-3 focus:border-[#E5FF1F]">
-              <Feather name="lock" size={18} color="#8a8385" style={{ marginRight: 10 }} />
+              <Feather name="lock" size={18} color="#E5FF1F" style={{ marginRight: 10 }} />
               <TextInput
                 value={password}
                 onChangeText={setPassword}
                 placeholder="••••••••"
-                placeholderTextColor="#666"
+                placeholderTextColor="#71717a"
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
-                style={{ flex: 1, color: '#fff', fontSize: 14 }}
+                style={{ flex: 1, color: '#fff', fontSize: 14, fontFamily: HELVETICA_FONT }}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Feather name={showPassword ? 'eye-off' : 'eye'} size={18} color="#8a8385" />
+                <Feather name={showPassword ? 'eye-off' : 'eye'} size={18} color="#E5FF1F" />
               </TouchableOpacity>
             </View>
           </View>
@@ -241,19 +274,28 @@ export default function SignInScreen() {
             {loading ? (
               <ActivityIndicator size="small" color="#070801" />
             ) : (
-              <Text className="text-[#070801] font-bold text-sm font-display tracking-wide">
+              <Text
+                style={{ fontFamily: HELVETICA_BOLD }}
+                className="text-[#070801] font-bold text-sm tracking-wide"
+              >
                 Sign In
               </Text>
             )}
           </TouchableOpacity>
 
           {/* Footer Link to Sign Up */}
-          <View className="flex-row justify-center items-center gap-1">
-            <Text className="text-gray-400 text-xs font-sans">
+          <View className="flex-row justify-center items-center gap-1.5">
+            <Text
+              style={{ fontFamily: HELVETICA_FONT, color: 'rgba(229, 255, 31, 0.75)' }}
+              className="text-xs"
+            >
               Don&apos;t have an account?
             </Text>
             <TouchableOpacity onPress={() => router.replace('/(auth)/signup')}>
-              <Text className="text-[#E5FF1F] font-bold text-xs font-display underline">
+              <Text
+                style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }}
+                className="text-xs underline"
+              >
                 Sign Up
               </Text>
             </TouchableOpacity>
