@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useOAuth } from '@clerk/expo';
 import { useSignUp } from '@clerk/expo/legacy';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
@@ -35,6 +35,21 @@ export default function SignUpScreen() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Clear inputs whenever user switches to another page or screen loses focus
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setShowPassword(false);
+        setCode('');
+        setPendingVerification(false);
+        setErrorMessage(null);
+      };
+    }, [])
+  );
 
   // Sign Up (Step 1)
   const handleSignUp = async () => {
