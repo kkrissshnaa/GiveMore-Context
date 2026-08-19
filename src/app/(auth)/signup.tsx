@@ -1,21 +1,21 @@
-import React, { useState, useCallback } from 'react';
+import { useOAuth } from '@clerk/expo';
+import { useSignUp } from '@clerk/expo/legacy';
+import { Feather, FontAwesome } from '@expo/vector-icons';
+import * as AuthSession from 'expo-auth-session';
+import { router, useFocusEffect } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import React, { useCallback, useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useOAuth } from '@clerk/expo';
-import { useSignUp } from '@clerk/expo/legacy';
-import { router, useFocusEffect } from 'expo-router';
-import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
-import * as AuthSession from 'expo-auth-session';
 import { AestheticBackdrop } from '../../components/AestheticBackdrop';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -274,7 +274,7 @@ export default function SignUpScreen() {
             >
               {pendingVerification
                 ? `Enter the code sent to ${email}`
-                : <>Join <Text style={{ fontFamily: HELVETICA_BOLD, fontWeight: '900', color: '#E5FF1F' }}>Givemore-Context</Text> today</>}
+                : <>Join <Text style={{ fontFamily: HELVETICA_BOLD, fontWeight: '900', color: '#E5FF1F' }}>Givemore-Context</Text></>}
             </Text>
           </View>
 

@@ -8,7 +8,8 @@ import { Text, TouchableOpacity, View, ActivityIndicator, NativeSyntheticEvent, 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ClerkProvider, useUser, useAuth } from '@clerk/expo';
 import { tokenCache } from '../lib/tokenCache';
-import "../../global.css";
+import { StatusBar } from 'expo-status-bar';
+import * as NavigationBar from 'expo-navigation-bar';
 import { getChats, ChatItem } from '../lib/chatService';
 import { chatEvents } from '../lib/chatEvents';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
@@ -334,8 +335,19 @@ function CustomDrawerContent(props: any) {
 }
 
 function MainDrawerApp() {
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      try {
+        NavigationBar.setStyle('dark');
+      } catch (e) {
+        // Safe fallback
+      }
+    }
+  }, []);
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#070801' }}>
+      <StatusBar style="light" />
       {!isKeyValid && (
         <View className="bg-amber-500/20 border-b border-amber-500/40 p-2.5 items-center justify-center">
           <Text className="text-amber-200 text-xs font-medium text-center font-sans">

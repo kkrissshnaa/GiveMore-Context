@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View, Dimensions } from 'react-native';
 import {
   Easing,
   useSharedValue,
@@ -29,6 +29,7 @@ export function NeatGreenGradient({
   animated = true,
 }: NeatGreenGradientProps) {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const screen = Dimensions.get('screen');
 
   const wavePhase = useSharedValue(0);
 
@@ -45,23 +46,23 @@ export function NeatGreenGradient({
     }
   }, [animated, speed, wavePhase]);
 
-  const svgWidth = windowWidth > 0 ? windowWidth : 1000;
-  const svgHeight = windowHeight > 0 ? windowHeight : 1000;
+  const svgWidth = Math.max(windowWidth, screen.width, 1000);
+  const svgHeight = Math.max(windowHeight, screen.height, 1000) + 120;
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]} pointerEvents="none">
       {/* Base Dark Midnight Linear Gradient */}
       <LinearGradient
         colors={['#080902', '#121404', '#060701']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
+        style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
       />
 
       {/* Neat 3D Wave Mesh Layer via Multi-Stop Radial SVG */}
       <Svg
-        width={svgWidth}
-        height={svgHeight}
+        width="100%"
+        height="100%"
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         preserveAspectRatio="none"
         style={StyleSheet.absoluteFill}
