@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../lib/supabase';
+import { createClerkSupabaseClient } from './supabaseClerk';
 
 export interface ChatItem {
   id: string;
@@ -62,7 +63,10 @@ async function safeStorageSetItem(key: string, value: string): Promise<void> {
   return AsyncStorage.setItem(key, value);
 }
 
-export async function saveChat(chat: ChatItem): Promise<void> {
+export async function saveChat(
+  chat: ChatItem,
+  getToken?: () => Promise<string | null>
+): Promise<void> {
   if (!chat.id) return;
   const rawTitle = (chat.prompt || chat.activePrompt || 'New generation').trim();
   const title = rawTitle.slice(0, 45) || 'Untitled Generation';
@@ -103,20 +107,23 @@ export async function saveChat(chat: ChatItem): Promise<void> {
 
     // Supabase sync (graceful catch if network offline or table not present)
     try {
-      if (process.env.EXPO_PUBLIC_SUPABASE_URL && supabase) {
-        await supabase.from('chats').upsert({
-          id: chatToSave.id,
-          title: chatToSave.title,
-          prompt: chatToSave.prompt,
-          active_prompt: chatToSave.activePrompt,
-          image_url: chatToSave.imageUrl,
-          model: chatToSave.model,
-          aspect_ratio: chatToSave.aspectRatio,
-          quality: chatToSave.quality,
-          reference_images: chatToSave.referenceImages,
-          canvas_regions: chatToSave.canvasRegions,
-          created_at: chatToSave.createdAt
-        });
+      if (process.env.EXPO_PUBLIC_SUPABASE_URL) {
+        const client = getToken ? createClerkSupabaseClient(getToken) : supabase;
+        if (client) {
+          await client.from('chats').upsert({
+            id: chatToSave.id,
+            title: chatToSave.title,
+            prompt: chatToSave.prompt,
+            active_prompt: chatToSave.activePrompt,
+            image_url: chatToSave.imageUrl,
+            model: chatToSave.model,
+            aspect_ratio: chatToSave.aspectRatio,
+            quality: chatToSave.quality,
+            reference_images: chatToSave.referenceImages,
+            canvas_regions: chatToSave.canvasRegions,
+            created_at: chatToSave.createdAt
+          });
+        }
       }
     } catch {
       // Ignore network / table errors for local resilience

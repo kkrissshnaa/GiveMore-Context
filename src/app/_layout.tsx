@@ -1,15 +1,89 @@
+import 'react-native-url-polyfill/auto';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import { router } from "expo-router";
 import { Drawer, DrawerContentScrollView } from "expo-router/drawer";
-import { useState, useEffect, useCallback } from 'react';
-import { Text, TouchableOpacity, View, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import React, { useState, useEffect, useCallback, Component, ReactNode } from 'react';
+import { Text, TouchableOpacity, View, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ClerkProvider, useUser, useAuth } from '@clerk/expo';
+import { tokenCache } from '../lib/tokenCache';
 import "../../global.css";
 import { getChats, ChatItem } from '../lib/chatService';
 import { chatEvents } from '../lib/chatEvents';
-
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
+
+const clerkPublishableKey = (process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '').trim();
+
+const isKeyValid = Boolean(
+  clerkPublishableKey &&
+  (clerkPublishableKey.startsWith('pk_test_') || clerkPublishableKey.startsWith('pk_live_')) &&
+  !clerkPublishableKey.includes('replace_with')
+);
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  devDomain: string;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ClerkErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  state: ErrorBoundaryState = {
+    hasError: false,
+    error: null,
+  };
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const isCookieError =
+        this.state.error?.message?.includes('Unable to authenticate this browser') ||
+        this.state.error?.message?.includes('cookies');
+
+      return (
+        <View className="flex-1 bg-[#070801] justify-center items-center p-6">
+          <View className="bg-red-500/15 border border-red-500/40 rounded-2xl p-5 w-full max-w-md">
+            <Text className="text-red-400 text-lg font-bold mb-2 font-display">
+              Clerk Dev Authentication Required
+            </Text>
+            <Text className="text-gray-300 text-xs leading-5 mb-4 font-sans">
+              {isCookieError
+                ? 'Your web browser requires a one-time dev authentication session from your Clerk development instance to allow localhost requests.'
+                : (this.state.error?.message || 'Failed to initialize Clerk.')}
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => Linking.openURL(`https://${this.props.devDomain}`)}
+              className="bg-[#E5FF1F] py-3 px-4 rounded-xl items-center mb-3 active:opacity-90"
+            >
+              <Text className="text-[#070801] font-bold text-xs font-display">
+                1. Authenticate Browser ({this.props.devDomain})
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => this.setState({ hasError: false, error: null })}
+              className="bg-white/10 py-2.5 px-4 rounded-xl items-center active:bg-white/20"
+            >
+              <Text className="text-white font-semibold text-xs font-sans">
+                2. Retry Application
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, badge?: string, onPress?: () => void }) {
   return (
@@ -28,6 +102,73 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
         </View>
       )}
     </TouchableOpacity>
+  );
+}
+
+function UserAccountSection({
+  onNavigateSignIn,
+  onNavigateSignUp,
+}: {
+  onNavigateSignIn: () => void;
+  onNavigateSignUp: () => void;
+}) {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const { signOut } = useAuth();
+
+  const userDisplayName = user?.fullName || user?.primaryEmailAddress?.emailAddress || 'User';
+  const userEmail = user?.primaryEmailAddress?.emailAddress || '';
+  const userInitials = (user?.firstName ? user.firstName[0] : '') + (user?.lastName ? user.lastName[0] : userEmail[0] || 'U');
+
+  if (isLoaded && isSignedIn) {
+    return (
+      <View className="flex-row items-center justify-between px-3 py-3 rounded-[16px] bg-white/5 border border-white/10">
+        <View className="flex-row items-center gap-3 flex-1 overflow-hidden mr-2">
+          <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#E5FF1F]/40">
+            <Text className="text-[12.5px] font-bold text-[#E5FF1F] font-display uppercase">
+              {userInitials.toUpperCase()}
+            </Text>
+          </View>
+          <View className="flex-1 overflow-hidden">
+            <Text className="text-[12.5px] font-bold text-white font-display" numberOfLines={1}>
+              {userDisplayName}
+            </Text>
+            <Text className="text-[10.5px] font-bold text-[#E5FF1F] mt-0.5 font-sans" numberOfLines={1}>
+              Authenticated
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => signOut()}
+          className="p-2 rounded-xl bg-red-500/10 border border-red-500/30 active:bg-red-500/20"
+          activeOpacity={0.7}
+        >
+          <Feather name="log-out" size={15} color="#ef4444" />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-row items-center gap-2">
+      <TouchableOpacity
+        onPress={onNavigateSignIn}
+        className="flex-1 flex-row items-center justify-center gap-2 py-3 px-3 rounded-[14px] bg-white/5 border border-white/10 active:bg-white/10"
+        activeOpacity={0.8}
+      >
+        <Feather name="log-in" size={15} color="#E5FF1F" />
+        <Text className="text-white text-xs font-bold font-display">Sign In</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={onNavigateSignUp}
+        className="flex-1 flex-row items-center justify-center gap-2 py-3 px-3 rounded-[14px] bg-[#E5FF1F] active:opacity-90 shadow-lg shadow-[#E5FF1F]/20"
+        activeOpacity={0.8}
+      >
+        <Feather name="user-plus" size={15} color="#070801" />
+        <Text className="text-[#070801] text-xs font-bold font-display">Sign Up</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -85,6 +226,11 @@ function CustomDrawerContent(props: any) {
     props.navigation.closeDrawer();
   };
 
+  const handleNavigateAuth = (path: '/(auth)/signin' | '/(auth)/signup') => {
+    props.navigation.closeDrawer();
+    router.push(path);
+  };
+
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 50;
@@ -122,10 +268,10 @@ function CustomDrawerContent(props: any) {
           <Text className="text-[13.5px] font-bold text-white font-display">New generation</Text>
         </TouchableOpacity>
 
-        {/* Nav Items */}
+        {/* Nav Items - Explore and Settings only */}
         <View className="flex-col gap-1">
-          <NavItem icon="compass" label="Explore" onPress={() => router.push('/(tabs)/explore')} />
-          <NavItem icon="settings" label="Settings" onPress={() => router.push('/(tabs)/settings')} />
+          <NavItem icon="compass" label="Explore" onPress={() => { props.navigation.closeDrawer(); router.push('/(tabs)/explore'); }} />
+          <NavItem icon="settings" label="Settings" onPress={() => { props.navigation.closeDrawer(); router.push('/(tabs)/settings'); }} />
         </View>
 
         {/* History Header & List */}
@@ -162,26 +308,27 @@ function CustomDrawerContent(props: any) {
 
       </DrawerContentScrollView>
 
-      {/* Account Bottom */}
+      {/* Account Bottom Section */}
       <View className="p-4 border-t border-white/5 mb-4">
-        <View className="flex-row items-center gap-3 px-3 py-3 rounded-[16px] bg-white/5 border border-white/10">
-          <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#E5FF1F]/40">
-            <Text className="text-[12.5px] font-bold text-[#E5FF1F] font-display">KV</Text>
-          </View>
-          <View className="flex-1">
-            <Text className="text-[12.5px] font-bold text-white font-display">Krishna</Text>
-            <Text className="text-[10.5px] font-bold text-[#E5FF1F] mt-0.5 font-sans">Pro plan</Text>
-          </View>
-          <Feather name="chevron-right" size={15} color="#8a8385" />
-        </View>
+        <UserAccountSection
+          onNavigateSignIn={() => handleNavigateAuth('/(auth)/signin')}
+          onNavigateSignUp={() => handleNavigateAuth('/(auth)/signup')}
+        />
       </View>
     </AestheticBackdrop>
   );
 }
 
-export default function RootLayout() {
+function MainDrawerApp() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      {!isKeyValid && (
+        <View className="bg-amber-500/20 border-b border-amber-500/40 p-2.5 items-center justify-center">
+          <Text className="text-amber-200 text-xs font-medium text-center font-sans">
+            ⚠️ <Text className="font-bold">Clerk Key Required:</Text> Replace placeholder in <Text className="font-mono text-[#E5FF1F]">.env</Text> with your Publishable Key from dashboard.clerk.com
+          </Text>
+        </View>
+      )}
       <Drawer
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
@@ -202,5 +349,19 @@ export default function RootLayout() {
         <Drawer.Screen name="(tabs)" />
       </Drawer>
     </GestureHandlerRootView>
+  );
+}
+
+export default function RootLayout() {
+  if (!isKeyValid) {
+    return <MainDrawerApp />;
+  }
+
+  return (
+    <ClerkErrorBoundary devDomain="humble-crayfish-65.clerk.accounts.dev">
+      <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
+        <MainDrawerApp />
+      </ClerkProvider>
+    </ClerkErrorBoundary>
   );
 }
