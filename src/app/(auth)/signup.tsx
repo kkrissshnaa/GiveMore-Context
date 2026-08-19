@@ -94,17 +94,32 @@ export default function SignUpScreen() {
         code: code.trim(),
       });
 
-      if (completeSignUp.status === 'complete') {
-        if (setActive) {
+      if (completeSignUp.status === 'complete' || completeSignUp.createdSessionId) {
+        if (setActive && completeSignUp.createdSessionId) {
           await setActive({ session: completeSignUp.createdSessionId });
         }
         router.replace('/');
       } else {
-        console.log('Verification status:', completeSignUp.status);
-        setErrorMessage(`Verification incomplete (status: ${completeSignUp.status}). Please try again.`);
+        console.log('Verification status:', completeSignUp.status, 'missing:', completeSignUp.missingFields);
+        if (completeSignUp.missingFields && completeSignUp.missingFields.length > 0) {
+          setErrorMessage(`Additional info required by Clerk: ${completeSignUp.missingFields.join(', ')}`);
+        } else {
+          setErrorMessage(`Verification status: ${completeSignUp.status}. Please check your verification code.`);
+        }
       }
     } catch (err: any) {
       console.error('Verification error:', JSON.stringify(err, null, 2));
+      const isAlreadyVerified = err?.errors?.some?.((e: any) => e.code === 'verification_already_verified');
+      if (isAlreadyVerified) {
+        if (signUp.createdSessionId && setActive) {
+          await setActive({ session: signUp.createdSessionId });
+          router.replace('/');
+          return;
+        } else {
+          router.replace('/(auth)/signin');
+          return;
+        }
+      }
       const msg =
         err?.errors?.[0]?.longMessage ||
         err?.errors?.[0]?.message ||
