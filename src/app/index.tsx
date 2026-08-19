@@ -23,6 +23,7 @@ import { downloadAndSaveImage } from '../lib/imageActions';
 import { publishItemToExplore } from '../lib/exploreService';
 import { chatEvents } from '../lib/chatEvents';
 import { ChatItem, saveChat } from '../lib/chatService';
+import { useUser, useSession } from '@clerk/expo';
 
 function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
   const [pulseAnim] = useState(() => new Animated.Value(0.35));
@@ -115,6 +116,8 @@ const getAspectRatioStyle = (ratio: string) => {
 export default function Index() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { isSignedIn } = useUser();
+  const { session } = useSession();
   const [prompt, setPrompt] = useState('');
   const [activePrompt, setActivePrompt] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -204,10 +207,10 @@ export default function Index() {
         canvasRegions: activeCanvasRegions,
         createdAt,
       };
-      await saveChat(chatToSave);
+      await saveChat(chatToSave, async () => (session ? await session.getToken() : null));
       chatEvents.emitChatSaved();
     }
-  }, [prompt, activePrompt, imageUrl, referenceImages, canvasRegions, canvasEnabled, model, aspectRatio, quality, currentChatId, createdAt]);
+  }, [prompt, activePrompt, imageUrl, referenceImages, canvasRegions, canvasEnabled, model, aspectRatio, quality, currentChatId, createdAt, session]);
 
   const handleCreateNewChat = useCallback(async () => {
     await saveCurrentChatIfNeeded();
@@ -334,6 +337,10 @@ export default function Index() {
   };
 
   const generateImage = async () => {
+    if (!isSignedIn) {
+      router.push('/(auth)/signup');
+      return;
+    }
     const effectiveCanvasRegions = canvasEnabled && canvasRegions.length > 0 ? canvasRegions : [];
     if (canvasEnabled && effectiveCanvasRegions.length === 0) {
       setCanvasEnabled(false);
