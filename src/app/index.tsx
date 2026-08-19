@@ -338,7 +338,7 @@ export default function Index() {
 
   const generateImage = async () => {
     if (!isSignedIn) {
-      router.push('/(auth)/signup');
+      router.push('/(auth)/signin');
       return;
     }
     const effectiveCanvasRegions = canvasEnabled && canvasRegions.length > 0 ? canvasRegions : [];
