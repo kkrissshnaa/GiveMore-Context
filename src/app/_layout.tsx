@@ -9,7 +9,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ClerkProvider, useUser, useAuth } from '@clerk/expo';
 import { tokenCache } from '../lib/tokenCache';
 import { StatusBar } from 'expo-status-bar';
-import * as NavigationBar from 'expo-navigation-bar';
 import { getChats, ChatItem } from '../lib/chatService';
 import { chatEvents } from '../lib/chatEvents';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
@@ -335,16 +334,6 @@ function CustomDrawerContent(props: any) {
 }
 
 function MainDrawerApp() {
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      try {
-        NavigationBar.setStyle('dark');
-      } catch (e) {
-        // Safe fallback
-      }
-    }
-  }, []);
-
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#070801' }}>
       <StatusBar style="light" />
