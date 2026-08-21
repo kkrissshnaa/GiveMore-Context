@@ -283,10 +283,10 @@ function CustomDrawerContent(props: any) {
           <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13.5px] font-bold text-white">New generation</Text>
         </TouchableOpacity>
 
-        {/* Nav Items - Explore and Settings only */}
+        {/* Nav Items - Explore and Profile */}
         <View className="flex-col gap-1">
           <NavItem icon="compass" label="Explore" onPress={() => { props.navigation.closeDrawer(); router.push('/(tabs)/explore'); }} />
-          <NavItem icon="settings" label="Settings" onPress={() => { props.navigation.closeDrawer(); router.push('/(tabs)/settings'); }} />
+          <NavItem icon="user" label="Profile" onPress={() => { props.navigation.closeDrawer(); router.push('/(tabs)/profile'); }} />
         </View>
 
         {/* History Header & List */}

@@ -114,14 +114,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="profile"
         options={{
-          title: 'Settings',
+          title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.iconContainer}>
-              {focused && <SoftRadialGlow size={68} id="settings-tab-glow" opacity={0.35} />}
+              {focused && <SoftRadialGlow size={68} id="profile-tab-glow" opacity={0.35} />}
               <View style={styles.iconWrapper}>
-                <Feather name="settings" size={28} color={color} />
+                <Feather name="user" size={28} color={color} />
               </View>
             </View>
           ),
