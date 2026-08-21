@@ -69,7 +69,7 @@ export const ExploreCard = memo(function ExploreCard({
       tension: 35,
       useNativeDriver: true,
     }).start();
-  }, [isFlipped]);
+  }, [isFlipped, flipAnim]);
 
   // 3D Flip Interpolations
   const frontInterpolate = flipAnim.interpolate({

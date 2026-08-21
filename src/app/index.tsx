@@ -1,12 +1,12 @@
 import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
-import { router, useNavigation } from 'expo-router';
+import { Image as ExpoImage } from 'expo-image';
+import { router, useNavigation, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
-  Image,
   Keyboard,
   Platform,
   ScrollView,
@@ -19,10 +19,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
 import { CanvasRegion, ReferenceCanvasModal } from '../components/ReferenceCanvasModal';
+import { ShareModal } from '../components/ShareModal';
 import { downloadAndSaveImage } from '../lib/imageActions';
 import { publishItemToExplore } from '../lib/exploreService';
 import { chatEvents } from '../lib/chatEvents';
 import { ChatItem, saveChat } from '../lib/chatService';
+import { resolveApiUrl } from '../lib/apiUtils';
 import { useUser, useSession } from '@clerk/expo';
 
 const HELVETICA_FONT = Platform.select({
@@ -128,21 +130,34 @@ const getAspectRatioStyle = (ratio: string) => {
 export default function Index() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { isSignedIn } = useUser();
+  const searchParams = useLocalSearchParams<{ prompt?: string; model?: string; aspectRatio?: string }>();
+  
+  const { isLoaded: isUserLoaded, isSignedIn } = useUser();
   const { session } = useSession();
-  const [prompt, setPrompt] = useState('');
+
+  const resolveModelName = (name?: string) => {
+    if (!name) return 'krea2';
+    const lower = name.toLowerCase();
+    if (lower.includes('flux')) return 'flux-edit';
+    if (lower.includes('ideogram')) return 'ideogram4';
+    if (lower.includes('krea')) return 'krea2';
+    return name;
+  };
+
+  const [prompt, setPrompt] = useState<string>(() => searchParams?.prompt || '');
   const [activePrompt, setActivePrompt] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
-  const [aspectRatio, setAspectRatio] = useState('1:1');
+  const [aspectRatio, setAspectRatio] = useState(() => searchParams?.aspectRatio || '1:1');
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
-  const [model, setModel] = useState('krea2');
+  const [model, setModel] = useState(() => resolveModelName(searchParams?.model));
   const [quality, setQuality] = useState('Balanced');
   const [expanded, setExpanded] = useState(false);
   const [canvasEnabled, setCanvasEnabled] = useState(false);
   const [canvasModalVisible, setCanvasModalVisible] = useState(false);
   const [canvasRegions, setCanvasRegions] = useState<CanvasRegion[]>([]);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
   const [copied, setCopied] = useState(false);
   const [containerHeight, setContainerHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
@@ -153,6 +168,25 @@ export default function Index() {
   const [downloadingDirect, setDownloadingDirect] = useState(false);
   const [publishingExplore, setPublishingExplore] = useState(false);
   const [publishedSuccess, setPublishedSuccess] = useState(false);
+
+  // Sync state if navigation params change dynamically
+  const prevParamsRef = useRef(searchParams);
+  useEffect(() => {
+    if (searchParams && searchParams !== prevParamsRef.current) {
+      prevParamsRef.current = searchParams;
+      queueMicrotask(() => {
+        if (searchParams.prompt !== undefined) {
+          setPrompt(searchParams.prompt);
+        }
+        if (searchParams.model) {
+          setModel(resolveModelName(searchParams.model));
+        }
+        if (searchParams.aspectRatio) {
+          setAspectRatio(searchParams.aspectRatio);
+        }
+      });
+    }
+  }, [searchParams]);
 
   const handleDirectDownload = async () => {
     if (!imageUrl) return;
@@ -185,7 +219,7 @@ export default function Index() {
         setActionToast(null);
         setPublishedSuccess(false);
       }, 4500);
-    } catch (err: any) {
+    } catch {
       setActionToast('Failed to publish to Explore page.');
       setTimeout(() => setActionToast(null), 3500);
     } finally {
@@ -196,28 +230,35 @@ export default function Index() {
   const [keyboardHeightAnim] = useState(() => new Animated.Value(0));
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const saveCurrentChatIfNeeded = useCallback(async () => {
-    const activeCanvasRegions = canvasEnabled ? canvasRegions : [];
+  const saveCurrentChatIfNeeded = useCallback(async (overrides?: Partial<ChatItem>) => {
+    const activeCanvasRegions = overrides?.canvasRegions !== undefined
+      ? overrides.canvasRegions
+      : (canvasEnabled ? canvasRegions : []);
+    const p = overrides?.prompt !== undefined ? overrides.prompt : prompt;
+    const ap = overrides?.activePrompt !== undefined ? overrides.activePrompt : activePrompt;
+    const img = overrides?.imageUrl !== undefined ? overrides.imageUrl : imageUrl;
+    const refs = overrides?.referenceImages !== undefined ? overrides.referenceImages : referenceImages;
+
     const hasData = Boolean(
-      (prompt && prompt.trim().length > 0) ||
-      activePrompt !== null ||
-      imageUrl !== null ||
-      referenceImages.length > 0 ||
+      (p && p.trim().length > 0) ||
+      ap !== null ||
+      img !== null ||
+      refs.length > 0 ||
       activeCanvasRegions.length > 0
     );
     if (hasData) {
       const chatToSave: ChatItem = {
-        id: currentChatId,
-        title: (prompt || activePrompt || 'New generation').trim().slice(0, 45) || 'Untitled Generation',
-        prompt,
-        activePrompt,
-        imageUrl,
-        model,
-        aspectRatio,
-        quality,
-        referenceImages,
+        id: overrides?.id || currentChatId,
+        title: (p || ap || 'New generation').trim().slice(0, 45) || 'Untitled Generation',
+        prompt: p,
+        activePrompt: ap,
+        imageUrl: img,
+        model: overrides?.model || model,
+        aspectRatio: overrides?.aspectRatio || aspectRatio,
+        quality: overrides?.quality || quality,
+        referenceImages: refs,
         canvasRegions: activeCanvasRegions,
-        createdAt,
+        createdAt: overrides?.createdAt || createdAt,
       };
       await saveChat(chatToSave, async () => (session ? await session.getToken() : null));
       chatEvents.emitChatSaved();
@@ -349,7 +390,7 @@ export default function Index() {
   };
 
   const generateImage = async () => {
-    if (!isSignedIn) {
+    if (isUserLoaded && !isSignedIn) {
       router.push('/(auth)/signin');
       return;
     }
@@ -379,8 +420,10 @@ export default function Index() {
         'flux-edit': '/api/flux_edit',
         'ideogram4': '/api/ideogram4',
       };
-      const url = endpointMap[model.toLowerCase()] || '/api/generation';
-      const response = await fetch(url, {
+      const rawUrl = endpointMap[model.toLowerCase()] || '/api/generation';
+      const resolvedUrl = resolveApiUrl(rawUrl);
+
+      const response = await fetch(resolvedUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
@@ -399,9 +442,19 @@ export default function Index() {
 
       if (data.success) {
         setImageUrl(data.imageUrl);
-        setTimeout(() => {
-          saveCurrentChatIfNeeded();
-        }, 100);
+        // Persist immediately with the correct newly generated image URL
+        await saveCurrentChatIfNeeded({
+          prompt: '',
+          activePrompt: currentPrompt,
+          imageUrl: data.imageUrl,
+          referenceImages,
+          canvasRegions: effectiveCanvasRegions,
+          model,
+          aspectRatio,
+          quality,
+          createdAt,
+          id: currentChatId,
+        });
       } else {
         setErrorText(data.error || 'Failed to generate image');
       }
@@ -487,10 +540,10 @@ export default function Index() {
                   className="w-full rounded-[24px] overflow-hidden bg-white/10 border border-white/20 p-2 shadow-2xl backdrop-blur-xl"
                   style={getAspectRatioStyle(aspectRatio)}
                 >
-                  <Image source={{ uri: imageUrl }} className="w-full h-full rounded-[16px]" resizeMode="cover" />
+                  <ExpoImage source={{ uri: imageUrl }} style={{ width: '100%', height: '100%', borderRadius: 16 }} contentFit="cover" transition={300} />
                 </View>
 
-                {/* Quick Action Bar: Download & Publish to Explore */}
+                {/* Quick Action Bar: Download, Share & Publish to Explore */}
                 <View className="flex-row items-center justify-between mt-3 px-1 gap-2">
                   <TouchableOpacity
                     onPress={handleDirectDownload}
@@ -504,8 +557,16 @@ export default function Index() {
                       <Feather name="download" size={14} color="#E5FF1F" />
                     )}
                     <Text className="text-[12px] font-bold text-[#E5FF1F] font-display">
-                      {downloadingDirect ? 'Saving…' : 'Download'}
+                      {downloadingDirect ? 'Saving…' : 'Save'}
                     </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => setShareModalVisible(true)}
+                    activeOpacity={0.7}
+                    className="flex-row items-center justify-center px-4 py-2.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md"
+                  >
+                    <Feather name="share-2" size={14} color="#E5FF1F" />
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -520,7 +581,7 @@ export default function Index() {
                       <Feather name="globe" size={14} color="#0b1405" />
                     )}
                     <Text className="text-[12px] font-bold text-[#0b1405] font-display">
-                      {publishingExplore ? 'Publishing…' : 'Publish to Explore'}
+                      {publishingExplore ? 'Publishing…' : 'Publish'}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -687,7 +748,7 @@ export default function Index() {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                 {referenceImages.map((uri, index) => (
                   <View key={`${uri}-${index}`} className="relative w-12 h-12 rounded-[10px] overflow-hidden border border-white/20">
-                    <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
+                    <ExpoImage source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
                     <TouchableOpacity
                       onPress={() => removeImage(index)}
                       className="absolute top-1 right-1 bg-black/80 rounded-full w-4 h-4 items-center justify-center border border-white/40"
@@ -711,7 +772,7 @@ export default function Index() {
             <TouchableOpacity onPress={pickImage} className="w-10 h-10 rounded-[10px] border-[1.5px] border-dashed border-[#E5FF1F]/35 items-center justify-center bg-[#E5FF1F]/5 mr-2.5">
               {referenceImages.length > 0 ? (
                 <View className="relative w-full h-full rounded-[8px] overflow-hidden">
-                  <Image source={{ uri: referenceImages[referenceImages.length - 1] }} className="w-full h-full" resizeMode="cover" />
+                  <ExpoImage source={{ uri: referenceImages[referenceImages.length - 1] }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
                   {referenceImages.length > 1 && (
                     <View className="absolute inset-0 bg-black/60 items-center justify-center">
                       <Text className="text-white text-[10px] font-bold font-mono">+{referenceImages.length}</Text>
@@ -726,24 +787,26 @@ export default function Index() {
             <View className="flex-1 justify-center mr-2">
               {canvasEnabled && canvasRegions.length > 0 && (
                 <View className="flex-row items-center mb-1">
-                  <TouchableOpacity
-                    onPress={() => setCanvasModalVisible(true)}
-                    className="flex-row items-center gap-1.5 px-3 py-1 rounded-full bg-[#222908] border border-[#E5FF1F]/60 shadow-[0_0_10px_rgba(229,255,31,0.25)]"
-                  >
-                    <Feather name="layers" size={12} color="#E5FF1F" />
-                    <Text className="text-[11.5px] font-bold text-white font-display">
-                      Layout · {canvasRegions.length}
-                    </Text>
+                  <View className="flex-row items-center rounded-full bg-[#222908] border border-[#E5FF1F]/60 shadow-[0_0_10px_rgba(229,255,31,0.25)] overflow-hidden">
+                    <TouchableOpacity
+                      onPress={() => setCanvasModalVisible(true)}
+                      className="flex-row items-center gap-1.5 pl-3 pr-1.5 py-1"
+                    >
+                      <Feather name="layers" size={12} color="#E5FF1F" />
+                      <Text className="text-[11.5px] font-bold text-white font-display">
+                        Layout · {canvasRegions.length}
+                      </Text>
+                    </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => {
                         setCanvasRegions([]);
                         setCanvasEnabled(false);
                       }}
-                      className="ml-1 pl-1 border-l border-white/20"
+                      className="px-2 py-1 border-l border-white/20"
                     >
                       <Feather name="x" size={12} color="#bababa" />
                     </TouchableOpacity>
-                  </TouchableOpacity>
+                  </View>
                 </View>
               )}
               <TextInput
@@ -788,6 +851,15 @@ export default function Index() {
           setCanvasRegions(newRegions);
           setCanvasEnabled(newRegions.length > 0);
         }}
+      />
+
+      <ShareModal
+        visible={shareModalVisible}
+        onClose={() => setShareModalVisible(false)}
+        imageUrl={imageUrl}
+        prompt={activePrompt || prompt || 'New generation'}
+        model={model}
+        aspectRatio={aspectRatio}
       />
     </AestheticBackdrop>
   );
