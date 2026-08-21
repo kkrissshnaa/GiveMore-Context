@@ -1,3 +1,4 @@
+import '../../global.css';
 import 'react-native-url-polyfill/auto';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';

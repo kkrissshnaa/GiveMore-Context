@@ -38,4 +38,4 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   return context.resolveRequest(context, moduleName, platform);
 };
 
-module.exports = withNativewind(config);
+module.exports = withNativewind(config, { input: './global.css' });
