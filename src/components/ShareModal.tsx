@@ -174,7 +174,7 @@ export function ShareModal({
             )}
 
             {/* Action Buttons: Direct App Share & Download */}
-            <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">
+            <Text className="text-[10px] font-bold tracking-widest uppercase text-[#E5FF1F] mb-2 font-display">
               Export Options
             </Text>
 
@@ -215,7 +215,7 @@ export function ShareModal({
             </View>
 
             {/* Public vs Private Community Visibility */}
-            <Text className="text-[10px] font-bold tracking-widest uppercase text-[#8a8385] mb-2 font-display">
+            <Text className="text-[10px] font-bold tracking-widest uppercase text-[#E5FF1F] mb-2 font-display">
               Community Visibility
             </Text>
 
@@ -245,7 +245,7 @@ export function ShareModal({
                         <Text className="text-[9.5px] font-bold text-[#E5FF1F]">Explore Feed</Text>
                       </View>
                     </View>
-                    <Text className="text-[11px] text-[#8a8385] mt-0.5 leading-3.5">
+                    <Text className="text-[11px] text-[#E5FF1F] mt-0.5 leading-3.5">
                       Push to Explore page feed for everyone to discover & remix.
                     </Text>
                   </View>
@@ -278,7 +278,7 @@ export function ShareModal({
                     <Text className={`text-[14px] font-bold ${!isPublic ? 'text-white' : 'text-white/80'}`}>
                       Private
                     </Text>
-                    <Text className="text-[11px] text-[#8a8385] mt-0.5 leading-3.5">
+                    <Text className="text-[11px] text-[#E5FF1F] mt-0.5 leading-3.5">
                       Keep in your personal generation history only. Do not push to Explore.
                     </Text>
                   </View>
