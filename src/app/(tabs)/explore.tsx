@@ -8,7 +8,6 @@ import {
   Platform,
   Image as RNImage,
   RefreshControl,
-  TouchableOpacity,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -61,12 +60,20 @@ export default function Explore() {
   }, [loadExploreItems]);
 
   useEffect(() => {
-    loadExploreItems();
-    const unsub = exploreEvents.subscribe(() => {
-      loadExploreItems();
+    let isMounted = true;
+    getPublicExploreItems().then((items) => {
+      if (isMounted) setExploreItems(items);
     });
-    return () => unsub();
-  }, [loadExploreItems]);
+    const unsub = exploreEvents.subscribe(() => {
+      getPublicExploreItems().then((items) => {
+        if (isMounted) setExploreItems(items);
+      });
+    });
+    return () => {
+      isMounted = false;
+      unsub();
+    };
+  }, []);
 
   // Group items into dynamic rows:
   // - 16:9 images span BOTH columns across full-width rows (taking 2 full-width rows for consecutive 16:9 items)

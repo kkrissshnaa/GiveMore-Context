@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  StyleSheet,
   ScrollView,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -95,7 +94,7 @@ export function ShareModal({
         setIsPublishing(false);
         onClose();
       }, 1200);
-    } catch (err: any) {
+    } catch {
       setIsPublishing(false);
       showStatus('error', 'Failed to publish to Explore feed.');
     }
