@@ -96,7 +96,7 @@ function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
         <Animated.Text className="text-white text-xs font-bold tracking-wider uppercase text-center font-display" style={{ opacity: pulseAnim }}>
           Synthesizing Image...
         </Animated.Text>
-        <Animated.Text className="text-[#8a8385] text-[11px] text-center mt-1 font-mono" style={{ opacity: pulseAnim }}>
+        <Animated.Text className="text-[#E5FF1F] text-[11px] text-center mt-1 font-mono" style={{ opacity: pulseAnim }}>
           Aspect Ratio {aspectRatio}
         </Animated.Text>
       </View>

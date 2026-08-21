@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     fontFamily: HELVETICA_BOLD,
   },
   profileEmail: {
-    color: '#a1a1aa',
+    color: '#E5FF1F',
     fontSize: 12.5,
     fontFamily: HELVETICA_FONT,
   },
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     fontFamily: HELVETICA_BOLD,
   },
   guestSubtitle: {
-    color: '#a1a1aa',
+    color: '#E5FF1F',
     fontSize: 12,
     fontFamily: HELVETICA_FONT,
     marginTop: 1,
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
     fontFamily: HELVETICA_BOLD,
   },
   statLabel: {
-    color: '#8a8385',
+    color: '#E5FF1F',
     fontSize: 10,
     fontFamily: HELVETICA_FONT,
   },

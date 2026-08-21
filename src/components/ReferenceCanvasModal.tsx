@@ -481,7 +481,7 @@ export function ReferenceCanvasModal({
                 <Text className="text-[20px] font-bold text-white mb-0.5">
                   Reference Canvas
                 </Text>
-                <Text className="text-[12.5px] text-[#8a8385] leading-4">
+                <Text className="text-[12.5px] text-[#E5FF1F] leading-4">
                   Drag to draw layered objects. Tap a layer number to select & edit overlapping objects.
                 </Text>
               </View>
@@ -604,7 +604,7 @@ export function ReferenceCanvasModal({
                 </Text>
               </TouchableOpacity>
 
-              <Text className="text-[12.5px] font-semibold text-[#8a8385] font-mono">
+              <Text className="text-[12.5px] font-semibold text-[#E5FF1F] font-mono">
                 {localRegions.length} {localRegions.length === 1 ? 'object' : 'objects'}
               </Text>
 
