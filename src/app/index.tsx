@@ -1,8 +1,9 @@
+import { useSession, useUser } from '@clerk/expo';
 import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
-import * as ImagePicker from 'expo-image-picker';
 import { Image as ExpoImage } from 'expo-image';
-import { router, useNavigation, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -20,12 +21,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
 import { CanvasRegion, ReferenceCanvasModal } from '../components/ReferenceCanvasModal';
 import { ShareModal } from '../components/ShareModal';
-import { downloadAndSaveImage } from '../lib/imageActions';
-import { publishItemToExplore } from '../lib/exploreService';
+import { resolveApiUrl } from '../lib/apiUtils';
 import { chatEvents } from '../lib/chatEvents';
 import { ChatItem, saveChat } from '../lib/chatService';
-import { resolveApiUrl } from '../lib/apiUtils';
-import { useUser, useSession } from '@clerk/expo';
+import { publishItemToExplore } from '../lib/exploreService';
+import { downloadAndSaveImage } from '../lib/imageActions';
 
 const HELVETICA_FONT = Platform.select({
   ios: 'Helvetica',
@@ -131,7 +131,7 @@ export default function Index() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const searchParams = useLocalSearchParams<{ prompt?: string; model?: string; aspectRatio?: string }>();
-  
+
   const { isLoaded: isUserLoaded, isSignedIn } = useUser();
   const { session } = useSession();
 
@@ -510,7 +510,7 @@ export default function Index() {
             </View>
             <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[22px] font-bold text-white mb-3 tracking-tight">Nothing generated yet</Text>
             <Text style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }} className="text-[14px] text-center max-w-[290px] leading-5 mb-6">
-              Write prompt, attach references, or compose a layout in Reference Canvas to control where things go.
+              Write prompt, attach reference, or compose a layout in Reference Canvas to control where things go.
             </Text>
 
             <View className="flex-row flex-wrap justify-center gap-2">
