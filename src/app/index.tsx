@@ -19,6 +19,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
+import { RealisticGlassBox } from '../components/RealisticGlassBox';
+import { RealisticGlassButton } from '../components/RealisticGlassButton';
 import { CanvasRegion, ReferenceCanvasModal } from '../components/ReferenceCanvasModal';
 import { ShareModal } from '../components/ShareModal';
 import { resolveApiUrl } from '../lib/apiUtils';
@@ -513,15 +515,18 @@ export default function Index() {
               Write prompt, attach reference, or compose a layout in Reference Canvas to control where things go.
             </Text>
 
-            <View className="flex-row flex-wrap justify-center gap-2">
+            <View className="flex-row flex-wrap justify-center gap-2 max-w-[340px]">
               {suggestions.map((text, i) => (
-                <TouchableOpacity
+                <RealisticGlassButton
                   key={i}
                   onPress={() => setPrompt(text)}
-                  className="px-[15px] py-2 rounded-full bg-[#E5FF1F]/10 border border-[#E5FF1F]/30 shadow-sm backdrop-blur-md active:bg-[#E5FF1F]/25 active:border-[#E5FF1F]/60"
+                  variant="dark"
+                  borderRadius={18}
+                  showGlint={false}
+                  contentStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
                 >
-                  <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-xs font-semibold text-[#E5FF1F]">{text}</Text>
-                </TouchableOpacity>
+                  <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-xs font-semibold text-[#E5FF1F] tracking-wide">{text}</Text>
+                </RealisticGlassButton>
               ))}
             </View>
           </View>
@@ -602,7 +607,13 @@ export default function Index() {
               </View>
             )}
             {activePrompt && (loading || imageUrl || errorText) && (
-              <View className="mt-3 p-4 bg-[#0e170d]/85 border border-[#E5FF1F]/35 rounded-[22px] shadow-lg backdrop-blur-md">
+              <RealisticGlassBox
+                borderRadius={24}
+                tintColor="rgba(11, 19, 10, 0.82)"
+                showGlint={false}
+                style={{ marginTop: 14 }}
+                contentStyle={{ padding: 16 }}
+              >
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-row items-center gap-2">
                     <Feather name="command" size={13} color="#E5FF1F" />
@@ -628,7 +639,7 @@ export default function Index() {
                   </View>
                 </View>
                 <Text className="text-white text-[13.5px] font-medium leading-5 font-sans">{activePrompt}</Text>
-              </View>
+              </RealisticGlassBox>
             )}
           </View>
         )}
@@ -648,7 +659,11 @@ export default function Index() {
           )
         }}
       >
-        <View className="bg-[#091209]/90 border border-white/20 rounded-[32px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.9)] backdrop-blur-2xl">
+        <RealisticGlassBox
+          borderRadius={34}
+          tintColor="rgba(10, 16, 8, 0.78)"
+          showGlint={false}
+        >
           {/* Expanded Panel */}
           {expanded && (
             <View className="px-4 pt-4 pb-2">
@@ -657,60 +672,96 @@ export default function Index() {
                 <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="text-[10px] font-bold tracking-widest uppercase mb-2">Model</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row flex-nowrap" contentContainerStyle={{ gap: 8 }}>
                   {models.map((m) => (
-                    <TouchableOpacity
+                    <RealisticGlassButton
                       key={m.name}
                       onPress={() => setModel(m.name)}
-                      className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${model === m.name ? 'bg-[#E5FF1F]/20 border-[#E5FF1F]/70 shadow-[0_0_12px_rgba(229,255,31,0.3)]' : 'bg-white/5 border-white/10'}`}
+                      variant={model === m.name ? 'lime' : 'glass'}
+                      borderRadius={18}
+                      showGlint={false}
+                      contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7 }}
                     >
-                      <View className={`w-4 h-4 rounded-[5px] items-center justify-center ${model === m.name ? 'bg-[#E5FF1F]' : 'bg-[#E5FF1F]/20'}`}>
-                        <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-[8px] font-bold ${model === m.name ? 'text-[#0b1405]' : 'text-[#E5FF1F]'}`}>{m.short}</Text>
+                      <View className={`w-4 h-4 rounded-[5px] items-center justify-center ${model === m.name ? 'bg-[#0b1405]' : 'bg-[#E5FF1F]/20'}`}>
+                        <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-[8px] font-bold ${model === m.name ? 'text-[#E5FF1F]' : 'text-[#E5FF1F]'}`}>{m.short}</Text>
                       </View>
-                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${model === m.name ? 'text-white font-bold' : 'text-[#E5FF1F]'}`}>{m.name}</Text>
-                    </TouchableOpacity>
+                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${model === m.name ? 'text-[#0b1405] font-bold' : 'text-white'}`}>{m.name}</Text>
+                    </RealisticGlassButton>
                   ))}
                 </ScrollView>
               </View>
 
-              {/* Canvas Switch */}
-              <View className="flex-row items-center justify-between py-3 border-t border-b border-white/10 mb-4">
-                <View>
-                  <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-bold text-white">Reference Canvas</Text>
-                  <Text style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }} className="text-[11px] mt-0.5">Compose regions for the model to follow</Text>
+              {/* Canvas Switch & Setup Row */}
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => {
+                  setCanvasEnabled(true);
+                  setCanvasModalVisible(true);
+                }}
+                className="flex-row items-center justify-between py-3 border-t border-b border-white/10 mb-4"
+              >
+                <View className="flex-1 pr-3">
+                  <View className="flex-row items-center gap-2">
+                    <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-bold text-white">Reference Canvas</Text>
+                    {canvasRegions.length > 0 && (
+                      <View className="px-2 py-0.5 rounded-full bg-[#E5FF1F]/20 border border-[#E5FF1F]/50">
+                        <Text className="text-[9px] font-bold text-[#E5FF1F] font-mono">{canvasRegions.length} {canvasRegions.length === 1 ? 'region' : 'regions'}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }} className="text-[11px] mt-0.5">
+                    {canvasRegions.length > 0 ? 'Tap to edit composition regions' : 'Compose regions for the model to follow'}
+                  </Text>
                 </View>
-                <Switch
-                  value={canvasEnabled}
-                  onValueChange={(val) => {
-                    setCanvasEnabled(val);
-                    if (val) {
-                      setCanvasModalVisible(true);
-                    } else {
-                      setCanvasRegions([]);
-                    }
-                  }}
-                  trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
-                  thumbColor="white"
-                  ios_backgroundColor="rgba(255,255,255,0.12)"
-                />
-              </View>
+
+                <View className="flex-row items-center gap-2">
+                  {canvasRegions.length > 0 && (
+                    <TouchableOpacity
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        setCanvasModalVisible(true);
+                      }}
+                      className="px-2.5 py-1 rounded-full bg-white/10 border border-white/20"
+                    >
+                      <Text className="text-[10.5px] font-bold text-[#E5FF1F] font-sans">Edit</Text>
+                    </TouchableOpacity>
+                  )}
+                  <Switch
+                    value={canvasEnabled}
+                    onValueChange={(val) => {
+                      setCanvasEnabled(val);
+                      if (val) {
+                        setCanvasModalVisible(true);
+                      } else {
+                        setCanvasRegions([]);
+                      }
+                    }}
+                    trackColor={{ false: 'rgba(255,255,255,0.15)', true: '#E5FF1F' }}
+                    thumbColor={canvasEnabled ? '#0b1405' : '#ffffff'}
+                    ios_backgroundColor="rgba(255,255,255,0.15)"
+                  />
+                </View>
+              </TouchableOpacity>
 
               {/* Aspect Ratio */}
               <View className="mb-4">
                 <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="text-[10px] font-bold tracking-widest uppercase mb-2">Aspect ratio</Text>
                 <View className="flex-row flex-wrap gap-2">
                   {aspectRatios.map((ratio) => (
-                    <TouchableOpacity
+                    <RealisticGlassButton
                       key={ratio}
                       onPress={() => setAspectRatio(ratio)}
-                      className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${aspectRatio === ratio ? 'bg-[#E5FF1F]/20 border-[#E5FF1F]/70 shadow-[0_0_12px_rgba(229,255,31,0.3)]' : 'bg-white/5 border-white/10'}`}
+                      variant={aspectRatio === ratio ? 'lime' : 'glass'}
+                      borderRadius={18}
+                      showGlint={false}
+                      contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7 }}
                     >
-                      <View className={`border-[1.5px] rounded-[2.5px] ${aspectRatio === ratio ? 'border-[#E5FF1F]' : 'border-[#bababa]'}`}
+                      <View className={`border-[1.5px] rounded-[2.5px] ${aspectRatio === ratio ? 'border-[#0b1405]' : 'border-[#E5FF1F]/60'}`}
                         style={{
                           width: ratio === '16:9' ? 16 : ratio === '4:5' ? 11 : ratio === '9:16' ? 9 : 13,
                           height: ratio === '16:9' ? 9 : ratio === '4:5' ? 14 : ratio === '9:16' ? 16 : 13
                         }}
                       />
-                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${aspectRatio === ratio ? 'text-white font-bold' : 'text-[#E5FF1F]'}`}>{ratio}</Text>
-                    </TouchableOpacity>
+                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${aspectRatio === ratio ? 'text-[#0b1405] font-bold' : 'text-white'}`}>{ratio}</Text>
+                    </RealisticGlassButton>
                   ))}
                 </View>
               </View>
@@ -720,14 +771,17 @@ export default function Index() {
                 <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="text-[10px] font-bold tracking-widest uppercase mb-2">Quality</Text>
                 <View className="flex-row flex-wrap gap-2">
                   {qualities.map((q) => (
-                    <TouchableOpacity
+                    <RealisticGlassButton
                       key={q.name}
                       onPress={() => setQuality(q.name)}
-                      className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full border ${quality === q.name ? 'bg-[#E5FF1F]/20 border-[#E5FF1F]/70 shadow-[0_0_12px_rgba(229,255,31,0.3)]' : 'bg-white/5 border-white/10'}`}
+                      variant={quality === q.name ? 'lime' : 'glass'}
+                      borderRadius={18}
+                      showGlint={false}
+                      contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7 }}
                     >
-                      <Feather name={q.icon} size={13} color={quality === q.name ? '#E5FF1F' : '#E5FF1F'} />
-                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${quality === q.name ? 'text-white font-bold' : 'text-[#E5FF1F]'}`}>{q.name}</Text>
-                    </TouchableOpacity>
+                      <Feather name={q.icon} size={13} color={quality === q.name ? '#0b1405' : '#E5FF1F'} />
+                      <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${quality === q.name ? 'text-[#0b1405] font-bold' : 'text-white'}`}>{q.name}</Text>
+                    </RealisticGlassButton>
                   ))}
                 </View>
               </View>
@@ -736,7 +790,7 @@ export default function Index() {
 
           {/* Selected Reference Images Carousel */}
           {referenceImages.length > 0 && (
-            <View className="px-4 pt-3 pb-2 border-b border-white/10">
+            <View className="px-4 pt-3 pb-2.5 border-b border-white/10">
               <View className="flex-row items-center justify-between mb-2">
                 <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="text-[10px] font-bold tracking-widest uppercase">
                   Reference Images ({referenceImages.length})
@@ -747,7 +801,7 @@ export default function Index() {
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                 {referenceImages.map((uri, index) => (
-                  <View key={`${uri}-${index}`} className="relative w-12 h-12 rounded-[10px] overflow-hidden border border-white/20">
+                  <View key={`${uri}-${index}`} className="relative w-12 h-12 rounded-[14px] overflow-hidden border border-white/30 shadow-sm">
                     <ExpoImage source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
                     <TouchableOpacity
                       onPress={() => removeImage(index)}
@@ -757,21 +811,31 @@ export default function Index() {
                     </TouchableOpacity>
                   </View>
                 ))}
-                <TouchableOpacity
+                <RealisticGlassButton
                   onPress={pickImage}
-                  className="w-12 h-12 rounded-[10px] border border-dashed border-white/30 items-center justify-center bg-white/5"
+                  variant="glass"
+                  size={48}
+                  borderRadius={14}
+                  showGlint={false}
                 >
-                  <Feather name="plus" size={16} color="#bababa" />
-                </TouchableOpacity>
+                  <Feather name="plus" size={18} color="#E5FF1F" />
+                </RealisticGlassButton>
               </ScrollView>
             </View>
           )}
 
           {/* Main Prompt Row */}
           <View className="flex-row items-end px-3.5 py-3">
-            <TouchableOpacity onPress={pickImage} className="w-10 h-10 rounded-[10px] border-[1.5px] border-dashed border-[#E5FF1F]/35 items-center justify-center bg-[#E5FF1F]/5 mr-2.5">
+            <RealisticGlassButton
+              onPress={pickImage}
+              variant="glass"
+              size={40}
+              borderRadius={20}
+              showGlint={false}
+              style={{ marginRight: 8 }}
+            >
               {referenceImages.length > 0 ? (
-                <View className="relative w-full h-full rounded-[8px] overflow-hidden">
+                <View className="relative w-full h-full rounded-full overflow-hidden">
                   <ExpoImage source={{ uri: referenceImages[referenceImages.length - 1] }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
                   {referenceImages.length > 1 && (
                     <View className="absolute inset-0 bg-black/60 items-center justify-center">
@@ -782,12 +846,12 @@ export default function Index() {
               ) : (
                 <Feather name="image" size={18} color="#E5FF1F" />
               )}
-            </TouchableOpacity>
+            </RealisticGlassButton>
 
             <View className="flex-1 justify-center mr-2">
               {canvasEnabled && canvasRegions.length > 0 && (
                 <View className="flex-row items-center mb-1">
-                  <View className="flex-row items-center rounded-full bg-[#222908] border border-[#E5FF1F]/60 shadow-[0_0_10px_rgba(229,255,31,0.25)] overflow-hidden">
+                  <View className="flex-row items-center rounded-full bg-[#222908]/90 border border-[#E5FF1F]/70 shadow-[0_0_10px_rgba(229,255,31,0.25)] overflow-hidden">
                     <TouchableOpacity
                       onPress={() => setCanvasModalVisible(true)}
                       className="flex-row items-center gap-1.5 pl-3 pr-1.5 py-1"
@@ -810,9 +874,9 @@ export default function Index() {
                 </View>
               )}
               <TextInput
-                className="text-white text-[14px] font-sans font-medium max-h-[110px] min-h-[40px] py-1.5 px-1"
+                className="text-white text-[14.5px] font-sans font-medium max-h-[110px] min-h-[40px] py-2 px-1.5"
                 placeholder="Describe the shot, scene, or edit…"
-                placeholderTextColor="#ffffff"
+                placeholderTextColor="rgba(255,255,255,0.55)"
                 multiline
                 scrollEnabled={true}
                 value={prompt}
@@ -823,28 +887,42 @@ export default function Index() {
             </View>
 
             <View className="flex-row items-center gap-2">
-              <TouchableOpacity className="w-10 h-10 items-center justify-center" onPress={() => setExpanded(!expanded)}>
-                <Feather name={expanded ? "chevron-down" : "chevron-up"} size={24} color="#E5FF1F" />
-              </TouchableOpacity>
-              <TouchableOpacity
+              <RealisticGlassButton
+                onPress={() => setExpanded(!expanded)}
+                variant="glass"
+                size={40}
+                borderRadius={20}
+                showGlint={false}
+              >
+                <Feather name={expanded ? "chevron-down" : "chevron-up"} size={19} color="#E5FF1F" />
+              </RealisticGlassButton>
+
+              <RealisticGlassButton
                 onPress={loading ? stopGeneration : generateImage}
-                activeOpacity={0.7}
-                className="w-10 h-10 rounded-full bg-[#E5FF1F] items-center justify-center shadow-[0_0_24px_rgba(229,255,31,0.6)] border border-white/40"
+                variant="lime"
+                size={40}
+                borderRadius={20}
+                showGlint={false}
               >
                 {loading ? (
                   <View className="w-3.5 h-3.5 bg-[#0b1405] rounded-[3px]" />
                 ) : (
                   <Feather name="arrow-up" size={20} color="#0b1405" />
                 )}
-              </TouchableOpacity>
+              </RealisticGlassButton>
             </View>
           </View>
-        </View>
+        </RealisticGlassBox>
       </Animated.View>
 
       <ReferenceCanvasModal
         visible={canvasModalVisible}
-        onClose={() => setCanvasModalVisible(false)}
+        onClose={() => {
+          setCanvasModalVisible(false);
+          if (canvasRegions.length === 0) {
+            setCanvasEnabled(false);
+          }
+        }}
         aspectRatio={aspectRatio}
         regions={canvasRegions}
         onSaveRegions={(newRegions) => {
