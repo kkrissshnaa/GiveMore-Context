@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, memo } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   Animated,
   StyleSheet,
   Platform,
@@ -13,6 +12,7 @@ import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { RealisticGlassButton } from './RealisticGlassButton';
 import { ExploreItem } from '../data/exploreData';
 
 const HELVETICA_FONT = Platform.select({
@@ -204,10 +204,12 @@ export const ExploreCard = memo(function ExploreCard({
 
               {/* Like Icon & Counter Pill Overlay at Bottom Right */}
               <View style={styles.likeBadgeContainer}>
-                <TouchableOpacity
+                <RealisticGlassButton
                   onPress={toggleHeartButton}
-                  style={styles.likeBadge}
-                  activeOpacity={0.8}
+                  variant="dark"
+                  borderRadius={14}
+                  showGlint={false}
+                  contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4 }}
                 >
                   <Feather
                     name="heart"
@@ -223,7 +225,7 @@ export const ExploreCard = memo(function ExploreCard({
                   >
                     {likesCount}
                   </Text>
-                </TouchableOpacity>
+                </RealisticGlassButton>
               </View>
 
               {/* Animated Double-Tap Heart Overlay */}
@@ -264,36 +266,53 @@ export const ExploreCard = memo(function ExploreCard({
                   <Feather name="zap" size={13} color="#b2ff59" />
                   <Text style={styles.backHeaderText}>{item.model}</Text>
                 </View>
-                <TouchableOpacity onPress={onToggleFlip} style={styles.closeBtn}>
-                  <Feather name="x" size={13} color="#ffffff" />
-                </TouchableOpacity>
+                <RealisticGlassButton
+                  onPress={onToggleFlip}
+                  variant="glass"
+                  size={24}
+                  borderRadius={12}
+                  showGlint={false}
+                >
+                  <Feather name="x" size={12} color="#ffffff" />
+                </RealisticGlassButton>
               </View>
 
               {/* Action CTA Buttons (In Place of Prompt) */}
               <View style={styles.ctaContainer}>
-                <TouchableOpacity
+                <RealisticGlassButton
                   onPress={handleCopyPrompt}
-                  style={[styles.btnCopy, copied && styles.btnCopyActive]}
-                  activeOpacity={0.7}
+                  variant={copied ? 'lime' : 'glass'}
+                  borderRadius={10}
+                  showGlint={false}
+                  style={{ flex: 1 }}
+                  contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8 }}
                 >
                   <Feather
                     name={copied ? 'check' : 'copy'}
-                    size={14}
-                    color={copied ? '#b2ff59' : '#ffffff'}
+                    size={13}
+                    color={copied ? '#0b1405' : '#ffffff'}
                   />
-                  <Text style={[styles.btnCopyText, copied && { color: '#b2ff59' }]}>
+                  <Text
+                    style={[
+                      styles.btnCopyText,
+                      copied && { color: '#0b1405' },
+                    ]}
+                  >
                     {copied ? 'Copied' : 'Copy'}
                   </Text>
-                </TouchableOpacity>
+                </RealisticGlassButton>
 
-                <TouchableOpacity
+                <RealisticGlassButton
                   onPress={handleRemix}
-                  style={styles.btnRemix}
-                  activeOpacity={0.7}
+                  variant="lime"
+                  borderRadius={10}
+                  showGlint={false}
+                  style={{ flex: 1 }}
+                  contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8 }}
                 >
-                  <Feather name="corner-up-right" size={14} color="#0b1405" />
+                  <Feather name="corner-up-right" size={13} color="#0b1405" />
                   <Text style={styles.btnRemixText}>Use</Text>
-                </TouchableOpacity>
+                </RealisticGlassButton>
               </View>
 
               {/* Specs Row */}

@@ -12,6 +12,7 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../../components/AestheticBackdrop';
+import { RealisticGlassButton } from '../../components/RealisticGlassButton';
 import { ExploreCard } from '../../components/ExploreCard';
 import { EXPLORE_ITEMS, ExploreItem } from '../../data/exploreData';
 import { getPublicExploreItems, exploreEvents } from '../../lib/exploreService';
@@ -204,9 +205,14 @@ export default function Explore() {
         <View style={styles.headerContainer}>
           <View style={styles.headerTop}>
             <View style={styles.titleGroup}>
-              <View style={styles.iconBox}>
+              <RealisticGlassButton
+                variant="glass"
+                size={44}
+                borderRadius={14}
+                showGlint={false}
+              >
                 <Feather name="compass" size={22} color="#E5FF1F" />
-              </View>
+              </RealisticGlassButton>
               <View>
                 <Text style={styles.headerTitle}>Explore</Text>
                 <Text style={styles.headerSubtitle}>

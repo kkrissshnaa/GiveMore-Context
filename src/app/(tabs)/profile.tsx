@@ -16,6 +16,8 @@ import { useUser, useAuth } from '@clerk/expo';
 import { Image } from 'expo-image';
 import * as Clipboard from 'expo-clipboard';
 import { AestheticBackdrop } from '../../components/AestheticBackdrop';
+import { RealisticGlassBox } from '../../components/RealisticGlassBox';
+import { RealisticGlassButton } from '../../components/RealisticGlassButton';
 import { getChats } from '../../lib/chatService';
 
 const HELVETICA_FONT = Platform.select({
@@ -101,9 +103,14 @@ export default function Profile() {
         <View style={styles.headerContainer}>
           <View style={styles.headerTop}>
             <View style={styles.titleGroup}>
-              <View style={styles.iconBox}>
-                <Feather name="user" size={24} color="#E5FF1F" />
-              </View>
+              <RealisticGlassButton
+                variant="glass"
+                size={44}
+                borderRadius={14}
+                showGlint={false}
+              >
+                <Feather name="user" size={22} color="#E5FF1F" />
+              </RealisticGlassButton>
               <View>
                 <Text style={styles.headerTitle}>Profile</Text>
                 <Text style={styles.headerSubtitle}>
@@ -125,7 +132,12 @@ export default function Profile() {
         >
           {/* User Card */}
           {isLoaded && isSignedIn ? (
-            <View style={styles.profileCard}>
+            <RealisticGlassBox
+              borderRadius={24}
+              tintColor="rgba(11, 18, 10, 0.78)"
+              showGlint={false}
+              contentStyle={{ padding: 16 }}
+            >
               <View style={styles.profileTopRow}>
                 {userAvatar ? (
                   <Image
@@ -157,10 +169,13 @@ export default function Profile() {
                     </Text>
                   ) : null}
                   {user?.id ? (
-                    <TouchableOpacity
+                    <RealisticGlassButton
                       onPress={handleCopyUserId}
-                      activeOpacity={0.7}
-                      style={styles.idChip}
+                      variant="dark"
+                      borderRadius={8}
+                      showGlint={false}
+                      style={{ alignSelf: 'flex-start', marginTop: 2 }}
+                      contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3 }}
                     >
                       <Feather
                         name={copiedId ? 'check' : 'copy'}
@@ -170,13 +185,18 @@ export default function Profile() {
                       <Text style={styles.idChipText}>
                         {copiedId ? 'Copied ID' : `ID: ${user.id.slice(0, 10)}...`}
                       </Text>
-                    </TouchableOpacity>
+                    </RealisticGlassButton>
                   ) : null}
                 </View>
               </View>
-            </View>
+            </RealisticGlassBox>
           ) : (
-            <View style={styles.guestCard}>
+            <RealisticGlassBox
+              borderRadius={24}
+              tintColor="rgba(11, 18, 10, 0.78)"
+              showGlint={false}
+              contentStyle={{ padding: 16, gap: 14 }}
+            >
               <View style={styles.guestInfo}>
                 <View style={styles.guestIcon}>
                   <Feather name="shield" size={20} color="#E5FF1F" />
@@ -190,38 +210,58 @@ export default function Profile() {
               </View>
 
               <View style={styles.guestActions}>
-                <TouchableOpacity
+                <RealisticGlassButton
                   onPress={() => router.push('/(auth)/signin')}
-                  style={styles.signInButton}
-                  activeOpacity={0.8}
+                  variant="lime"
+                  size={{ height: 42 }}
+                  borderRadius={14}
+                  showGlint={false}
+                  style={{ flex: 1 }}
+                  contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: '100%' }}
                 >
                   <Feather name="log-in" size={14} color="#060e03" />
                   <Text style={styles.signInText}>Sign In</Text>
-                </TouchableOpacity>
+                </RealisticGlassButton>
 
-                <TouchableOpacity
+                <RealisticGlassButton
                   onPress={() => router.push('/(auth)/signup')}
-                  style={styles.signUpButton}
-                  activeOpacity={0.8}
+                  variant="glass"
+                  size={{ height: 42 }}
+                  borderRadius={14}
+                  showGlint={false}
+                  style={{ flex: 1 }}
+                  contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: '100%' }}
                 >
                   <Feather name="user-plus" size={14} color="#E5FF1F" />
                   <Text style={styles.signUpText}>Sign Up</Text>
-                </TouchableOpacity>
+                </RealisticGlassButton>
               </View>
-            </View>
+            </RealisticGlassBox>
           )}
 
           {/* Quick Stats Grid */}
           <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
+            <RealisticGlassBox
+              borderRadius={18}
+              tintColor="rgba(11, 18, 10, 0.75)"
+              showGlint={false}
+              style={{ flex: 1 }}
+              contentStyle={{ padding: 12, alignItems: 'center', gap: 4 }}
+            >
               <View style={styles.statIconBox}>
                 <Feather name="zap" size={16} color="#E5FF1F" />
               </View>
               <Text style={styles.statValue}>{generationCount}</Text>
               <Text style={styles.statLabel}>Generations</Text>
-            </View>
+            </RealisticGlassBox>
 
-            <View style={styles.statCard}>
+            <RealisticGlassBox
+              borderRadius={18}
+              tintColor="rgba(11, 18, 10, 0.75)"
+              showGlint={false}
+              style={{ flex: 1 }}
+              contentStyle={{ padding: 12, alignItems: 'center', gap: 4 }}
+            >
               <View style={styles.statIconBox}>
                 <Feather name="cpu" size={16} color="#E5FF1F" />
               </View>
@@ -229,9 +269,15 @@ export default function Profile() {
                 {defaultModel.split(' ')[0]}
               </Text>
               <Text style={styles.statLabel}>Active Engine</Text>
-            </View>
+            </RealisticGlassBox>
 
-            <View style={styles.statCard}>
+            <RealisticGlassBox
+              borderRadius={18}
+              tintColor="rgba(11, 18, 10, 0.75)"
+              showGlint={false}
+              style={{ flex: 1 }}
+              contentStyle={{ padding: 12, alignItems: 'center', gap: 4 }}
+            >
               <View style={styles.statIconBox}>
                 <Feather name="cloud" size={16} color="#E5FF1F" />
               </View>
@@ -239,11 +285,16 @@ export default function Profile() {
                 {isSignedIn ? 'Synced' : 'Local'}
               </Text>
               <Text style={styles.statLabel}>Storage State</Text>
-            </View>
+            </RealisticGlassBox>
           </View>
 
           {/* Section 1: Studio Preferences */}
-          <View style={styles.glassPanel}>
+          <RealisticGlassBox
+            borderRadius={22}
+            tintColor="rgba(10, 16, 9, 0.78)"
+            showGlint={false}
+            contentStyle={{ padding: 16, gap: 4 }}
+          >
             <Text style={styles.sectionHeader}>STUDIO PREFERENCES</Text>
 
             <View style={styles.settingRow}>
@@ -290,10 +341,15 @@ export default function Profile() {
                 thumbColor={highRes ? '#0b1405' : '#ffffff'}
               />
             </View>
-          </View>
+          </RealisticGlassBox>
 
           {/* Section 2: Generation Engine Defaults */}
-          <View style={styles.glassPanel}>
+          <RealisticGlassBox
+            borderRadius={22}
+            tintColor="rgba(10, 16, 9, 0.78)"
+            showGlint={false}
+            contentStyle={{ padding: 16, gap: 4 }}
+          >
             <Text style={styles.sectionHeader}>DEFAULT AI ENGINE</Text>
 
             <TouchableOpacity
@@ -316,10 +372,15 @@ export default function Profile() {
                 <Feather name="refresh-cw" size={12} color="#E5FF1F" />
               </View>
             </TouchableOpacity>
-          </View>
+          </RealisticGlassBox>
 
           {/* Section 3: Storage & System */}
-          <View style={styles.glassPanel}>
+          <RealisticGlassBox
+            borderRadius={22}
+            tintColor="rgba(10, 16, 9, 0.78)"
+            showGlint={false}
+            contentStyle={{ padding: 16, gap: 4 }}
+          >
             <Text style={styles.sectionHeader}>STORAGE & SYSTEM</Text>
 
             <TouchableOpacity
@@ -347,18 +408,22 @@ export default function Profile() {
               </View>
               <Text style={styles.versionText}>v1.2.0 (42)</Text>
             </View>
-          </View>
+          </RealisticGlassBox>
 
           {/* Sign Out Action (if signed in) */}
           {isLoaded && isSignedIn && (
-            <TouchableOpacity
+            <RealisticGlassButton
               onPress={handleSignOut}
-              style={styles.signOutButton}
-              activeOpacity={0.8}
+              variant="dark"
+              size={{ height: 48 }}
+              borderRadius={16}
+              showGlint={false}
+              style={{ width: '100%', marginTop: 4 }}
+              contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: '100%' }}
             >
               <Feather name="log-out" size={16} color="#ef4444" />
               <Text style={styles.signOutText}>Sign Out of Account</Text>
-            </TouchableOpacity>
+            </RealisticGlassButton>
           )}
         </ScrollView>
       </View>

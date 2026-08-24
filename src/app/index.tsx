@@ -474,22 +474,35 @@ export default function Index() {
     }
   };
 
-  const renderIconBtn = (icon: any, bg: string, color: string, border: string = 'border-white/10', onPress?: () => void) => (
-    <TouchableOpacity onPress={onPress} className={`w-10 h-10 rounded-full items-center justify-center border ${bg} ${border}`}>
-      <Feather name={icon} size={18} color={color} />
-    </TouchableOpacity>
-  );
 
   return (
     <AestheticBackdrop fullWindowAlign={true} style={{ paddingTop: insets.top }}>
       {/* Top Bar */}
       <View className="flex-row items-center justify-between px-4 pt-2 pb-3 z-20">
-        {renderIconBtn('grid', 'bg-[#E5FF1F]/10 backdrop-blur-md', '#E5FF1F', 'border-[#E5FF1F]/30', () => (navigation as any).toggleDrawer())}
+        <RealisticGlassButton
+          onPress={() => (navigation as any).toggleDrawer()}
+          variant="glass"
+          size={40}
+          borderRadius={20}
+          showGlint={false}
+        >
+          <Feather name="grid" size={18} color="#E5FF1F" />
+        </RealisticGlassButton>
+
         <View className="items-center flex-1 mx-2">
           <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[10px] tracking-widest uppercase text-[#E5FF1F] font-bold">Generation</Text>
           <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[16px] font-bold text-white mt-0.5 tracking-tight">New generation</Text>
         </View>
-        {renderIconBtn('plus', 'bg-[#E5FF1F]', '#0b1405', 'border-white/40 shadow-[0_0_20px_rgba(229,255,31,0.5)]', handleCreateNewChat)}
+
+        <RealisticGlassButton
+          onPress={handleCreateNewChat}
+          variant="lime"
+          size={40}
+          borderRadius={20}
+          showGlint={false}
+        >
+          <Feather name="plus" size={18} color="#0b1405" />
+        </RealisticGlassButton>
       </View>
 
       <ScrollView
@@ -550,11 +563,15 @@ export default function Index() {
 
                 {/* Quick Action Bar: Download, Share & Publish to Explore */}
                 <View className="flex-row items-center justify-between mt-3 px-1 gap-2">
-                  <TouchableOpacity
+                  <RealisticGlassButton
                     onPress={handleDirectDownload}
                     disabled={downloadingDirect}
-                    activeOpacity={0.7}
-                    className="flex-1 flex-row items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-[#0b1405]/90 border border-[#E5FF1F]/40 backdrop-blur-md"
+                    variant="dark"
+                    size={{ height: 42 }}
+                    borderRadius={21}
+                    showGlint={false}
+                    style={{ flex: 1 }}
+                    contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: '100%' }}
                   >
                     {downloadingDirect ? (
                       <ActivityIndicator size="small" color="#E5FF1F" />
@@ -564,21 +581,27 @@ export default function Index() {
                     <Text className="text-[12px] font-bold text-[#E5FF1F] font-display">
                       {downloadingDirect ? 'Saving…' : 'Save'}
                     </Text>
-                  </TouchableOpacity>
+                  </RealisticGlassButton>
 
-                  <TouchableOpacity
+                  <RealisticGlassButton
                     onPress={() => setShareModalVisible(true)}
-                    activeOpacity={0.7}
-                    className="flex-row items-center justify-center px-4 py-2.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md"
+                    variant="glass"
+                    size={42}
+                    borderRadius={21}
+                    showGlint={false}
                   >
-                    <Feather name="share-2" size={14} color="#E5FF1F" />
-                  </TouchableOpacity>
+                    <Feather name="share-2" size={15} color="#E5FF1F" />
+                  </RealisticGlassButton>
 
-                  <TouchableOpacity
+                  <RealisticGlassButton
                     onPress={handlePublishToExplore}
                     disabled={publishingExplore}
-                    activeOpacity={0.7}
-                    className="flex-1 flex-row items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-[#E5FF1F] border border-white/40 shadow-md shadow-[#E5FF1F]/30"
+                    variant="lime"
+                    size={{ height: 42 }}
+                    borderRadius={21}
+                    showGlint={false}
+                    style={{ flex: 1 }}
+                    contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: '100%' }}
                   >
                     {publishingExplore ? (
                       <ActivityIndicator size="small" color="#0b1405" />
@@ -588,19 +611,22 @@ export default function Index() {
                     <Text className="text-[12px] font-bold text-[#0b1405] font-display">
                       {publishingExplore ? 'Publishing…' : 'Publish'}
                     </Text>
-                  </TouchableOpacity>
+                  </RealisticGlassButton>
                 </View>
 
                 {actionToast && (
                   <View className="mt-2.5 p-2.5 rounded-xl bg-[#E5FF1F]/20 border border-[#E5FF1F]/50 flex-row items-center justify-between px-3">
                     <Text className="text-[11.5px] font-bold text-[#E5FF1F] font-sans flex-1">{actionToast}</Text>
                     {publishedSuccess && (
-                      <TouchableOpacity
+                      <RealisticGlassButton
                         onPress={() => router.push('/(tabs)/explore')}
-                        className="px-2.5 py-1 rounded-full bg-[#E5FF1F] border border-white/40"
+                        variant="lime"
+                        borderRadius={14}
+                        showGlint={false}
+                        contentStyle={{ paddingHorizontal: 10, paddingVertical: 4 }}
                       >
                         <Text className="text-[10.5px] font-bold text-[#0b1405] font-display">View Feed →</Text>
-                      </TouchableOpacity>
+                      </RealisticGlassButton>
                     )}
                   </View>
                 )}
@@ -620,22 +646,28 @@ export default function Index() {
                     <Text className="text-[10px] font-bold text-[#E5FF1F] uppercase tracking-widest font-mono">Prompt</Text>
                   </View>
                   <View className="flex-row items-center gap-2">
-                    <TouchableOpacity
+                    <RealisticGlassButton
                       onPress={() => setPrompt(activePrompt)}
-                      className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E5FF1F]/10 border border-[#E5FF1F]/30"
+                      variant="dark"
+                      borderRadius={14}
+                      showGlint={false}
+                      contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 4 }}
                     >
                       <Feather name="edit-3" size={11} color="#E5FF1F" />
                       <Text className="text-[11px] font-medium text-[#E5FF1F] font-sans">Reuse</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
+                    </RealisticGlassButton>
+                    <RealisticGlassButton
                       onPress={() => copyPrompt(activePrompt)}
-                      className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E5FF1F]/10 border border-[#E5FF1F]/30"
+                      variant="dark"
+                      borderRadius={14}
+                      showGlint={false}
+                      contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 4 }}
                     >
                       <Feather name={copied ? "check" : "copy"} size={11} color="#E5FF1F" />
                       <Text className="text-[11px] font-medium font-sans text-[#E5FF1F]">
                         {copied ? 'Copied!' : 'Copy'}
                       </Text>
-                    </TouchableOpacity>
+                    </RealisticGlassButton>
                   </View>
                 </View>
                 <Text className="text-white text-[13.5px] font-medium leading-5 font-sans">{activePrompt}</Text>
