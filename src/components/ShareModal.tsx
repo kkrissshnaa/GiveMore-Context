@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { RealisticGlassButton } from './RealisticGlassButton';
 import { downloadAndSaveImage, shareImageToApps } from '../lib/imageActions';
 import { publishItemToExplore } from '../lib/exploreService';
 
@@ -118,12 +119,15 @@ export function ShareModal({
               <Text className="text-[19px] font-bold text-white font-display">Share & Export</Text>
             </View>
 
-            <TouchableOpacity
+            <RealisticGlassButton
               onPress={onClose}
-              className="w-9 h-9 rounded-full bg-white/10 items-center justify-center border border-white/10"
+              variant="glass"
+              size={36}
+              borderRadius={18}
+              showGlint={false}
             >
               <Feather name="x" size={18} color="white" />
-            </TouchableOpacity>
+            </RealisticGlassButton>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -180,11 +184,15 @@ export function ShareModal({
 
             <View className="flex-row gap-3 mb-5">
               {/* Direct Share on Other Apps */}
-              <TouchableOpacity
+              <RealisticGlassButton
                 onPress={handleShareApp}
                 disabled={isSharingApp}
-                activeOpacity={0.8}
-                className="flex-1 flex-row items-center justify-center gap-2 p-3.5 rounded-[20px] bg-[#E5FF1F] border border-white/40 shadow-lg shadow-[#E5FF1F]/20"
+                variant="lime"
+                size={{ height: 48 }}
+                borderRadius={24}
+                showGlint={false}
+                style={{ flex: 1 }}
+                contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: '100%' }}
               >
                 {isSharingApp ? (
                   <ActivityIndicator size="small" color="#0b1405" />
@@ -194,14 +202,18 @@ export function ShareModal({
                     <Text className="text-[13.5px] font-bold text-[#0b1405] font-display">Share to App</Text>
                   </>
                 )}
-              </TouchableOpacity>
+              </RealisticGlassButton>
 
               {/* Download Image */}
-              <TouchableOpacity
+              <RealisticGlassButton
                 onPress={handleDownload}
                 disabled={isDownloading}
-                activeOpacity={0.8}
-                className="flex-1 flex-row items-center justify-center gap-2 p-3.5 rounded-[20px] bg-white/10 border border-white/20"
+                variant="glass"
+                size={{ height: 48 }}
+                borderRadius={24}
+                showGlint={false}
+                style={{ flex: 1 }}
+                contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: '100%' }}
               >
                 {isDownloading ? (
                   <ActivityIndicator size="small" color="#E5FF1F" />
@@ -211,7 +223,7 @@ export function ShareModal({
                     <Text className="text-[13.5px] font-bold text-white font-display">Save to Gallery</Text>
                   </>
                 )}
-              </TouchableOpacity>
+              </RealisticGlassButton>
             </View>
 
             {/* Public vs Private Community Visibility */}
@@ -293,11 +305,15 @@ export function ShareModal({
             </View>
 
             {/* Confirm Publish Button */}
-            <TouchableOpacity
+            <RealisticGlassButton
               onPress={handlePublishConfirm}
               disabled={isPublishing}
-              activeOpacity={0.8}
-              className="p-4 rounded-[24px] bg-[#E5FF1F] border border-white/40 items-center justify-center shadow-xl shadow-[#E5FF1F]/30"
+              variant="lime"
+              size={{ height: 52 }}
+              borderRadius={26}
+              showGlint={false}
+              style={{ width: '100%' }}
+              contentStyle={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}
             >
               {isPublishing ? (
                 <ActivityIndicator size="small" color="#0b1405" />
@@ -306,7 +322,7 @@ export function ShareModal({
                   {isPublic ? 'Publish to Explore Page 🚀' : 'Keep Private'}
                 </Text>
               )}
-            </TouchableOpacity>
+            </RealisticGlassButton>
           </ScrollView>
         </View>
       </View>

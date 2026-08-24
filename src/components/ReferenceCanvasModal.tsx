@@ -18,7 +18,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
-import Svg, { Defs, RadialGradient, Stop, Ellipse } from 'react-native-svg';
+import { RealisticGlassButton } from './RealisticGlassButton';
 
 const dismissKeyboard = () => {
   Keyboard.dismiss();
@@ -485,12 +485,15 @@ export function ReferenceCanvasModal({
                   Drag to draw layered objects. Tap a layer number to select & edit overlapping objects.
                 </Text>
               </View>
-              <TouchableOpacity
+              <RealisticGlassButton
                 onPress={onClose}
-                className="w-9 h-9 rounded-full bg-white/10 items-center justify-center border border-white/10"
+                variant="glass"
+                size={36}
+                borderRadius={18}
+                showGlint={false}
               >
                 <Feather name="x" size={18} color="white" />
-              </TouchableOpacity>
+              </RealisticGlassButton>
             </View>
 
             {/* Layer Selector Bar */}
@@ -598,58 +601,34 @@ export function ReferenceCanvasModal({
 
             {/* Footer Action Bar */}
             <View className="flex-row items-center justify-between pt-4 mt-2 border-t border-white/10">
-              <TouchableOpacity onPress={clearAll} className="px-2 py-1">
-                <Text className="text-[13.5px] font-medium text-[#bababa] font-sans">
+              <RealisticGlassButton
+                onPress={clearAll}
+                variant="glass"
+                borderRadius={14}
+                showGlint={false}
+                contentStyle={{ paddingHorizontal: 12, paddingVertical: 6 }}
+              >
+                <Text className="text-[13px] font-medium text-[#bababa] font-sans">
                   Clear all
                 </Text>
-              </TouchableOpacity>
+              </RealisticGlassButton>
 
               <Text className="text-[12.5px] font-semibold text-[#E5FF1F] font-mono">
                 {localRegions.length} {localRegions.length === 1 ? 'object' : 'objects'}
               </Text>
 
-              <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
-                <View
-                  pointerEvents="none"
-                  style={{
-                    position: 'absolute',
-                    top: -18,
-                    bottom: -18,
-                    left: -20,
-                    right: -20,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Svg height={76} width={124} viewBox="0 0 124 76">
-                    <Defs>
-                      <RadialGradient
-                        id="doneBtnFeatherGlow"
-                        cx="50%"
-                        cy="50%"
-                        r="50%"
-                        fx="50%"
-                        fy="50%"
-                      >
-                        <Stop offset="0%" stopColor="#E5FF1F" stopOpacity="0.25" />
-                        <Stop offset="35%" stopColor="#E5FF1F" stopOpacity="0.10" />
-                        <Stop offset="70%" stopColor="#E5FF1F" stopOpacity="0.02" />
-                        <Stop offset="100%" stopColor="#E5FF1F" stopOpacity="0" />
-                      </RadialGradient>
-                    </Defs>
-                    <Ellipse cx={62} cy={38} rx={62} ry={38} fill="url(#doneBtnFeatherGlow)" />
-                  </Svg>
-                </View>
-                <TouchableOpacity
-                  onPress={handleDone}
-                  activeOpacity={0.8}
-                  className="px-6 py-2.5 rounded-full bg-[#E5FF1F] items-center justify-center border border-white/40 shadow-md shadow-[#E5FF1F]/15"
-                >
-                  <Text className="text-[13.5px] font-bold text-[#0b1405] font-display">
-                    Done
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              <RealisticGlassButton
+                onPress={handleDone}
+                variant="lime"
+                size={{ height: 42 }}
+                borderRadius={21}
+                showGlint={false}
+                contentStyle={{ paddingHorizontal: 22, height: '100%', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text className="text-[13.5px] font-bold text-[#0b1405] font-display">
+                  Done
+                </Text>
+              </RealisticGlassButton>
             </View>
 
           </View>
