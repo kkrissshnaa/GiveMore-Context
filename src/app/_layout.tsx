@@ -107,7 +107,7 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
       variant="glass"
       borderRadius={15}
       showGlint={false}
-      style={{ width: '100%', marginBottom: 6 }}
+      style={{ width: '100%', marginBottom: 8 }}
       contentStyle={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -118,13 +118,17 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
       }}
     >
       <View className="flex-row items-center gap-3">
-        <Feather name={icon} size={17} color="#E5FF1F" />
-        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-white text-xs font-semibold">{label}</Text>
+        <View className="w-[30px] h-[30px] rounded-full bg-[#E5FF1F]/15 items-center justify-center border border-[#E5FF1F]/30">
+          <Feather name={icon} size={15} color="#E5FF1F" />
+        </View>
+        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-white text-[13px] font-semibold">{label}</Text>
       </View>
-      {badge && (
+      {badge ? (
         <View className="bg-[#E5FF1F]/20 border border-[#E5FF1F]/40 px-2 py-0.5 rounded-full">
           <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[#E5FF1F] text-[10px] font-bold">{badge}</Text>
         </View>
+      ) : (
+        <Feather name="chevron-right" size={15} color="rgba(255,255,255,0.3)" />
       )}
     </RealisticGlassButton>
   );
@@ -160,13 +164,13 @@ function UserAccountSection({
         }}
       >
         <View className="flex-row items-center gap-3 flex-1 overflow-hidden mr-2">
-          <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#E5FF1F]/40">
-            <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[12.5px] font-bold text-[#E5FF1F] uppercase">
+          <View className="w-[36px] h-[36px] rounded-full bg-[#182813] items-center justify-center border border-[#E5FF1F]/40">
+            <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-bold text-[#E5FF1F] uppercase">
               {userInitials.toUpperCase()}
             </Text>
           </View>
           <View className="flex-1 overflow-hidden">
-            <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[12.5px] font-bold text-white" numberOfLines={1}>
+            <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-bold text-white" numberOfLines={1}>
               {userDisplayName}
             </Text>
             <Text style={{ fontFamily: HELVETICA_FONT, color: '#E5FF1F' }} className="text-[10.5px] font-medium mt-0.5" numberOfLines={1}>
@@ -178,22 +182,22 @@ function UserAccountSection({
         <RealisticGlassButton
           onPress={() => signOut()}
           variant="dark"
-          size={34}
-          borderRadius={10}
+          size={36}
+          borderRadius={12}
           showGlint={false}
         >
-          <Feather name="log-out" size={14} color="#ef4444" />
+          <Feather name="log-out" size={15} color="#ef4444" />
         </RealisticGlassButton>
       </RealisticGlassBox>
     );
   }
 
   return (
-    <View className="flex-row items-center gap-2">
+    <View className="flex-row items-center gap-2.5">
       <RealisticGlassButton
         onPress={onNavigateSignIn}
         variant="glass"
-        size={{ height: 42 }}
+        size={{ height: 44 }}
         borderRadius={14}
         showGlint={false}
         style={{ flex: 1 }}
@@ -206,14 +210,14 @@ function UserAccountSection({
           height: '100%',
         }}
       >
-        <Feather name="log-in" size={14} color="#E5FF1F" />
-        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-white text-xs font-bold">Sign In</Text>
+        <Feather name="log-in" size={15} color="#E5FF1F" />
+        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-white text-[12.5px] font-bold">Sign In</Text>
       </RealisticGlassButton>
 
       <RealisticGlassButton
         onPress={onNavigateSignUp}
         variant="lime"
-        size={{ height: 42 }}
+        size={{ height: 44 }}
         borderRadius={14}
         showGlint={false}
         style={{ flex: 1 }}
@@ -226,8 +230,8 @@ function UserAccountSection({
           height: '100%',
         }}
       >
-        <Feather name="user-plus" size={14} color="#070801" />
-        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[#070801] text-xs font-bold">Sign Up</Text>
+        <Feather name="user-plus" size={15} color="#070801" />
+        <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[#070801] text-[12.5px] font-bold">Sign Up</Text>
       </RealisticGlassButton>
     </View>
   );
@@ -308,29 +312,42 @@ function CustomDrawerContent(props: any) {
     >
       <DrawerContentScrollView 
         {...props} 
-        contentContainerStyle={{ paddingHorizontal: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8 }}
         onScroll={handleScroll}
         scrollEventThrottle={200}
       >
-        {/* Logo */}
-        <View className="px-2 pb-8">
+        {/* Logo Header */}
+        <View className="px-1 pb-6 pt-2">
           <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[22px] font-bold leading-tight text-white">give more</Text>
           <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[22px] font-bold leading-tight text-[#E5FF1F]">—context</Text>
         </View>
 
-        {/* New Generation Button */}
-        <TouchableOpacity
+        {/* New Generation Glass Button */}
+        <RealisticGlassButton
           onPress={handleNewChat}
-          className="flex-row items-center gap-3 px-3 py-3 mb-5 rounded-[16px] bg-[#E5FF1F]/15 border border-[#E5FF1F]/40"
+          variant="lime"
+          borderRadius={18}
+          showGlint={false}
+          style={{ width: '100%', marginBottom: 16 }}
+          contentStyle={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+            width: '100%',
+          }}
         >
-          <View className="w-[30px] h-[30px] rounded-full bg-[#E5FF1F] items-center justify-center shadow-lg shadow-[#E5FF1F]/40">
-            <Feather name="plus" size={14} color="#0b1405" />
+          <View className="w-[30px] h-[30px] rounded-full bg-[#0b1405] items-center justify-center">
+            <Feather name="plus" size={16} color="#E5FF1F" />
           </View>
-          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13.5px] font-bold text-white">New generation</Text>
-        </TouchableOpacity>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13.5px] font-bold text-[#0b1405]">
+            New generation
+          </Text>
+        </RealisticGlassButton>
 
         {/* Nav Items - Explore and Profile */}
-        <View className="flex-col gap-1">
+        <View className="flex-col gap-1 mb-2">
           <NavItem icon="compass" label="Explore" onPress={() => { props.navigation.closeDrawer(); router.push('/(tabs)/explore'); }} />
           <NavItem icon="user" label="Profile" onPress={() => { props.navigation.closeDrawer(); router.push('/(tabs)/profile'); }} />
         </View>
@@ -338,17 +355,30 @@ function CustomDrawerContent(props: any) {
         {/* History Header & List */}
         {history.length > 0 && (
           <>
-            <View className="h-[1px] bg-white/10 my-4 mx-2" />
-            <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="px-2 mb-2 text-[10px] font-bold uppercase tracking-widest">
+            <View className="h-[1px] bg-white/10 my-3.5 mx-1" />
+            <Text style={{ fontFamily: HELVETICA_BOLD, color: '#E5FF1F' }} className="px-1 mb-2.5 text-[10px] font-bold uppercase tracking-widest">
               Recent Generations ({history.length})
             </Text>
             {history.map((chat) => (
-              <TouchableOpacity 
-                key={chat.id} 
+              <RealisticGlassButton
+                key={chat.id}
                 onPress={() => handleSelectChat(chat)}
-                className="flex-row items-center gap-2.5 px-3 py-2.5 mb-1 rounded-[14px] bg-white/5 border border-white/5 active:bg-white/10"
+                variant="glass"
+                borderRadius={14}
+                showGlint={false}
+                style={{ width: '100%', marginBottom: 7 }}
+                contentStyle={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 10,
+                  paddingHorizontal: 12,
+                  paddingVertical: 9,
+                  width: '100%',
+                }}
               >
-                <Feather name="message-square" size={15} color="#E5FF1F" />
+                <View className="w-[28px] h-[28px] rounded-full bg-[#E5FF1F]/15 items-center justify-center border border-[#E5FF1F]/30">
+                  <Feather name="message-square" size={13} color="#E5FF1F" />
+                </View>
                 <View className="flex-1 overflow-hidden">
                   <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-medium text-white" numberOfLines={1}>
                     {chat.title}
@@ -357,7 +387,7 @@ function CustomDrawerContent(props: any) {
                     {chat.model} · {new Date(chat.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </Text>
                 </View>
-              </TouchableOpacity>
+              </RealisticGlassButton>
             ))}
             {loadingMore && (
               <View className="py-3 items-center">

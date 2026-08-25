@@ -79,43 +79,46 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
           contentStyle={{
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: 22,
             height: barHeight,
+            width: '100%',
           }}
         >
-          {/* Explore Tab (Left) */}
-          <RealisticGlassButton
-            onPress={() => navigation.navigate('explore')}
-            variant={currentRouteName === 'explore' ? 'lime' : 'glass'}
-            size={44}
-            borderRadius={22}
-            showGlint={false}
-          >
-            <Feather
-              name="compass"
-              size={21}
-              color={currentRouteName === 'explore' ? '#0b1405' : '#ffffff'}
-            />
-          </RealisticGlassButton>
+          {/* Explore Tab (Left Column) */}
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <RealisticGlassButton
+              onPress={() => navigation.navigate('explore')}
+              variant={currentRouteName === 'explore' ? 'lime' : 'glass'}
+              size={44}
+              borderRadius={22}
+              showGlint={false}
+            >
+              <Feather
+                name="compass"
+                size={21}
+                color={currentRouteName === 'explore' ? '#0b1405' : '#ffffff'}
+              />
+            </RealisticGlassButton>
+          </View>
 
-          {/* Reserved Spacer for Center Overgrown Hero Button */}
-          <View style={{ width: heroSize }} />
+          {/* Reserved Center Column for Overgrown Hero Button */}
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} />
 
-          {/* Profile Tab (Right) */}
-          <RealisticGlassButton
-            onPress={() => navigation.navigate('profile')}
-            variant={currentRouteName === 'profile' ? 'lime' : 'glass'}
-            size={44}
-            borderRadius={22}
-            showGlint={false}
-          >
-            <Feather
-              name="user"
-              size={21}
-              color={currentRouteName === 'profile' ? '#0b1405' : '#ffffff'}
-            />
-          </RealisticGlassButton>
+          {/* Profile Tab (Right Column) */}
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <RealisticGlassButton
+              onPress={() => navigation.navigate('profile')}
+              variant={currentRouteName === 'profile' ? 'lime' : 'glass'}
+              size={44}
+              borderRadius={22}
+              showGlint={false}
+            >
+              <Feather
+                name="user"
+                size={21}
+                color={currentRouteName === 'profile' ? '#0b1405' : '#ffffff'}
+              />
+            </RealisticGlassButton>
+          </View>
         </RealisticGlassBox>
 
         {/* Center Overgrown Hero Generation Button (Mathematically centered & elevated) */}

@@ -70,7 +70,7 @@ export function RealisticGlassButton({
   if (isLime) {
     baseBg = 'rgba(229, 255, 31, 0.94)';
     borderColor = 'rgba(255, 255, 255, 0.75)';
-    shadowColor = '#E5FF1F';
+    shadowColor = '#000000';
     innerBorderColor = 'rgba(255, 255, 255, 0.45)';
   } else if (isWhite) {
     baseBg = 'rgba(255, 255, 255, 0.20)';
@@ -97,10 +97,10 @@ export function RealisticGlassButton({
           minWidth,
           borderRadius: effectiveRadius,
           shadowColor,
-          shadowOffset: { width: 0, height: isLime ? 3 : 4 },
-          shadowOpacity: isLime ? 0.4 : 0.25,
-          shadowRadius: isLime ? 14 : 10,
-          elevation: isLime ? 5 : 3,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 4,
           opacity: disabled ? 0.55 : 1,
         },
         style,
