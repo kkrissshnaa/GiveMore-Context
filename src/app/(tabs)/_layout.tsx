@@ -17,16 +17,16 @@ interface CustomTabBarProps {
   };
 }
 
-function SoftRadialGlow({ size = 110, opacity = 0.3, id = 'centerHeroGlow' }: { size?: number; opacity?: number; id?: string }) {
+function SoftRadialGlow({ size = 110, opacity = 0.22, id = 'centerHeroGlow' }: { size?: number; opacity?: number; id?: string }) {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg height={size} width={size} viewBox={`0 0 ${size} ${size}`}>
         <Defs>
           <RadialGradient id={id} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
             <Stop offset="0%" stopColor="#E5FF1F" stopOpacity={opacity} />
-            <Stop offset="25%" stopColor="#E5FF1F" stopOpacity={opacity * 0.65} />
-            <Stop offset="55%" stopColor="#E5FF1F" stopOpacity={opacity * 0.25} />
-            <Stop offset="80%" stopColor="#E5FF1F" stopOpacity={opacity * 0.06} />
+            <Stop offset="30%" stopColor="#E5FF1F" stopOpacity={opacity * 0.5} />
+            <Stop offset="65%" stopColor="#E5FF1F" stopOpacity={opacity * 0.15} />
+            <Stop offset="85%" stopColor="#E5FF1F" stopOpacity={opacity * 0.03} />
             <Stop offset="100%" stopColor="#E5FF1F" stopOpacity={0} />
           </RadialGradient>
         </Defs>
@@ -136,7 +136,7 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
           }}
         >
           {/* Multi-Stop Soft Radial Feathered Glow */}
-          <SoftRadialGlow size={116} opacity={0.36} id="centerHeroSoftGlow" />
+          <SoftRadialGlow size={110} opacity={0.24} id="centerHeroSoftGlow" />
 
           <RealisticGlassButton
             onPress={() => router.navigate('/')}
@@ -145,11 +145,11 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
             borderRadius={heroRadius}
             showGlint={false}
             style={{
-              shadowColor: '#E5FF1F',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.45,
-              shadowRadius: 14,
-              elevation: 12,
+              shadowColor: '#000000',
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.35,
+              shadowRadius: 10,
+              elevation: 8,
             }}
           >
             <Feather name="zap" size={24} color="#0b1405" />

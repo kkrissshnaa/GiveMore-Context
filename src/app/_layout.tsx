@@ -123,12 +123,10 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
         </View>
         <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-white text-[13px] font-semibold">{label}</Text>
       </View>
-      {badge ? (
+      {badge && (
         <View className="bg-[#E5FF1F]/20 border border-[#E5FF1F]/40 px-2 py-0.5 rounded-full">
           <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[#E5FF1F] text-[10px] font-bold">{badge}</Text>
         </View>
-      ) : (
-        <Feather name="chevron-right" size={15} color="rgba(255,255,255,0.3)" />
       )}
     </RealisticGlassButton>
   );
@@ -326,7 +324,7 @@ function CustomDrawerContent(props: any) {
         <RealisticGlassButton
           onPress={handleNewChat}
           variant="lime"
-          borderRadius={18}
+          borderRadius={15}
           showGlint={false}
           style={{ width: '100%', marginBottom: 16 }}
           contentStyle={{
@@ -334,14 +332,14 @@ function CustomDrawerContent(props: any) {
             alignItems: 'center',
             gap: 12,
             paddingHorizontal: 14,
-            paddingVertical: 12,
+            paddingVertical: 11,
             width: '100%',
           }}
         >
           <View className="w-[30px] h-[30px] rounded-full bg-[#0b1405] items-center justify-center">
             <Feather name="plus" size={16} color="#E5FF1F" />
           </View>
-          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13.5px] font-bold text-[#0b1405]">
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-bold text-[#0b1405]">
             New generation
           </Text>
         </RealisticGlassButton>
