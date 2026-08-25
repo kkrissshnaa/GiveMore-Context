@@ -533,7 +533,7 @@ export default function Index() {
                 <RealisticGlassButton
                   key={i}
                   onPress={() => setPrompt(text)}
-                  variant="dark"
+                  variant="glass"
                   borderRadius={18}
                   showGlint={false}
                   contentStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
