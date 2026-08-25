@@ -13,6 +13,8 @@ import { StatusBar } from 'expo-status-bar';
 import { getChats, ChatItem } from '../lib/chatService';
 import { chatEvents } from '../lib/chatEvents';
 import { AestheticBackdrop } from '../components/AestheticBackdrop';
+import { RealisticGlassBox } from '../components/RealisticGlassBox';
+import { RealisticGlassButton } from '../components/RealisticGlassButton';
 
 const HELVETICA_FONT = Platform.select({
   ios: 'Helvetica',
@@ -100,10 +102,20 @@ class ClerkErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryStat
 
 function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, badge?: string, onPress?: () => void }) {
   return (
-    <TouchableOpacity 
+    <RealisticGlassButton
       onPress={onPress}
-      activeOpacity={0.7}
-      className="flex-row items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/[0.03] active:bg-white/[0.08] mb-1.5 border border-white/[0.05]"
+      variant="glass"
+      borderRadius={15}
+      showGlint={false}
+      style={{ width: '100%', marginBottom: 6 }}
+      contentStyle={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 14,
+        paddingVertical: 11,
+        width: '100%',
+      }}
     >
       <View className="flex-row items-center gap-3">
         <Feather name={icon} size={17} color="#E5FF1F" />
@@ -114,7 +126,7 @@ function NavItem({ icon, label, badge, onPress }: { icon: any, label: string, ba
           <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[#E5FF1F] text-[10px] font-bold">{badge}</Text>
         </View>
       )}
-    </TouchableOpacity>
+    </RealisticGlassButton>
   );
 }
 
@@ -136,7 +148,17 @@ function UserAccountSection({
 
   if (isLoaded && isSignedIn) {
     return (
-      <View className="flex-row items-center justify-between px-3 py-3 rounded-[16px] bg-white/5 border border-white/10">
+      <RealisticGlassBox
+        borderRadius={18}
+        tintColor="rgba(12, 18, 10, 0.78)"
+        showGlint={false}
+        contentStyle={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 12,
+        }}
+      >
         <View className="flex-row items-center gap-3 flex-1 overflow-hidden mr-2">
           <View className="w-[34px] h-[34px] rounded-full bg-[#182813] items-center justify-center border border-[#E5FF1F]/40">
             <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[12.5px] font-bold text-[#E5FF1F] uppercase">
@@ -153,36 +175,60 @@ function UserAccountSection({
           </View>
         </View>
 
-        <TouchableOpacity
+        <RealisticGlassButton
           onPress={() => signOut()}
-          className="p-2 rounded-xl bg-red-500/10 border border-red-500/30 active:bg-red-500/20"
-          activeOpacity={0.7}
+          variant="dark"
+          size={34}
+          borderRadius={10}
+          showGlint={false}
         >
-          <Feather name="log-out" size={15} color="#ef4444" />
-        </TouchableOpacity>
-      </View>
+          <Feather name="log-out" size={14} color="#ef4444" />
+        </RealisticGlassButton>
+      </RealisticGlassBox>
     );
   }
 
   return (
     <View className="flex-row items-center gap-2">
-      <TouchableOpacity
+      <RealisticGlassButton
         onPress={onNavigateSignIn}
-        className="flex-1 flex-row items-center justify-center gap-2 py-3 px-3 rounded-[14px] bg-white/5 border border-white/10 active:bg-white/10"
-        activeOpacity={0.8}
+        variant="glass"
+        size={{ height: 42 }}
+        borderRadius={14}
+        showGlint={false}
+        style={{ flex: 1 }}
+        contentStyle={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          width: '100%',
+          height: '100%',
+        }}
       >
-        <Feather name="log-in" size={15} color="#E5FF1F" />
+        <Feather name="log-in" size={14} color="#E5FF1F" />
         <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-white text-xs font-bold">Sign In</Text>
-      </TouchableOpacity>
+      </RealisticGlassButton>
 
-      <TouchableOpacity
+      <RealisticGlassButton
         onPress={onNavigateSignUp}
-        className="flex-1 flex-row items-center justify-center gap-2 py-3 px-3 rounded-[14px] bg-[#E5FF1F] active:opacity-90 shadow-lg shadow-[#E5FF1F]/20"
-        activeOpacity={0.8}
+        variant="lime"
+        size={{ height: 42 }}
+        borderRadius={14}
+        showGlint={false}
+        style={{ flex: 1 }}
+        contentStyle={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          width: '100%',
+          height: '100%',
+        }}
       >
-        <Feather name="user-plus" size={15} color="#070801" />
+        <Feather name="user-plus" size={14} color="#070801" />
         <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[#070801] text-xs font-bold">Sign Up</Text>
-      </TouchableOpacity>
+      </RealisticGlassButton>
     </View>
   );
 }
