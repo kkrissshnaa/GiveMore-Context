@@ -127,15 +127,16 @@ export function RealisticGlassBox({
       >
         {/* 3. Inner Glow & Thickness Bevel (Double Inset Rim Simulation) */}
         <View
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              borderRadius: Math.max(0, borderRadius - 1),
-              borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.12)',
-              margin: 1,
-            },
-          ]}
+          style={{
+            position: 'absolute',
+            top: 1,
+            left: 1,
+            right: 1,
+            bottom: 1,
+            borderRadius: Math.max(0, borderRadius - 1),
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.12)',
+          }}
           pointerEvents="none"
         />
 

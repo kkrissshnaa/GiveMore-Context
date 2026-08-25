@@ -362,20 +362,20 @@ function CustomDrawerContent(props: any) {
                 key={chat.id}
                 onPress={() => handleSelectChat(chat)}
                 variant="glass"
-                borderRadius={14}
+                borderRadius={15}
                 showGlint={false}
-                style={{ width: '100%', marginBottom: 7 }}
+                style={{ width: '100%', marginBottom: 8 }}
                 contentStyle={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 10,
-                  paddingHorizontal: 12,
-                  paddingVertical: 9,
+                  gap: 12,
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
                   width: '100%',
                 }}
               >
-                <View className="w-[28px] h-[28px] rounded-full bg-[#E5FF1F]/15 items-center justify-center border border-[#E5FF1F]/30">
-                  <Feather name="message-square" size={13} color="#E5FF1F" />
+                <View className="w-[30px] h-[30px] rounded-full bg-[#E5FF1F]/15 items-center justify-center border border-[#E5FF1F]/30">
+                  <Feather name="message-square" size={14} color="#E5FF1F" />
                 </View>
                 <View className="flex-1 overflow-hidden">
                   <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-medium text-white" numberOfLines={1}>
