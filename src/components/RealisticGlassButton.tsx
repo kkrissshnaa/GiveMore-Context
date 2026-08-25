@@ -56,6 +56,8 @@ export function RealisticGlassButton({
   const height = isFixedNumber ? size : size?.height;
   const minWidth = typeof size === 'object' ? size?.minWidth : undefined;
   const effectiveRadius = isFixedNumber ? size / 2 : borderRadius;
+  const styleFlattened = StyleSheet.flatten(style) || {};
+  const isFullWidth = styleFlattened.width === '100%' || width === '100%';
 
   // Variant color definitions
   const isLime = variant === 'lime';
@@ -64,23 +66,19 @@ export function RealisticGlassButton({
 
   let baseBg = 'rgba(16, 24, 12, 0.75)';
   let borderColor = 'rgba(229, 255, 31, 0.35)';
-  let shadowColor = '#000000';
   let innerBorderColor = 'rgba(255, 255, 255, 0.12)';
 
   if (isLime) {
     baseBg = 'rgba(229, 255, 31, 0.94)';
     borderColor = 'rgba(255, 255, 255, 0.75)';
-    shadowColor = '#000000';
     innerBorderColor = 'rgba(255, 255, 255, 0.45)';
   } else if (isWhite) {
     baseBg = 'rgba(255, 255, 255, 0.20)';
     borderColor = 'rgba(255, 255, 255, 0.45)';
-    shadowColor = '#000000';
     innerBorderColor = 'rgba(255, 255, 255, 0.2)';
   } else if (isGlass) {
     baseBg = 'rgba(255, 255, 255, 0.08)';
     borderColor = 'rgba(255, 255, 255, 0.25)';
-    shadowColor = '#000000';
     innerBorderColor = 'rgba(255, 255, 255, 0.15)';
   }
 
@@ -96,12 +94,13 @@ export function RealisticGlassButton({
           height: height as any,
           minWidth,
           borderRadius: effectiveRadius,
-          shadowColor,
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 4,
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: Platform.OS === 'ios' ? 0.2 : 0,
+          shadowRadius: 5,
+          elevation: Platform.OS === 'android' ? (isLime ? 2 : 0) : 2,
           opacity: disabled ? 0.55 : 1,
+          alignItems: isFixedNumber ? 'center' : (isFullWidth ? 'stretch' : 'center'),
         },
         style,
       ]}
@@ -116,6 +115,9 @@ export function RealisticGlassButton({
             borderColor,
             borderWidth: 1,
             ...(isFixedNumber ? { width: size, height: size } : {}),
+            ...(isFullWidth ? { width: '100%' } : {}),
+            ...(height !== undefined ? { height } : {}),
+            ...(minWidth !== undefined ? { minWidth } : {}),
             ...(isWeb
               ? ({
                   backdropFilter: 'blur(16px)',
@@ -125,17 +127,18 @@ export function RealisticGlassButton({
           },
         ]}
       >
-        {/* 2. Inner Bevel Highlight (Simulates Glass Thickness) */}
+        {/* 2. Inner Bevel Highlight (Simulates Glass Thickness without clipping glitch) */}
         <View
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              borderRadius: Math.max(0, effectiveRadius - 1),
-              borderWidth: 1,
-              borderColor: innerBorderColor,
-              margin: 1,
-            },
-          ]}
+          style={{
+            position: 'absolute',
+            top: 1,
+            left: 1,
+            right: 1,
+            bottom: 1,
+            borderRadius: Math.max(0, effectiveRadius - 1),
+            borderWidth: 1,
+            borderColor: innerBorderColor,
+          }}
           pointerEvents="none"
         />
 
@@ -209,11 +212,11 @@ export function RealisticGlassButton({
           pointerEvents="none"
         />
 
-        {/* In-Flow Button Content / Text / Icon */}
         <View
           style={[
             styles.content,
             isFixedNumber ? { width: size, height: size } : {},
+            isFullWidth ? { width: '100%' } : {},
             contentStyle,
           ]}
         >

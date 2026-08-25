@@ -1,9 +1,9 @@
-import React from 'react';
 import { Feather } from '@expo/vector-icons';
 import { Tabs, router } from 'expo-router';
+import React from 'react';
 import { Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { RealisticGlassBox } from '../../components/RealisticGlassBox';
 import { RealisticGlassButton } from '../../components/RealisticGlassButton';
 
@@ -44,8 +44,8 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
 
   const currentRouteName = state.routes[state.index]?.name;
   const barWidth = 320;
-  const barHeight = 62;
-  const heroSize = 58;
+  const barHeight = 64;
+  const heroSize = 70;
   const heroRadius = heroSize / 2;
 
   return (
@@ -62,19 +62,19 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
       }}
     >
       <View style={{ position: 'relative', width: barWidth, height: barHeight, alignItems: 'center', justifyContent: 'center' }}>
-        {/* Floating Glass Dock Base Bar */}
+        {/* Floating Translucent Glass Dock Base Bar */}
         <RealisticGlassBox
-          borderRadius={31}
-          tintColor="rgba(9, 15, 8, 0.88)"
+          borderRadius={32}
+          tintColor="rgba(12, 20, 10, 0.48)"
           showGlint={false}
           style={{
             width: barWidth,
             height: barHeight,
             shadowColor: '#000000',
-            shadowOffset: { width: 0, height: 12 },
-            shadowOpacity: 0.6,
-            shadowRadius: 24,
-            elevation: 16,
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 0.4,
+            shadowRadius: 20,
+            elevation: 10,
           }}
           contentStyle={{
             flexDirection: 'row',
@@ -100,7 +100,7 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
             </RealisticGlassButton>
           </View>
 
-          {/* Reserved Center Column for Overgrown Hero Button */}
+          {/* Reserved Spacer Column in Dock */}
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} />
 
           {/* Profile Tab (Right Column) */}
@@ -121,12 +121,12 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
           </View>
         </RealisticGlassBox>
 
-        {/* Center Overgrown Hero Generation Button (Mathematically centered & elevated) */}
+        {/* Center Overgrown Generation Button (Bigger, Overgrowing Symmetrically in the Center) */}
         <View
           pointerEvents="box-none"
           style={{
             position: 'absolute',
-            top: -12,
+            top: (barHeight - heroSize) / 2,
             left: (barWidth - heroSize) / 2,
             width: heroSize,
             height: heroSize,
@@ -135,9 +135,7 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
             zIndex: 60,
           }}
         >
-          {/* Multi-Stop Soft Radial Feathered Glow */}
-          <SoftRadialGlow size={110} opacity={0.24} id="centerHeroSoftGlow" />
-
+          <SoftRadialGlow size={92} opacity={0.28} id="centerHeroSoftGlow" />
           <RealisticGlassButton
             onPress={() => router.navigate('/')}
             variant="lime"
@@ -152,7 +150,7 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
               elevation: 8,
             }}
           >
-            <Feather name="zap" size={24} color="#0b1405" />
+            <Feather name="zap" size={27} color="#0b1405" />
           </RealisticGlassButton>
         </View>
       </View>
