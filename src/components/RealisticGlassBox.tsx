@@ -91,21 +91,22 @@ export function RealisticGlassBox({
 
   return (
     <View style={[styles.outerContainer, { borderRadius }, style]}>
-      {/* 1. Soft Deep Ambient Shadow & Contact Glow Layer */}
-      <View
-        pointerEvents="none"
-        style={[
-          styles.shadowLayer,
-          {
-            borderRadius,
-            shadowColor: '#000000',
-            shadowOffset: { width: 0, height: 18 },
-            shadowOpacity: 0.65,
-            shadowRadius: 28,
-            elevation: 16,
-          },
-        ]}
-      />
+      {/* 1. Soft Deep Ambient Shadow Layer (iOS & Web only, 0 elevation on Android to prevent dark inner box artifacts) */}
+      {Platform.OS === 'ios' && (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.shadowLayer,
+            {
+              borderRadius,
+              shadowColor: '#000000',
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.35,
+              shadowRadius: 16,
+            },
+          ]}
+        />
+      )}
 
       {/* 2. Glass Capsule Body Container (Clips internal reflections) */}
       <View
@@ -127,15 +128,16 @@ export function RealisticGlassBox({
       >
         {/* 3. Inner Glow & Thickness Bevel (Double Inset Rim Simulation) */}
         <View
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              borderRadius: Math.max(0, borderRadius - 1),
-              borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.12)',
-              margin: 1,
-            },
-          ]}
+          style={{
+            position: 'absolute',
+            top: 1,
+            left: 1,
+            right: 1,
+            bottom: 1,
+            borderRadius: Math.max(0, borderRadius - 1),
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.12)',
+          }}
           pointerEvents="none"
         />
 

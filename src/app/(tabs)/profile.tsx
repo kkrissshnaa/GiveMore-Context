@@ -134,9 +134,9 @@ export default function Profile() {
           {isLoaded && isSignedIn ? (
             <RealisticGlassBox
               borderRadius={24}
-              tintColor="rgba(11, 18, 10, 0.78)"
+              tintColor="rgba(12, 20, 10, 0.50)"
               showGlint={false}
-              contentStyle={{ padding: 16 }}
+              contentStyle={{ padding: 18 }}
             >
               <View style={styles.profileTopRow}>
                 {userAvatar ? (
@@ -171,11 +171,11 @@ export default function Profile() {
                   {user?.id ? (
                     <RealisticGlassButton
                       onPress={handleCopyUserId}
-                      variant="dark"
-                      borderRadius={8}
+                      variant="glass"
+                      borderRadius={10}
                       showGlint={false}
-                      style={{ alignSelf: 'flex-start', marginTop: 2 }}
-                      contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3 }}
+                      style={{ alignSelf: 'flex-start', marginTop: 4 }}
+                      contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 9, paddingVertical: 4 }}
                     >
                       <Feather
                         name={copiedId ? 'check' : 'copy'}
@@ -193,9 +193,9 @@ export default function Profile() {
           ) : (
             <RealisticGlassBox
               borderRadius={24}
-              tintColor="rgba(11, 18, 10, 0.78)"
+              tintColor="rgba(12, 20, 10, 0.50)"
               showGlint={false}
-              contentStyle={{ padding: 16, gap: 14 }}
+              contentStyle={{ padding: 18, gap: 14 }}
             >
               <View style={styles.guestInfo}>
                 <View style={styles.guestIcon}>
@@ -213,26 +213,26 @@ export default function Profile() {
                 <RealisticGlassButton
                   onPress={() => router.push('/(auth)/signin')}
                   variant="lime"
-                  size={{ height: 42 }}
+                  size={{ height: 44 }}
                   borderRadius={14}
                   showGlint={false}
                   style={{ flex: 1 }}
                   contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: '100%' }}
                 >
-                  <Feather name="log-in" size={14} color="#060e03" />
+                  <Feather name="log-in" size={15} color="#060e03" />
                   <Text style={styles.signInText}>Sign In</Text>
                 </RealisticGlassButton>
 
                 <RealisticGlassButton
                   onPress={() => router.push('/(auth)/signup')}
                   variant="glass"
-                  size={{ height: 42 }}
+                  size={{ height: 44 }}
                   borderRadius={14}
                   showGlint={false}
                   style={{ flex: 1 }}
                   contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: '100%' }}
                 >
-                  <Feather name="user-plus" size={14} color="#E5FF1F" />
+                  <Feather name="user-plus" size={15} color="#E5FF1F" />
                   <Text style={styles.signUpText}>Sign Up</Text>
                 </RealisticGlassButton>
               </View>
@@ -243,13 +243,13 @@ export default function Profile() {
           <View style={styles.statsGrid}>
             <RealisticGlassBox
               borderRadius={18}
-              tintColor="rgba(11, 18, 10, 0.75)"
+              tintColor="rgba(12, 20, 10, 0.48)"
               showGlint={false}
               style={{ flex: 1 }}
-              contentStyle={{ padding: 12, alignItems: 'center', gap: 4 }}
+              contentStyle={{ padding: 14, alignItems: 'center', gap: 4 }}
             >
               <View style={styles.statIconBox}>
-                <Feather name="zap" size={16} color="#E5FF1F" />
+                <Feather name="zap" size={15} color="#E5FF1F" />
               </View>
               <Text style={styles.statValue}>{generationCount}</Text>
               <Text style={styles.statLabel}>Generations</Text>
@@ -257,13 +257,13 @@ export default function Profile() {
 
             <RealisticGlassBox
               borderRadius={18}
-              tintColor="rgba(11, 18, 10, 0.75)"
+              tintColor="rgba(12, 20, 10, 0.48)"
               showGlint={false}
               style={{ flex: 1 }}
-              contentStyle={{ padding: 12, alignItems: 'center', gap: 4 }}
+              contentStyle={{ padding: 14, alignItems: 'center', gap: 4 }}
             >
               <View style={styles.statIconBox}>
-                <Feather name="cpu" size={16} color="#E5FF1F" />
+                <Feather name="cpu" size={15} color="#E5FF1F" />
               </View>
               <Text style={styles.statValue} numberOfLines={1}>
                 {defaultModel.split(' ')[0]}
@@ -273,13 +273,13 @@ export default function Profile() {
 
             <RealisticGlassBox
               borderRadius={18}
-              tintColor="rgba(11, 18, 10, 0.75)"
+              tintColor="rgba(12, 20, 10, 0.48)"
               showGlint={false}
               style={{ flex: 1 }}
-              contentStyle={{ padding: 12, alignItems: 'center', gap: 4 }}
+              contentStyle={{ padding: 14, alignItems: 'center', gap: 4 }}
             >
               <View style={styles.statIconBox}>
-                <Feather name="cloud" size={16} color="#E5FF1F" />
+                <Feather name="cloud" size={15} color="#E5FF1F" />
               </View>
               <Text style={styles.statValue}>
                 {isSignedIn ? 'Synced' : 'Local'}
@@ -291,7 +291,7 @@ export default function Profile() {
           {/* Section 1: Studio Preferences */}
           <RealisticGlassBox
             borderRadius={22}
-            tintColor="rgba(10, 16, 9, 0.78)"
+            tintColor="rgba(12, 20, 10, 0.48)"
             showGlint={false}
             contentStyle={{ padding: 16, gap: 4 }}
           >
@@ -309,6 +309,7 @@ export default function Profile() {
                 onValueChange={setHaptics}
                 trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={haptics ? '#0b1405' : '#ffffff'}
+                ios_backgroundColor="rgba(255,255,255,0.12)"
               />
             </View>
 
@@ -324,6 +325,7 @@ export default function Profile() {
                 onValueChange={setAutoSave}
                 trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={autoSave ? '#0b1405' : '#ffffff'}
+                ios_backgroundColor="rgba(255,255,255,0.12)"
               />
             </View>
 
@@ -339,6 +341,7 @@ export default function Profile() {
                 onValueChange={setHighRes}
                 trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={highRes ? '#0b1405' : '#ffffff'}
+                ios_backgroundColor="rgba(255,255,255,0.12)"
               />
             </View>
           </RealisticGlassBox>
@@ -346,7 +349,7 @@ export default function Profile() {
           {/* Section 2: Generation Engine Defaults */}
           <RealisticGlassBox
             borderRadius={22}
-            tintColor="rgba(10, 16, 9, 0.78)"
+            tintColor="rgba(12, 20, 10, 0.48)"
             showGlint={false}
             contentStyle={{ padding: 16, gap: 4 }}
           >
@@ -377,7 +380,7 @@ export default function Profile() {
           {/* Section 3: Storage & System */}
           <RealisticGlassBox
             borderRadius={22}
-            tintColor="rgba(10, 16, 9, 0.78)"
+            tintColor="rgba(12, 20, 10, 0.48)"
             showGlint={false}
             contentStyle={{ padding: 16, gap: 4 }}
           >
@@ -657,13 +660,15 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   statIconBox: {
-    width: 30,
-    height: 30,
-    borderRadius: 9,
-    backgroundColor: 'rgba(229, 255, 31, 0.12)',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(229, 255, 31, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(229, 255, 31, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   statValue: {
     color: '#ffffff',

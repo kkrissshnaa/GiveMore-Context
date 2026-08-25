@@ -18,10 +18,54 @@ export interface RealisticGlassButtonProps {
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
   variant?: 'lime' | 'white' | 'dark' | 'glass';
+  tintColor?: string;
   size?: number | { width?: number | string; height?: number; minWidth?: number };
   borderRadius?: number;
   showGlint?: boolean;
   glintPosition?: 'bottom-left' | 'top-right' | 'top-left' | 'bottom-right';
+}
+
+/**
+ * Specular Star Glint Component
+ * Renders a delicate 4-pointed optical lens flare/glint on the curved glass corner/rim.
+ */
+function SpecularGlint({
+  size = 20,
+  color = '#FFFFFF',
+  style,
+}: {
+  size?: number;
+  color?: string;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const half = size / 2;
+  return (
+    <View style={[{ width: size, height: size, pointerEvents: 'none' }, style]}>
+      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <Defs>
+          <RadialGradient id="btnGlintAura" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={color} stopOpacity="1" />
+            <Stop offset="25%" stopColor={color} stopOpacity="0.8" />
+            <Stop offset="60%" stopColor="#E5FF1F" stopOpacity="0.3" />
+            <Stop offset="100%" stopColor={color} stopOpacity="0" />
+          </RadialGradient>
+        </Defs>
+
+        {/* Central Soft Halo */}
+        <Circle cx={half} cy={half} r={half * 0.9} fill="url(#btnGlintAura)" />
+
+        {/* 4-Point Specular Diamond Star */}
+        <Path
+          d={`M ${half} 0 Q ${half} ${half} 0 ${half} Q ${half} ${half} ${half} ${size} Q ${half} ${half} ${size} ${half} Q ${half} ${half} ${half} 0 Z`}
+          fill={color}
+          opacity={0.95}
+        />
+
+        {/* Inner intense core */}
+        <Circle cx={half} cy={half} r={size * 0.14} fill="#FFFFFF" />
+      </Svg>
+    </View>
+  );
 }
 
 /**
@@ -44,6 +88,7 @@ export function RealisticGlassButton({
   style,
   contentStyle,
   variant = 'lime',
+  tintColor,
   size,
   borderRadius = 20,
   showGlint = false,
@@ -56,6 +101,8 @@ export function RealisticGlassButton({
   const height = isFixedNumber ? size : size?.height;
   const minWidth = typeof size === 'object' ? size?.minWidth : undefined;
   const effectiveRadius = isFixedNumber ? size / 2 : borderRadius;
+  const styleFlattened = StyleSheet.flatten(style) || {};
+  const isFullWidth = styleFlattened.width === '100%' || width === '100%';
 
   // Variant color definitions
   const isLime = variant === 'lime';
@@ -64,23 +111,23 @@ export function RealisticGlassButton({
 
   let baseBg = 'rgba(16, 24, 12, 0.75)';
   let borderColor = 'rgba(229, 255, 31, 0.35)';
-  let shadowColor = '#000000';
   let innerBorderColor = 'rgba(255, 255, 255, 0.12)';
 
-  if (isLime) {
+  if (tintColor) {
+    baseBg = tintColor;
+    borderColor = 'rgba(255, 255, 255, 0.25)';
+    innerBorderColor = 'rgba(255, 255, 255, 0.15)';
+  } else if (isLime) {
     baseBg = 'rgba(229, 255, 31, 0.94)';
     borderColor = 'rgba(255, 255, 255, 0.75)';
-    shadowColor = '#000000';
     innerBorderColor = 'rgba(255, 255, 255, 0.45)';
   } else if (isWhite) {
     baseBg = 'rgba(255, 255, 255, 0.20)';
     borderColor = 'rgba(255, 255, 255, 0.45)';
-    shadowColor = '#000000';
     innerBorderColor = 'rgba(255, 255, 255, 0.2)';
   } else if (isGlass) {
     baseBg = 'rgba(255, 255, 255, 0.08)';
     borderColor = 'rgba(255, 255, 255, 0.25)';
-    shadowColor = '#000000';
     innerBorderColor = 'rgba(255, 255, 255, 0.15)';
   }
 
@@ -96,12 +143,13 @@ export function RealisticGlassButton({
           height: height as any,
           minWidth,
           borderRadius: effectiveRadius,
-          shadowColor,
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 4,
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: Platform.OS === 'ios' ? 0.2 : 0,
+          shadowRadius: 5,
+          elevation: 0,
           opacity: disabled ? 0.55 : 1,
+          alignItems: isFixedNumber ? 'center' : (isFullWidth ? 'stretch' : 'center'),
         },
         style,
       ]}
@@ -113,29 +161,29 @@ export function RealisticGlassButton({
           {
             borderRadius: effectiveRadius,
             backgroundColor: baseBg,
-            borderColor,
             borderWidth: 1,
-            ...(isFixedNumber ? { width: size, height: size } : {}),
+            borderColor,
             ...(isWeb
               ? ({
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                 } as any)
               : {}),
           },
         ]}
       >
-        {/* 2. Inner Bevel Highlight (Simulates Glass Thickness) */}
+        {/* 2. Inner Glow Bevel Line (Creates 3D Refraction Thickness) */}
         <View
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              borderRadius: Math.max(0, effectiveRadius - 1),
-              borderWidth: 1,
-              borderColor: innerBorderColor,
-              margin: 1,
-            },
-          ]}
+          style={{
+            position: 'absolute',
+            top: 1,
+            left: 1,
+            right: 1,
+            bottom: 1,
+            borderRadius: Math.max(0, effectiveRadius - 1),
+            borderWidth: 1,
+            borderColor: innerBorderColor,
+          }}
           pointerEvents="none"
         />
 
@@ -145,14 +193,14 @@ export function RealisticGlassButton({
             isLime
               ? [
                   'rgba(255, 255, 255, 0.65)',
-                  'rgba(255, 255, 255, 0.22)',
-                  'rgba(255, 255, 255, 0.04)',
+                  'rgba(255, 255, 255, 0.25)',
+                  'rgba(255, 255, 255, 0.02)',
                   'transparent',
                 ]
               : [
                   'rgba(255, 255, 255, 0.32)',
-                  'rgba(255, 255, 255, 0.12)',
-                  'rgba(255, 255, 255, 0.02)',
+                  'rgba(255, 255, 255, 0.10)',
+                  'rgba(255, 255, 255, 0.01)',
                   'transparent',
                 ]
           }
@@ -160,7 +208,7 @@ export function RealisticGlassButton({
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={[
-            styles.topGloss,
+            styles.glossyTopSheen,
             {
               borderTopLeftRadius: effectiveRadius,
               borderTopRightRadius: effectiveRadius,
@@ -169,10 +217,10 @@ export function RealisticGlassButton({
           pointerEvents="none"
         />
 
-        {/* 4. Razor-Thin Top Specular Light Catch */}
+        {/* 4. Razor-Thin Top Edge Specular Line (Light Catch) */}
         <View
           style={[
-            styles.topSpecularLine,
+            styles.specularTopLine,
             {
               borderTopLeftRadius: effectiveRadius,
               borderTopRightRadius: effectiveRadius,
@@ -181,26 +229,42 @@ export function RealisticGlassButton({
           pointerEvents="none"
         >
           <LinearGradient
-            colors={[
-              'rgba(255, 255, 255, 0.15)',
-              'rgba(255, 255, 255, 0.90)',
-              'rgba(255, 255, 255, 1)',
-              'rgba(255, 255, 255, 0.90)',
-              'rgba(255, 255, 255, 0.15)',
-            ]}
+            colors={
+              isLime
+                ? [
+                    'rgba(255, 255, 255, 0.2)',
+                    'rgba(255, 255, 255, 0.95)',
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 0.95)',
+                    'rgba(255, 255, 255, 0.2)',
+                  ]
+                : [
+                    'rgba(255, 255, 255, 0.1)',
+                    'rgba(255, 255, 255, 0.85)',
+                    'rgba(255, 255, 255, 0.95)',
+                    'rgba(255, 255, 255, 0.85)',
+                    'rgba(255, 255, 255, 0.1)',
+                  ]
+            }
+            locations={[0, 0.2, 0.5, 0.8, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
-            style={StyleSheet.absoluteFill}
+            style={styles.specularTopGradient}
           />
         </View>
 
-        {/* 5. Bottom Rim Refraction */}
+        {/* 5. Bottom Rim Refraction Sheen */}
         <LinearGradient
-          colors={['transparent', 'rgba(255, 255, 255, 0.16)']}
+          colors={
+            isLime
+              ? ['transparent', 'rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.35)']
+              : ['transparent', 'rgba(229, 255, 31, 0.05)', 'rgba(255, 255, 255, 0.25)']
+          }
+          locations={[0, 0.65, 1]}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={[
-            styles.bottomRefraction,
+            styles.bottomRefractionSheen,
             {
               borderBottomLeftRadius: effectiveRadius,
               borderBottomRightRadius: effectiveRadius,
@@ -209,11 +273,11 @@ export function RealisticGlassButton({
           pointerEvents="none"
         />
 
-        {/* In-Flow Button Content / Text / Icon */}
+        {/* 6. Button Content Container */}
         <View
           style={[
-            styles.content,
-            isFixedNumber ? { width: size, height: size } : {},
+            styles.contentContainer,
+            isFixedNumber && { width: size, height: size, alignItems: 'center', justifyContent: 'center' },
             contentStyle,
           ]}
         >
@@ -221,45 +285,31 @@ export function RealisticGlassButton({
         </View>
       </View>
 
-      {/* 6. Corner Specular Star Glint */}
-      {showGlint && (
-        <View
-          style={[
-            styles.glintContainer,
-            glintPosition === 'bottom-left' && {
-              left: Math.max(1, effectiveRadius * 0.12),
-              bottom: Math.max(1, effectiveRadius * 0.12),
-            },
-            glintPosition === 'top-right' && {
-              right: Math.max(1, effectiveRadius * 0.12),
-              top: Math.max(1, effectiveRadius * 0.12),
-            },
-            glintPosition === 'top-left' && {
-              left: Math.max(1, effectiveRadius * 0.12),
-              top: Math.max(1, effectiveRadius * 0.12),
-            },
-            glintPosition === 'bottom-right' && {
-              right: Math.max(1, effectiveRadius * 0.12),
-              bottom: Math.max(1, effectiveRadius * 0.12),
-            },
-          ]}
-          pointerEvents="none"
-        >
-          <Svg width={13} height={13} viewBox="0 0 14 14">
-            <Defs>
-              <RadialGradient id="btnGlintAura" cx="50%" cy="50%" r="50%">
-                <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
-                <Stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.6" />
-                <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-              </RadialGradient>
-            </Defs>
-            <Circle cx={7} cy={7} r={6} fill="url(#btnGlintAura)" />
-            <Path
-              d="M 7 0 Q 7 7 0 7 Q 7 7 7 14 Q 7 7 14 7 Q 7 7 7 0 Z"
-              fill="#FFFFFF"
-            />
-          </Svg>
-        </View>
+      {/* 7. Optional Specular Corner Glint */}
+      {showGlint && (glintPosition === 'bottom-left') && (
+        <SpecularGlint
+          size={18}
+          color="#FFFFFF"
+          style={{
+            position: 'absolute',
+            left: Math.max(3, effectiveRadius * 0.25),
+            bottom: Math.max(2, effectiveRadius * 0.15),
+            zIndex: 40,
+          }}
+        />
+      )}
+
+      {showGlint && (glintPosition === 'top-right') && (
+        <SpecularGlint
+          size={16}
+          color="#FFFFFF"
+          style={{
+            position: 'absolute',
+            right: Math.max(4, effectiveRadius * 0.3),
+            top: Math.max(2, effectiveRadius * 0.15),
+            zIndex: 40,
+          }}
+        />
       )}
     </TouchableOpacity>
   );
@@ -268,43 +318,46 @@ export function RealisticGlassButton({
 const styles = StyleSheet.create({
   buttonContainer: {
     position: 'relative',
-    alignItems: 'center',
     justifyContent: 'center',
   },
   glassBody: {
     position: 'relative',
     overflow: 'hidden',
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  topGloss: {
+  glossyTopSheen: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     height: '52%',
   },
-  topSpecularLine: {
+  specularTopLine: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     height: 1.2,
+    overflow: 'hidden',
   },
-  bottomRefraction: {
+  specularTopGradient: {
+    width: '100%',
+    height: '100%',
+  },
+  bottomRefractionSheen: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: '32%',
+    height: '38%',
   },
-  content: {
+  contentContainer: {
+    position: 'relative',
+    zIndex: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10,
-  },
-  glintContainer: {
-    position: 'absolute',
-    zIndex: 30,
   },
 });

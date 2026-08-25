@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   Image as RNImage,
+  TouchableOpacity,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
@@ -31,7 +32,7 @@ interface ExploreCardProps {
   item: ExploreItem;
   isFlipped: boolean;
   onToggleFlip: () => void;
-  onRemixPrompt?: (prompt: string, model: string) => void;
+  onRemixPrompt?: (prompt: string, model: string, aspectRatio?: string) => void;
   overrideAspectRatio?: number;
 }
 
@@ -61,12 +62,12 @@ export const ExploreCard = memo(function ExploreCard({
   const heartScale = useRef(new Animated.Value(0)).current;
   const heartOpacity = useRef(new Animated.Value(0)).current;
 
-  // React to prop changes with high frame-rate spring Easing
+  // Spring animation when isFlipped changes
   useEffect(() => {
     Animated.spring(flipAnim, {
       toValue: isFlipped ? 1 : 0,
-      friction: 7,
-      tension: 35,
+      friction: 8,
+      tension: 40,
       useNativeDriver: true,
     }).start();
   }, [isFlipped, flipAnim]);
@@ -82,14 +83,14 @@ export const ExploreCard = memo(function ExploreCard({
     outputRange: ['180deg', '360deg'],
   });
 
-  // Midpoint opacity crossfade to completely eliminate backface mirroring flicker
+  // Crossfade opacity to avoid flicker
   const frontOpacity = flipAnim.interpolate({
-    inputRange: [0, 0.49, 0.5, 1],
+    inputRange: [0, 0.48, 0.52, 1],
     outputRange: [1, 1, 0, 0],
   });
 
   const backOpacity = flipAnim.interpolate({
-    inputRange: [0, 0.5, 0.51, 1],
+    inputRange: [0, 0.48, 0.52, 1],
     outputRange: [0, 0, 1, 1],
   });
 
@@ -141,11 +142,11 @@ export const ExploreCard = memo(function ExploreCard({
 
   const handleRemix = () => {
     if (onRemixPrompt) {
-      onRemixPrompt(item.prompt, item.model);
+      onRemixPrompt(item.prompt, item.model, item.aspectRatio);
     } else {
       router.push({
         pathname: '/',
-        params: { prompt: item.prompt, model: item.model },
+        params: { prompt: item.prompt, model: item.model, aspectRatio: item.aspectRatio },
       });
     }
   };
@@ -172,15 +173,15 @@ export const ExploreCard = memo(function ExploreCard({
   return (
     <View
       style={[
-        styles.cardWrapper,
+        styles.cardOuterGlowContainer,
         {
           aspectRatio: effectiveRatio,
           width: '100%',
         },
       ]}
     >
-      <View style={{ flex: 1, position: 'relative', width: '100%' }}>
-        {/* FRONT FACE (CLEAN PINTEREST IMAGE WITH LIKE BADGE & FLIP BUTTON) */}
+      <View style={styles.cardInnerContainer}>
+        {/* FRONT FACE */}
         <Animated.View
           pointerEvents={isFlipped ? 'none' : 'auto'}
           style={[
@@ -188,7 +189,6 @@ export const ExploreCard = memo(function ExploreCard({
             {
               transform: [{ perspective: 1000 }, { rotateY: frontInterpolate }],
               opacity: frontOpacity,
-              backfaceVisibility: 'hidden',
               zIndex: isFlipped ? 1 : 2,
             },
           ]}
@@ -202,33 +202,37 @@ export const ExploreCard = memo(function ExploreCard({
                 transition={200}
               />
 
-              {/* Like Icon & Counter Pill Overlay at Bottom Right */}
+              {/* Model Name on Top Left of Image */}
+              <View style={styles.modelBadgeTopLeft} pointerEvents="none">
+                <Feather name="zap" size={10} color="#E5FF1F" />
+                <Text style={styles.modelBadgeText} numberOfLines={1}>
+                  {item.model}
+                </Text>
+              </View>
+
+              {/* Translucent Glass UI Like Button at Bottom Right */}
               <View style={styles.likeBadgeContainer}>
                 <RealisticGlassButton
                   onPress={toggleHeartButton}
-                  variant="dark"
+                  variant="glass"
+                  tintColor="rgba(0, 0, 0, 0.48)"
                   borderRadius={14}
                   showGlint={false}
-                  contentStyle={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4 }}
+                  contentStyle={styles.glassLikeBtnContent}
                 >
                   <Feather
                     name="heart"
-                    size={12}
-                    color={isLiked ? '#f43f5e' : '#ffffff'}
-                    fill={isLiked ? '#f43f5e' : 'none'}
+                    size={11.5}
+                    color={isLiked ? '#E5FF1F' : '#ffffff'}
+                    fill={isLiked ? '#E5FF1F' : 'none'}
                   />
-                  <Text
-                    style={[
-                      styles.likeCountText,
-                      { color: isLiked ? '#f43f5e' : '#ffffff' },
-                    ]}
-                  >
+                  <Text style={styles.likeCountText}>
                     {likesCount}
                   </Text>
                 </RealisticGlassButton>
               </View>
 
-              {/* Animated Double-Tap Heart Overlay */}
+              {/* Animated Double-Tap Heart Overlay (Green Glow Pop) */}
               <Animated.View
                 pointerEvents="none"
                 style={[
@@ -239,13 +243,13 @@ export const ExploreCard = memo(function ExploreCard({
                   },
                 ]}
               >
-                <Feather name="heart" size={54} color="#f43f5e" fill="#f43f5e" />
+                <Feather name="heart" size={56} color="#E5FF1F" fill="#E5FF1F" />
               </Animated.View>
             </View>
           </GestureDetector>
         </Animated.View>
 
-        {/* BACK FACE (CTA BUTTONS: COPY & USE, MODEL NAME, ASPECT RATIO) */}
+        {/* BACK FACE (CLEANLY ALIGNED COPY & USE BUTTONS) */}
         <Animated.View
           pointerEvents={isFlipped ? 'auto' : 'none'}
           style={[
@@ -253,78 +257,76 @@ export const ExploreCard = memo(function ExploreCard({
             {
               transform: [{ perspective: 1000 }, { rotateY: backInterpolate }],
               opacity: backOpacity,
-              backfaceVisibility: 'hidden',
               zIndex: isFlipped ? 2 : 1,
             },
           ]}
         >
           <GestureDetector gesture={backTapGesture}>
             <View style={styles.backContent}>
-              {/* Top Header */}
+              {/* Back Top Header */}
               <View style={styles.backHeader}>
                 <View style={styles.backHeaderTitle}>
-                  <Feather name="zap" size={13} color="#b2ff59" />
-                  <Text style={styles.backHeaderText}>{item.model}</Text>
+                  <Feather name="zap" size={12} color="#E5FF1F" />
+                  <Text style={styles.backHeaderText} numberOfLines={1}>
+                    {item.model}
+                  </Text>
                 </View>
-                <RealisticGlassButton
+                <TouchableOpacity
+                  activeOpacity={0.75}
                   onPress={onToggleFlip}
-                  variant="glass"
-                  size={24}
-                  borderRadius={12}
-                  showGlint={false}
+                  style={styles.backCloseBtn}
                 >
                   <Feather name="x" size={12} color="#ffffff" />
-                </RealisticGlassButton>
+                </TouchableOpacity>
               </View>
 
-              {/* Action CTA Buttons (In Place of Prompt) */}
-              <View style={styles.ctaContainer}>
-                <RealisticGlassButton
-                  onPress={handleCopyPrompt}
-                  variant={copied ? 'lime' : 'glass'}
-                  borderRadius={10}
-                  showGlint={false}
-                  style={{ flex: 1 }}
-                  contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8 }}
-                >
-                  <Feather
-                    name={copied ? 'check' : 'copy'}
-                    size={13}
-                    color={copied ? '#0b1405' : '#ffffff'}
-                  />
-                  <Text
-                    style={[
-                      styles.btnCopyText,
-                      copied && { color: '#0b1405' },
-                    ]}
-                  >
-                    {copied ? 'Copied' : 'Copy'}
-                  </Text>
-                </RealisticGlassButton>
+              {/* Properly Aligned Centered Action CTA Buttons */}
+              <View style={styles.ctaCenterContainer}>
+                <View style={styles.ctaRow}>
+                  {/* Copy Button */}
+                  <View style={{ flex: 1 }}>
+                    <RealisticGlassButton
+                      onPress={handleCopyPrompt}
+                      variant={copied ? 'lime' : 'glass'}
+                      borderRadius={12}
+                      showGlint={false}
+                      contentStyle={styles.actionBtnContent}
+                    >
+                      <Feather
+                        name={copied ? 'check' : 'copy'}
+                        size={13}
+                        color={copied ? '#0b1405' : '#ffffff'}
+                      />
+                      <Text
+                        style={[
+                          styles.btnCopyText,
+                          copied && { color: '#0b1405' },
+                        ]}
+                      >
+                        {copied ? 'Copied' : 'Copy'}
+                      </Text>
+                    </RealisticGlassButton>
+                  </View>
 
-                <RealisticGlassButton
-                  onPress={handleRemix}
-                  variant="lime"
-                  borderRadius={10}
-                  showGlint={false}
-                  style={{ flex: 1 }}
-                  contentStyle={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8 }}
-                >
-                  <Feather name="corner-up-right" size={13} color="#0b1405" />
-                  <Text style={styles.btnRemixText}>Use</Text>
-                </RealisticGlassButton>
+                  {/* Use Button */}
+                  <View style={{ flex: 1 }}>
+                    <RealisticGlassButton
+                      onPress={handleRemix}
+                      variant="lime"
+                      borderRadius={12}
+                      showGlint={false}
+                      contentStyle={styles.actionBtnContent}
+                    >
+                      <Feather name="corner-up-right" size={13} color="#0b1405" />
+                      <Text style={styles.btnRemixText}>Use</Text>
+                    </RealisticGlassButton>
+                  </View>
+                </View>
               </View>
 
-              {/* Specs Row */}
-              <View style={styles.specsRow}>
-                <View style={styles.specBadgeHighlight}>
-                  <Text style={styles.specLabel}>Model:</Text>
-                  <Text style={styles.specValueGreen}>{item.model}</Text>
-                </View>
-                <View style={styles.specBadge}>
-                  <Text style={styles.specLabel}>Ratio:</Text>
-                  <Text style={styles.specValue}>{item.aspectRatio}</Text>
-                </View>
+              {/* Back Bottom Hint */}
+              <View style={styles.backBottomRow}>
+                <Text style={styles.backBottomHint}>Tap to flip back</Text>
               </View>
             </View>
           </GestureDetector>
@@ -335,17 +337,32 @@ export const ExploreCard = memo(function ExploreCard({
 });
 
 const styles = StyleSheet.create({
-  cardWrapper: {
+  cardOuterGlowContainer: {
+    position: 'relative',
     borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: '#0a110a',
+    // Subtle green glow on the image border
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    borderColor: 'rgba(229, 255, 31, 0.32)',
+    shadowColor: '#E5FF1F',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.28,
+    shadowRadius: 10,
+    elevation: 5,
+    backgroundColor: '#091009',
+    ...(Platform.OS === 'web'
+      ? ({
+          boxShadow: '0 0 12px rgba(229, 255, 31, 0.22), inset 0 0 0 1px rgba(229, 255, 31, 0.32)',
+        } as any)
+      : {}),
+  },
+  cardInnerContainer: {
+    flex: 1,
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    borderRadius: 15,
+    overflow: 'hidden',
+    backgroundColor: '#091009',
   },
   cardFace: {
     position: 'absolute',
@@ -355,6 +372,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
+    backfaceVisibility: 'hidden',
   },
   touchable: {
     flex: 1,
@@ -365,7 +383,31 @@ const styles = StyleSheet.create({
   cardImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 16,
+    borderRadius: 15,
+  },
+  modelBadgeTopLeft: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    paddingHorizontal: 7.5,
+    paddingVertical: 3.5,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    maxWidth: '75%',
+    zIndex: 5,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
+  },
+  modelBadgeText: {
+    color: '#ffffff',
+    fontSize: 9.5,
+    fontWeight: '700',
+    fontFamily: HELVETICA_BOLD,
+    letterSpacing: -0.2,
   },
   likeBadgeContainer: {
     position: 'absolute',
@@ -373,161 +415,108 @@ const styles = StyleSheet.create({
     right: 8,
     zIndex: 5,
   },
-  likeBadge: {
+  glassLikeBtnContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    gap: 4.5,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   likeCountText: {
+    color: '#E5FF1F', // Neon green like count text
     fontSize: 10.5,
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontFamily: HELVETICA_BOLD,
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
   heartOverlay: {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    marginTop: -27,
-    marginLeft: -27,
+    marginTop: -28,
+    marginLeft: -28,
     zIndex: 10,
   },
   backContent: {
     flex: 1,
     padding: 10,
     backgroundColor: '#070f08',
-    borderRadius: 16,
+    borderRadius: 15,
     justifyContent: 'space-between',
   },
   backHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
     paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(229, 255, 31, 0.12)',
   },
   backHeaderTitle: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    flex: 1,
+    paddingRight: 6,
   },
   backHeaderText: {
-    color: '#b2ff59',
+    color: '#E5FF1F',
     fontSize: 11.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
-  closeBtn: {
+  backCloseBtn: {
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: 'rgba(255, 255, 255, 0.14)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ctaContainer: {
+  ctaCenterContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    marginVertical: 10,
+    alignItems: 'center',
+    paddingVertical: 6,
   },
-  specsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-    marginBottom: 2,
-  },
-  specBadgeHighlight: {
-    backgroundColor: 'rgba(178, 255, 89, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(178, 255, 89, 0.3)',
-    paddingHorizontal: 6,
-    paddingVertical: 2.5,
-    borderRadius: 6,
+  ctaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 8,
+    width: '100%',
   },
-  specBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 6,
-    paddingVertical: 2.5,
-    borderRadius: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  specLabel: {
-    color: '#E5FF1F',
-    fontSize: 9,
-    fontFamily: HELVETICA_FONT,
-  },
-  specValueGreen: {
-    color: '#E5FF1F',
-    fontSize: 9.5,
-    fontWeight: 'bold',
-    fontFamily: HELVETICA_BOLD,
-    letterSpacing: -0.2,
-  },
-  specValue: {
-    color: '#ffffff',
-    fontSize: 9.5,
-    fontWeight: 'bold',
-    fontFamily: HELVETICA_BOLD,
-    letterSpacing: -0.2,
-  },
-  btnCopy: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 6,
-    borderRadius: 9,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
+  actionBtnContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
-  },
-  btnCopyActive: {
-    backgroundColor: 'rgba(229, 255, 31, 0.2)',
-    borderColor: '#E5FF1F',
+    paddingVertical: 9,
+    paddingHorizontal: 4,
   },
   btnCopyText: {
     color: '#ffffff',
     fontSize: 11.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
-    letterSpacing: -0.3,
-  },
-  btnRemix: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 6,
-    borderRadius: 9,
-    backgroundColor: '#E5FF1F',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
+    letterSpacing: -0.2,
   },
   btnRemixText: {
     color: '#0b1405',
     fontSize: 11.5,
     fontWeight: 'bold',
     fontFamily: HELVETICA_BOLD,
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
+  },
+  backBottomRow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 2,
+  },
+  backBottomHint: {
+    color: 'rgba(255, 255, 255, 0.35)',
+    fontSize: 9,
+    fontFamily: HELVETICA_FONT,
+    letterSpacing: -0.1,
   },
 });
