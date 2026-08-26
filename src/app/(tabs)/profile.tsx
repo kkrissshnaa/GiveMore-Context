@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import { useAuth, useUser } from '@clerk/expo';
+import { Feather } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Switch,
+  Alert,
+  Platform,
   ScrollView,
   StyleSheet,
-  Platform,
-  Alert,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { useUser, useAuth } from '@clerk/expo';
-import { Image } from 'expo-image';
-import * as Clipboard from 'expo-clipboard';
 import { AestheticBackdrop } from '../../components/AestheticBackdrop';
 import { RealisticGlassBox } from '../../components/RealisticGlassBox';
 import { RealisticGlassButton } from '../../components/RealisticGlassButton';
@@ -47,7 +47,7 @@ export default function Profile() {
   useEffect(() => {
     getChats().then((chats) => {
       setGenerationCount(chats.length);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const handleClearCache = () => {

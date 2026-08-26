@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
-import {
-  View,
-  Text,
-  Animated,
-  StyleSheet,
-  Platform,
-  Image as RNImage,
-  TouchableOpacity,
-} from 'react-native';
-import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import React, { memo, useEffect, useRef, useState } from 'react';
+import {
+  Animated,
+  Platform,
+  Image as RNImage,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { RealisticGlassButton } from './RealisticGlassButton';
 import { ExploreItem } from '../data/exploreData';
+import { RealisticGlassButton } from './RealisticGlassButton';
 
 const HELVETICA_FONT = Platform.select({
   ios: 'Helvetica',
@@ -351,8 +351,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#091009',
     ...(Platform.OS === 'web'
       ? ({
-          boxShadow: '0 0 12px rgba(229, 255, 31, 0.22), inset 0 0 0 1px rgba(229, 255, 31, 0.32)',
-        } as any)
+        boxShadow: '0 0 12px rgba(229, 255, 31, 0.22), inset 0 0 0 1px rgba(229, 255, 31, 0.32)',
+      } as any)
       : {}),
   },
   cardInnerContainer: {

@@ -1,8 +1,8 @@
 // app/api/flux_edit+api.ts
-import fluxEditTemplate from './flux_edit.json';
+import { Buffer } from 'buffer';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
-import { Buffer } from 'buffer';
+import fluxEditTemplate from './flux_edit.json';
 
 const COMFYUI_URL = 'http://127.0.0.1:8188';
 const PUBLIC_COMFY_URL = 'http://192.168.31.78:8188';

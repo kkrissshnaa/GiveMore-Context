@@ -1,23 +1,23 @@
 /* eslint-disable react-hooks/immutability, react-hooks/refs, react-hooks/exhaustive-deps */
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  LayoutChangeEvent,
-  StyleSheet,
-  Keyboard,
-  ScrollView,
-} from 'react-native';
-import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  runOnJS,
-} from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Keyboard,
+  LayoutChangeEvent,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { RealisticGlassButton } from './RealisticGlassButton';
 
 const dismissKeyboard = () => {
@@ -190,20 +190,18 @@ function RegionItem({
       <Animated.View
         collapsable={false}
         style={animatedStyle}
-        className={`rounded-[16px] border-[1.5px] p-2 justify-between ${
-          isSelected
+        className={`rounded-[16px] border-[1.5px] p-2 justify-between ${isSelected
             ? 'border-[#E5FF1F] bg-[#E5FF1F]/30 shadow-[0_0_20px_rgba(229,255,31,0.5)]'
             : 'border-white/40 bg-black/60 shadow-md'
-        }`}
+          }`}
       >
         {/* Region Header: Badge & Delete Button */}
         <View className="flex-row items-center justify-between z-20">
           <TouchableOpacity
             onPress={onSelect}
             activeOpacity={0.7}
-            className={`w-5 h-5 rounded-full items-center justify-center shadow-md border ${
-              isSelected ? 'bg-[#E5FF1F] border-white/60' : 'bg-black/80 border-white/30'
-            }`}
+            className={`w-5 h-5 rounded-full items-center justify-center shadow-md border ${isSelected ? 'bg-[#E5FF1F] border-white/60' : 'bg-black/80 border-white/30'
+              }`}
           >
             <Text className={`text-[10px] font-bold font-mono ${isSelected ? 'text-[#0b1405]' : 'text-white'}`}>
               {index + 1}
@@ -245,18 +243,16 @@ function RegionItem({
             placeholder="e.g. product bottle, warm light"
             placeholderTextColor="#ffffff"
             multiline
-            className={`text-[11px] font-sans font-semibold p-0 leading-3.5 ${
-              isSelected ? 'text-white font-bold' : 'text-white/80'
-            }`}
+            className={`text-[11px] font-sans font-semibold p-0 leading-3.5 ${isSelected ? 'text-white font-bold' : 'text-white/80'
+              }`}
             style={{ textAlignVertical: 'top' }}
           />
         </View>
 
         {/* Resize Handle (Bottom-Right Corner) */}
         <GestureDetector gesture={resizeGesture}>
-          <View className={`absolute bottom-1 right-1 w-6 h-6 items-center justify-center rounded-full border z-30 ${
-            isSelected ? 'bg-[#E5FF1F] border-white/80' : 'bg-black/70 border-white/40'
-          }`}>
+          <View className={`absolute bottom-1 right-1 w-6 h-6 items-center justify-center rounded-full border z-30 ${isSelected ? 'bg-[#E5FF1F] border-white/80' : 'bg-black/70 border-white/40'
+            }`}>
             <Feather name="maximize-2" size={10} color={isSelected ? '#0b1405' : '#E5FF1F'} />
           </View>
         </GestureDetector>
@@ -474,7 +470,7 @@ export function ReferenceCanvasModal({
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View className="flex-1 bg-black/80 justify-end">
           <View className="bg-[#120d0f] rounded-t-[32px] border-t border-white/10 p-5 pb-8 max-h-[92%] flex-col">
-            
+
             {/* Header */}
             <View className="flex-row items-start justify-between mb-2">
               <View className="flex-1 pr-4">
@@ -506,11 +502,10 @@ export function ReferenceCanvasModal({
                       <TouchableOpacity
                         key={region.id}
                         onPress={() => setSelectedRegionId(region.id)}
-                        className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-full border ${
-                          isSelected
+                        className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-full border ${isSelected
                             ? 'bg-[#E5FF1F] border-[#E5FF1F] shadow-[0_0_12px_rgba(229,255,31,0.4)]'
                             : 'bg-white/10 border-white/20'
-                        }`}
+                          }`}
                       >
                         <View className={`w-4 h-4 rounded-full items-center justify-center ${isSelected ? 'bg-[#0b1405]' : 'bg-white/20'}`}>
                           <Text className={`text-[9px] font-bold font-mono ${isSelected ? 'text-[#E5FF1F]' : 'text-white'}`}>
