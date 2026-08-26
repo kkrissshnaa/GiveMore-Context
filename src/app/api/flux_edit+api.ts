@@ -38,7 +38,7 @@ async function uploadImageToComfy(imageSrc: string): Promise<string> {
                     const res = await fetch(imageSrc);
                     const arrayBuffer = await res.arrayBuffer();
                     buffer = Buffer.from(arrayBuffer);
-                } catch (e) {
+                } catch {
                     console.error("Fetch failed for file URL:", imageSrc);
                 }
             }
@@ -175,7 +175,7 @@ export async function POST(request: Request) {
                         .join('; ');
                     detailedMsg += `: ${nodeErrStr}`;
                 }
-            } catch (e) {
+            } catch {
                 detailedMsg += `: ${errorText}`;
             }
             throw new Error(`Failed to queue prompt in ComfyUI: ${detailedMsg}`);
@@ -200,7 +200,7 @@ export async function POST(request: Request) {
                         historyData = historyJson[promptId];
                     }
                 }
-            } catch (e) {
+            } catch {
                 // Ignore transient network polling errors
             }
         }
