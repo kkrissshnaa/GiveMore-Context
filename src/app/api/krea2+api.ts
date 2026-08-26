@@ -92,7 +92,7 @@ export async function POST(request: Request) {
                         .join('; ');
                     detailedMsg += `: ${nodeErrStr}`;
                 }
-            } catch (e) {
+            } catch {
                 detailedMsg += `: ${errorText}`;
             }
             throw new Error(`Failed to queue prompt in ComfyUI: ${detailedMsg}`);
