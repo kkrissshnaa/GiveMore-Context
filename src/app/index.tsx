@@ -66,7 +66,7 @@ function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
   const getAspectRatioStyle = (ratio: string) => {
     switch (ratio) {
       case '16:9': return { aspectRatio: 16 / 9 };
-      case '4:5': return { aspectRatio: 4 / 5 };
+      case '4:3': return { aspectRatio: 4 / 3 };
       case '9:16': return { aspectRatio: 9 / 16 };
       case '1:1':
       default:
@@ -121,7 +121,7 @@ function ImageSkeleton({ aspectRatio }: { aspectRatio: string }) {
 const getAspectRatioStyle = (ratio: string) => {
   switch (ratio) {
     case '16:9': return { aspectRatio: 16 / 9 };
-    case '4:5': return { aspectRatio: 4 / 5 };
+    case '4:3': return { aspectRatio: 4 / 3 };
     case '9:16': return { aspectRatio: 9 / 16 };
     case '1:1':
     default:
@@ -353,7 +353,7 @@ export default function Index() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const aspectRatios = ['1:1', '4:5', '16:9', '9:16'];
+  const aspectRatios = ['1:1', '4:3', '16:9', '9:16'];
   const models = [
     { name: 'krea2', short: 'Kr' },
     { name: 'flux-edit', short: 'Fl' },
@@ -788,8 +788,8 @@ export default function Index() {
                     >
                       <View className={`border-[1.5px] rounded-[2.5px] ${aspectRatio === ratio ? 'border-[#0b1405]' : 'border-[#E5FF1F]/60'}`}
                         style={{
-                          width: ratio === '16:9' ? 16 : ratio === '4:5' ? 11 : ratio === '9:16' ? 9 : 13,
-                          height: ratio === '16:9' ? 9 : ratio === '4:5' ? 14 : ratio === '9:16' ? 16 : 13
+                          width: ratio === '16:9' ? 16 : ratio === '4:3' ? 14 : ratio === '9:16' ? 9 : 13,
+                          height: ratio === '16:9' ? 9 : ratio === '4:3' ? 11 : ratio === '9:16' ? 16 : 13
                         }}
                       />
                       <Text style={{ fontFamily: HELVETICA_BOLD }} className={`text-xs ${aspectRatio === ratio ? 'text-[#0b1405] font-bold' : 'text-white'}`}>{ratio}</Text>

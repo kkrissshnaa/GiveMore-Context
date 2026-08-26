@@ -107,7 +107,7 @@ export async function POST(request: Request) {
         if (workflow["92:158"]) {
             const aspectMap: Record<string, string> = {
                 '1:1': '1:1 (Square)',
-                '4:5': '4:5 (Portrait)',
+                '4:3': '4:3 (Landscape)',
                 '16:9': '16:9 (Widescreen)',
                 '9:16': '9:16 (Portrait Widescreen)',
             };

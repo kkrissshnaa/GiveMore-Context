@@ -83,7 +83,7 @@ export function RealisticGlassBox({
   borderRadius = 32,
   showGlint = false,
   glintPosition = 'bottom-left',
-  tintColor = 'rgba(12, 18, 10, 0.72)',
+  tintColor = 'rgba(14, 24, 12, 0.42)',
   glowColor = '#E5FF1F',
   borderWidth = 1,
 }: RealisticGlassBoxProps) {

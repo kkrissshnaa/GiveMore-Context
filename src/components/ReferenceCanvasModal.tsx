@@ -452,7 +452,7 @@ export function ReferenceCanvasModal({
   const getCanvasAspectRatio = () => {
     switch (aspectRatio) {
       case '16:9': return 16 / 9;
-      case '4:5': return 4 / 5;
+      case '4:3': return 4 / 3;
       case '9:16': return 9 / 16;
       case '1:1':
       default:

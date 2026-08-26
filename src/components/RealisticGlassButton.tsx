@@ -102,15 +102,16 @@ export function RealisticGlassButton({
   const minWidth = typeof size === 'object' ? size?.minWidth : undefined;
   const effectiveRadius = isFixedNumber ? size / 2 : borderRadius;
   const styleFlattened = StyleSheet.flatten(style) || {};
-  const isFullWidth = styleFlattened.width === '100%' || width === '100%';
+  const isFlex = styleFlattened.flex !== undefined;
+  const isFullWidth = styleFlattened.width === '100%' || width === '100%' || isFlex;
 
   // Variant color definitions
   const isLime = variant === 'lime';
   const isWhite = variant === 'white';
   const isGlass = variant === 'glass';
 
-  let baseBg = 'rgba(16, 24, 12, 0.75)';
-  let borderColor = 'rgba(229, 255, 31, 0.35)';
+  let baseBg = 'rgba(14, 22, 12, 0.45)';
+  let borderColor = 'rgba(229, 255, 31, 0.28)';
   let innerBorderColor = 'rgba(255, 255, 255, 0.12)';
 
   if (tintColor) {
@@ -118,15 +119,15 @@ export function RealisticGlassButton({
     borderColor = 'rgba(255, 255, 255, 0.25)';
     innerBorderColor = 'rgba(255, 255, 255, 0.15)';
   } else if (isLime) {
-    baseBg = 'rgba(229, 255, 31, 0.94)';
-    borderColor = 'rgba(255, 255, 255, 0.75)';
+    baseBg = 'rgba(229, 255, 31, 0.38)';
+    borderColor = 'rgba(229, 255, 31, 0.75)';
     innerBorderColor = 'rgba(255, 255, 255, 0.45)';
   } else if (isWhite) {
-    baseBg = 'rgba(255, 255, 255, 0.20)';
+    baseBg = 'rgba(255, 255, 255, 0.18)';
     borderColor = 'rgba(255, 255, 255, 0.45)';
-    innerBorderColor = 'rgba(255, 255, 255, 0.2)';
+    innerBorderColor = 'rgba(255, 255, 255, 0.20)';
   } else if (isGlass) {
-    baseBg = 'rgba(255, 255, 255, 0.08)';
+    baseBg = 'rgba(255, 255, 255, 0.09)';
     borderColor = 'rgba(255, 255, 255, 0.25)';
     innerBorderColor = 'rgba(255, 255, 255, 0.15)';
   }
@@ -166,9 +167,10 @@ export function RealisticGlassButton({
             borderWidth: 1,
             borderColor,
             ...(isFixedNumber ? { width: size, height: size } : {}),
-            ...(width !== undefined ? { width: width as any } : (isFullWidth ? { width: '100%' } : {})),
-            ...(height !== undefined ? { height: height as any } : {}),
+            ...(isFullWidth ? { width: '100%' } : (width !== undefined ? { width: width as any } : {})),
+            ...(height !== undefined ? { height: height as any } : (isFlex ? { height: '100%' } : {})),
             ...(minWidth !== undefined ? { minWidth } : {}),
+            ...(isFlex ? { flex: 1 } : {}),
             ...(isWeb
               ? ({
                 backdropFilter: 'blur(20px) saturate(180%)',
@@ -285,7 +287,7 @@ export function RealisticGlassButton({
             styles.contentContainer,
             isFixedNumber ? { width: size, height: size, alignItems: 'center', justifyContent: 'center' } : {},
             isFullWidth ? { width: '100%' } : {},
-            height !== undefined ? { height: '100%' } : {},
+            height !== undefined ? { height: '100%' } : (isFlex ? { height: '100%', flex: 1 } : {}),
             contentStyle,
           ]}
         >
