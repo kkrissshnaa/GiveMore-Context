@@ -171,9 +171,9 @@ export function RealisticGlassButton({
             ...(minWidth !== undefined ? { minWidth } : {}),
             ...(isWeb
               ? ({
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                } as any)
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              } as any)
               : {}),
           },
         ]}
@@ -198,17 +198,17 @@ export function RealisticGlassButton({
           colors={
             isLime
               ? [
-                  'rgba(255, 255, 255, 0.65)',
-                  'rgba(255, 255, 255, 0.25)',
-                  'rgba(255, 255, 255, 0.02)',
-                  'transparent',
-                ]
+                'rgba(255, 255, 255, 0.65)',
+                'rgba(255, 255, 255, 0.25)',
+                'rgba(255, 255, 255, 0.02)',
+                'transparent',
+              ]
               : [
-                  'rgba(255, 255, 255, 0.32)',
-                  'rgba(255, 255, 255, 0.10)',
-                  'rgba(255, 255, 255, 0.01)',
-                  'transparent',
-                ]
+                'rgba(255, 255, 255, 0.32)',
+                'rgba(255, 255, 255, 0.10)',
+                'rgba(255, 255, 255, 0.01)',
+                'transparent',
+              ]
           }
           locations={[0, 0.3, 0.7, 1]}
           start={{ x: 0.5, y: 0 }}
@@ -238,19 +238,19 @@ export function RealisticGlassButton({
             colors={
               isLime
                 ? [
-                    'rgba(255, 255, 255, 0.2)',
-                    'rgba(255, 255, 255, 0.95)',
-                    'rgba(255, 255, 255, 1)',
-                    'rgba(255, 255, 255, 0.95)',
-                    'rgba(255, 255, 255, 0.2)',
-                  ]
+                  'rgba(255, 255, 255, 0.2)',
+                  'rgba(255, 255, 255, 0.95)',
+                  'rgba(255, 255, 255, 1)',
+                  'rgba(255, 255, 255, 0.95)',
+                  'rgba(255, 255, 255, 0.2)',
+                ]
                 : [
-                    'rgba(255, 255, 255, 0.1)',
-                    'rgba(255, 255, 255, 0.85)',
-                    'rgba(255, 255, 255, 0.95)',
-                    'rgba(255, 255, 255, 0.85)',
-                    'rgba(255, 255, 255, 0.1)',
-                  ]
+                  'rgba(255, 255, 255, 0.1)',
+                  'rgba(255, 255, 255, 0.85)',
+                  'rgba(255, 255, 255, 0.95)',
+                  'rgba(255, 255, 255, 0.85)',
+                  'rgba(255, 255, 255, 0.1)',
+                ]
             }
             locations={[0, 0.2, 0.5, 0.8, 1]}
             start={{ x: 0, y: 0 }}

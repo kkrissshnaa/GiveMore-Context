@@ -119,9 +119,9 @@ export function RealisticGlassBox({
             borderColor: 'rgba(255, 255, 255, 0.28)',
             ...(isWeb
               ? ({
-                  backdropFilter: 'blur(28px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-                } as any)
+                backdropFilter: 'blur(28px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+              } as any)
               : {}),
           },
         ]}
