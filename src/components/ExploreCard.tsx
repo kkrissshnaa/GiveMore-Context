@@ -340,29 +340,15 @@ const styles = StyleSheet.create({
   cardOuterGlowContainer: {
     position: 'relative',
     borderRadius: 16,
-    // Subtle green glow on the image border
-    borderWidth: 1,
-    borderColor: 'rgba(229, 255, 31, 0.32)',
-    shadowColor: '#E5FF1F',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.28,
-    shadowRadius: 10,
-    elevation: 5,
-    backgroundColor: '#091009',
-    ...(Platform.OS === 'web'
-      ? ({
-        boxShadow: '0 0 12px rgba(229, 255, 31, 0.22), inset 0 0 0 1px rgba(229, 255, 31, 0.32)',
-      } as any)
-      : {}),
+    overflow: 'hidden',
   },
   cardInnerContainer: {
     flex: 1,
     position: 'relative',
     width: '100%',
     height: '100%',
-    borderRadius: 15,
+    borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#091009',
   },
   cardFace: {
     position: 'absolute',
@@ -373,17 +359,21 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backfaceVisibility: 'hidden',
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   touchable: {
     flex: 1,
     width: '100%',
     height: '100%',
     position: 'relative',
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   cardImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 15,
+    borderRadius: 16,
   },
   modelBadgeTopLeft: {
     position: 'absolute',

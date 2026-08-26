@@ -555,10 +555,10 @@ export default function Index() {
             {imageUrl && (
               <View className="w-full mt-1">
                 <View
-                  className="w-full rounded-[24px] overflow-hidden bg-white/10 border border-white/20 p-2 shadow-2xl backdrop-blur-xl"
+                  className="w-full rounded-[24px] overflow-hidden bg-white/5 border border-white/20 shadow-2xl backdrop-blur-xl"
                   style={getAspectRatioStyle(aspectRatio)}
                 >
-                  <ExpoImage source={{ uri: imageUrl }} style={{ width: '100%', height: '100%', borderRadius: 16 }} contentFit="cover" transition={300} />
+                  <ExpoImage source={{ uri: imageUrl }} style={{ width: '100%', height: '100%', borderRadius: 24 }} contentFit="cover" transition={300} />
                 </View>
 
                 {/* Quick Action Bar: Download, Share & Publish to Explore */}

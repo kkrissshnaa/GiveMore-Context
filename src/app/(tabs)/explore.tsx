@@ -200,12 +200,6 @@ export default function Explore() {
                 </Text>
               </View>
             </View>
-
-            {/* Total Count Pill */}
-            <View style={styles.countBadge}>
-              <View style={styles.pulseDot} />
-              <Text style={styles.countBadgeText}>{exploreItems.length} styles</Text>
-            </View>
           </View>
         </View>
 
@@ -375,30 +369,6 @@ const styles = StyleSheet.create({
     color: 'rgba(229, 255, 31, 0.85)',
     fontSize: 11.5,
     fontFamily: HELVETICA_FONT,
-    letterSpacing: -0.2,
-  },
-  countBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: 'rgba(229, 255, 31, 0.08)',
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(229, 255, 31, 0.25)',
-  },
-  pulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#E5FF1F',
-  },
-  countBadgeText: {
-    color: '#E5FF1F',
-    fontSize: 10.5,
-    fontWeight: '700',
-    fontFamily: HELVETICA_BOLD,
     letterSpacing: -0.2,
   },
   feedScrollContent: {
