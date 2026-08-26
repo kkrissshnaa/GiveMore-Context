@@ -139,9 +139,6 @@ export function RealisticGlassButton({
       style={[
         styles.buttonContainer,
         {
-          width: width as any,
-          height: height as any,
-          minWidth,
           borderRadius: effectiveRadius,
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 2 },
@@ -149,8 +146,13 @@ export function RealisticGlassButton({
           shadowRadius: 5,
           elevation: Platform.OS === 'android' ? (isLime ? 2 : 0) : 0,
           opacity: disabled ? 0.55 : 1,
+          alignSelf: isFullWidth ? 'stretch' : (isFixedNumber ? 'center' : 'auto'),
           alignItems: isFixedNumber ? 'center' : (isFullWidth ? 'stretch' : 'center'),
         },
+        isFixedNumber ? { width: size, height: size } : {},
+        width !== undefined ? { width: width as any } : (isFullWidth ? { width: '100%' } : {}),
+        height !== undefined ? { height: height as any } : {},
+        minWidth !== undefined ? { minWidth } : {},
         style,
       ]}
     >
@@ -163,6 +165,10 @@ export function RealisticGlassButton({
             backgroundColor: baseBg,
             borderWidth: 1,
             borderColor,
+            ...(isFixedNumber ? { width: size, height: size } : {}),
+            ...(width !== undefined ? { width: width as any } : (isFullWidth ? { width: '100%' } : {})),
+            ...(height !== undefined ? { height: height as any } : {}),
+            ...(minWidth !== undefined ? { minWidth } : {}),
             ...(isWeb
               ? ({
                   backdropFilter: 'blur(20px) saturate(180%)',
@@ -277,8 +283,9 @@ export function RealisticGlassButton({
         <View
           style={[
             styles.contentContainer,
-            isFixedNumber && { width: size, height: size, alignItems: 'center', justifyContent: 'center' },
-            isFullWidth && { width: '100%' },
+            isFixedNumber ? { width: size, height: size, alignItems: 'center', justifyContent: 'center' } : {},
+            isFullWidth ? { width: '100%' } : {},
+            height !== undefined ? { height: '100%' } : {},
             contentStyle,
           ]}
         >
@@ -324,8 +331,6 @@ const styles = StyleSheet.create({
   glassBody: {
     position: 'relative',
     overflow: 'hidden',
-    width: '100%',
-    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
