@@ -147,7 +147,7 @@ export function RealisticGlassButton({
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: Platform.OS === 'ios' ? 0.2 : 0,
           shadowRadius: 5,
-          elevation: 0,
+          elevation: Platform.OS === 'android' ? (isLime ? 2 : 0) : 0,
           opacity: disabled ? 0.55 : 1,
           alignItems: isFixedNumber ? 'center' : (isFullWidth ? 'stretch' : 'center'),
         },
@@ -278,6 +278,7 @@ export function RealisticGlassButton({
           style={[
             styles.contentContainer,
             isFixedNumber && { width: size, height: size, alignItems: 'center', justifyContent: 'center' },
+            isFullWidth && { width: '100%' },
             contentStyle,
           ]}
         >
