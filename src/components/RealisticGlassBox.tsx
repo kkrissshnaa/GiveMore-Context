@@ -83,7 +83,7 @@ export function RealisticGlassBox({
   borderRadius = 32,
   showGlint = false,
   glintPosition = 'bottom-left',
-  tintColor = 'rgba(12, 18, 10, 0.72)',
+  tintColor = 'rgba(14, 24, 12, 0.42)',
   glowColor = '#E5FF1F',
   borderWidth = 1,
 }: RealisticGlassBoxProps) {
@@ -119,9 +119,9 @@ export function RealisticGlassBox({
             borderColor: 'rgba(255, 255, 255, 0.28)',
             ...(isWeb
               ? ({
-                  backdropFilter: 'blur(28px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-                } as any)
+                backdropFilter: 'blur(28px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+              } as any)
               : {}),
           },
         ]}

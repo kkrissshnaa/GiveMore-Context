@@ -41,7 +41,7 @@ export async function publishItemToExplore(params: {
     '1:1': 1.0,
     '16:9': 16 / 9,
     '9:16': 9 / 16,
-    '4:5': 4 / 5,
+    '4:3': 4 / 3,
   };
 
   const ratioVal = ratioMap[params.aspectRatio || '1:1'] || 1.0;
