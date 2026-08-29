@@ -324,7 +324,7 @@ function CustomDrawerContent(props: any) {
         <RealisticGlassButton
           onPress={handleNewChat}
           variant="lime"
-          borderRadius={15}
+          borderRadius={16}
           showGlint={false}
           style={{ width: '100%', marginBottom: 16 }}
           contentStyle={{
@@ -332,14 +332,14 @@ function CustomDrawerContent(props: any) {
             alignItems: 'center',
             gap: 12,
             paddingHorizontal: 14,
-            paddingVertical: 11,
+            paddingVertical: 12,
             width: '100%',
           }}
         >
           <View className="w-[30px] h-[30px] rounded-full bg-[#0b1405] items-center justify-center">
-            <Feather name="plus" size={16} color="#E5FF1F" />
+            <Feather name="plus" size={15} color="#E5FF1F" />
           </View>
-          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13px] font-bold text-[#0b1405]">
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[13.5px] font-bold text-[#0b1405]">
             New generation
           </Text>
         </RealisticGlassButton>
