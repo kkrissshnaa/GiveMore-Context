@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { Tabs, router } from 'expo-router';
 import React from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { RealisticGlassBox } from '../../components/RealisticGlassBox';
@@ -17,16 +17,16 @@ interface CustomTabBarProps {
   };
 }
 
-function SoftRadialGlow({ size = 110, opacity = 0.22, id = 'centerHeroGlow' }: { size?: number; opacity?: number; id?: string }) {
+function SoftRadialGlow({ size = 110, opacity = 0.35, id = 'centerHeroGlow' }: { size?: number; opacity?: number; id?: string }) {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg height={size} width={size} viewBox={`0 0 ${size} ${size}`}>
         <Defs>
           <RadialGradient id={id} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
             <Stop offset="0%" stopColor="#E5FF1F" stopOpacity={opacity} />
-            <Stop offset="30%" stopColor="#E5FF1F" stopOpacity={opacity * 0.5} />
-            <Stop offset="65%" stopColor="#E5FF1F" stopOpacity={opacity * 0.15} />
-            <Stop offset="85%" stopColor="#E5FF1F" stopOpacity={opacity * 0.03} />
+            <Stop offset="30%" stopColor="#E5FF1F" stopOpacity={opacity * 0.6} />
+            <Stop offset="65%" stopColor="#E5FF1F" stopOpacity={opacity * 0.2} />
+            <Stop offset="85%" stopColor="#E5FF1F" stopOpacity={opacity * 0.05} />
             <Stop offset="100%" stopColor="#E5FF1F" stopOpacity={0} />
           </RadialGradient>
         </Defs>
@@ -45,7 +45,7 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
   const currentRouteName = state.routes[state.index]?.name;
   const barWidth = 320;
   const barHeight = 64;
-  const heroSize = 70;
+  const heroSize = 68;
   const heroRadius = heroSize / 2;
 
   return (
@@ -74,7 +74,6 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
             shadowOffset: { width: 0, height: 10 },
             shadowOpacity: 0.4,
             shadowRadius: 20,
-            elevation: 10,
           }}
           contentStyle={{
             flexDirection: 'row',
@@ -121,7 +120,7 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
           </View>
         </RealisticGlassBox>
 
-        {/* Center Overgrown Generation Button (Bigger, Overgrowing Symmetrically in the Center) */}
+        {/* Center Overgrown Solid Green Hero Generation Button */}
         <View
           pointerEvents="box-none"
           style={{
@@ -135,23 +134,27 @@ function CustomGlassTabBar({ state, navigation }: CustomTabBarProps) {
             zIndex: 60,
           }}
         >
-          <SoftRadialGlow size={92} opacity={0.28} id="centerHeroSoftGlow" />
-          <RealisticGlassButton
+          <SoftRadialGlow size={108} opacity={0.45} id="centerHeroSoftGlow" />
+          <TouchableOpacity
             onPress={() => router.navigate('/')}
-            variant="lime"
-            size={heroSize}
-            borderRadius={heroRadius}
-            showGlint={false}
+            activeOpacity={0.85}
             style={{
-              shadowColor: '#000000',
-              shadowOffset: { width: 0, height: 6 },
-              shadowOpacity: 0.35,
-              shadowRadius: 10,
-              elevation: 8,
+              width: heroSize,
+              height: heroSize,
+              borderRadius: heroRadius,
+              backgroundColor: '#E5FF1F',
+              borderWidth: 2,
+              borderColor: '#ffffff',
+              alignItems: 'center',
+              justifyContent: 'center',
+              shadowColor: '#E5FF1F',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.5,
+              shadowRadius: 14,
             }}
           >
-            <Feather name="zap" size={27} color="#0b1405" />
-          </RealisticGlassButton>
+            <Feather name="zap" size={28} color="#060e03" />
+          </TouchableOpacity>
         </View>
       </View>
     </View>

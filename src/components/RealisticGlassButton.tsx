@@ -127,9 +127,9 @@ export function RealisticGlassButton({
     borderColor = 'rgba(255, 255, 255, 0.45)';
     innerBorderColor = 'rgba(255, 255, 255, 0.20)';
   } else if (isGlass) {
-    baseBg = 'rgba(255, 255, 255, 0.09)';
-    borderColor = 'rgba(255, 255, 255, 0.25)';
-    innerBorderColor = 'rgba(255, 255, 255, 0.15)';
+    baseBg = 'rgba(255, 255, 255, 0.035)';
+    borderColor = 'rgba(255, 255, 255, 0.14)';
+    innerBorderColor = 'rgba(255, 255, 255, 0.08)';
   }
 
   return (
@@ -143,9 +143,9 @@ export function RealisticGlassButton({
           borderRadius: effectiveRadius,
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: Platform.OS === 'ios' ? 0.2 : 0,
-          shadowRadius: 5,
-          elevation: Platform.OS === 'android' ? (isLime ? 2 : 0) : 0,
+          shadowOpacity: Platform.OS === 'ios' ? 0.15 : 0,
+          shadowRadius: 4,
+          elevation: 0,
           opacity: disabled ? 0.55 : 1,
           alignSelf: isFullWidth ? 'stretch' : (isFixedNumber ? 'center' : 'auto'),
           alignItems: isFixedNumber ? 'center' : (isFullWidth ? 'stretch' : 'center'),
@@ -200,14 +200,14 @@ export function RealisticGlassButton({
           colors={
             isLime
               ? [
-                'rgba(255, 255, 255, 0.65)',
-                'rgba(255, 255, 255, 0.25)',
+                'rgba(255, 255, 255, 0.38)',
+                'rgba(255, 255, 255, 0.15)',
                 'rgba(255, 255, 255, 0.02)',
                 'transparent',
               ]
               : [
-                'rgba(255, 255, 255, 0.32)',
-                'rgba(255, 255, 255, 0.10)',
+                'rgba(255, 255, 255, 0.18)',
+                'rgba(255, 255, 255, 0.05)',
                 'rgba(255, 255, 255, 0.01)',
                 'transparent',
               ]
@@ -266,7 +266,7 @@ export function RealisticGlassButton({
           colors={
             isLime
               ? ['transparent', 'rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.35)']
-              : ['transparent', 'rgba(229, 255, 31, 0.05)', 'rgba(255, 255, 255, 0.25)']
+              : ['transparent', 'rgba(229, 255, 31, 0.03)', 'rgba(255, 255, 255, 0.12)']
           }
           locations={[0, 0.65, 1]}
           start={{ x: 0.5, y: 0 }}
