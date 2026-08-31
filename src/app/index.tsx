@@ -216,7 +216,7 @@ export default function Index() {
         aspectRatio,
       });
       setPublishedSuccess(true);
-      setActionToast('Published to Explore page! 🚀');
+      setActionToast('Published to Explore page!');
       setTimeout(() => {
         setActionToast(null);
         setPublishedSuccess(false);
