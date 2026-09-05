@@ -364,7 +364,7 @@ export default function Index() {
     { name: 'Balanced', icon: 'sliders' as const },
     { name: 'Max', icon: 'award' as const }
   ];
-  const suggestions = ['Studio product shot', '9:16 kinetic intro', 'lifestyle scene'];
+  const suggestions = ['Studio product shot', '9:16 kinetic intro', 'Lifestyle scene'];
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
