@@ -241,7 +241,7 @@ function RegionItem({
             onFocus={onSelect}
             onChangeText={(text) => onUpdateRegion({ ...region, prompt: text })}
             placeholder="e.g. product bottle, warm light"
-            placeholderTextColor="#ffffff"
+            placeholderTextColor="rgba(255, 255, 255, 0.45)"
             multiline
             className={`text-[11px] font-sans font-semibold p-0 leading-3.5 ${isSelected ? 'text-white font-bold' : 'text-white/80'
               }`}
@@ -307,6 +307,10 @@ export function ReferenceCanvasModal({
     cH: number
   ) => {
     if (cW <= 0 || cH <= 0) return;
+    const dragDistance = Math.hypot(cX - sX, cY - sY);
+    // Ignore accidental tap or micro-touch (< 18px total drag)
+    if (dragDistance < 18) return;
+
     const minW = 35;
     const minH = 35;
 
@@ -469,7 +473,7 @@ export function ReferenceCanvasModal({
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View className="flex-1 bg-black/80 justify-end">
-          <View className="bg-[#120d0f] rounded-t-[32px] border-t border-white/10 p-5 pb-8 max-h-[92%] flex-col">
+          <View className="bg-[#09110a] rounded-t-[32px] border-t border-white/15 p-5 pb-8 max-h-[92%] flex-col">
 
             {/* Header */}
             <View className="flex-row items-start justify-between mb-2">
@@ -529,7 +533,7 @@ export function ReferenceCanvasModal({
             <View className="w-full items-center my-2">
               <View
                 onLayout={onCanvasLayout}
-                className="w-full rounded-[24px] bg-[#181315] border border-white/15 overflow-hidden relative justify-center items-center"
+                className="w-full rounded-[24px] bg-[#0e190f] border border-[#E5FF1F]/20 overflow-hidden relative justify-center items-center"
                 style={{
                   aspectRatio: getCanvasAspectRatio(),
                   maxHeight: aspectRatio === '9:16' ? 340 : 300,
