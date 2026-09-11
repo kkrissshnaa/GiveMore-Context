@@ -253,11 +253,11 @@ export function ShareModal({
                       <Text className={`text-[14px] font-bold ${isPublic ? 'text-[#E5FF1F]' : 'text-white'}`}>
                         Public
                       </Text>
-                      <View className="px-2 py-0.2 rounded-full bg-[#E5FF1F]/20">
+                      <View className="px-2 py-0.5 rounded-full bg-[#E5FF1F]/20">
                         <Text className="text-[9.5px] font-bold text-[#E5FF1F]">Explore Feed</Text>
                       </View>
                     </View>
-                    <Text className="text-[11px] text-[#E5FF1F] mt-0.5 leading-3.5">
+                    <Text className="text-[11px] text-[#E5FF1F]/80 mt-0.5 leading-3.5">
                       Push to Explore page feed for everyone to discover & remix.
                     </Text>
                   </View>
@@ -290,7 +290,7 @@ export function ShareModal({
                     <Text className={`text-[14px] font-bold ${!isPublic ? 'text-white' : 'text-white/80'}`}>
                       Private
                     </Text>
-                    <Text className="text-[11px] text-[#E5FF1F] mt-0.5 leading-3.5">
+                    <Text className="text-[11px] text-zinc-400 mt-0.5 leading-3.5">
                       Keep in your personal generation history only. Do not push to Explore.
                     </Text>
                   </View>
