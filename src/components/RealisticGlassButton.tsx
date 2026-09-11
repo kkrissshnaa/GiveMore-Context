@@ -109,6 +109,7 @@ export function RealisticGlassButton({
   const isLime = variant === 'lime';
   const isWhite = variant === 'white';
   const isGlass = variant === 'glass';
+  const isDark = variant === 'dark';
 
   let baseBg = 'rgba(14, 22, 12, 0.45)';
   let borderColor = 'rgba(229, 255, 31, 0.28)';
@@ -126,6 +127,10 @@ export function RealisticGlassButton({
     baseBg = 'rgba(255, 255, 255, 0.18)';
     borderColor = 'rgba(255, 255, 255, 0.45)';
     innerBorderColor = 'rgba(255, 255, 255, 0.20)';
+  } else if (isDark) {
+    baseBg = 'rgba(12, 18, 11, 0.85)';
+    borderColor = 'rgba(255, 255, 255, 0.14)';
+    innerBorderColor = 'rgba(255, 255, 255, 0.07)';
   } else if (isGlass) {
     baseBg = 'rgba(255, 255, 255, 0.035)';
     borderColor = 'rgba(255, 255, 255, 0.14)';
