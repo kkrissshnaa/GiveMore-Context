@@ -210,28 +210,6 @@ export const ExploreCard = memo(function ExploreCard({
                 </Text>
               </View>
 
-              {/* Translucent Glass UI Like Button at Bottom Right */}
-              <View style={styles.likeBadgeContainer}>
-                <RealisticGlassButton
-                  onPress={toggleHeartButton}
-                  variant="glass"
-                  tintColor="rgba(0, 0, 0, 0.48)"
-                  borderRadius={14}
-                  showGlint={false}
-                  contentStyle={styles.glassLikeBtnContent}
-                >
-                  <Feather
-                    name="heart"
-                    size={11.5}
-                    color={isLiked ? '#E5FF1F' : '#ffffff'}
-                    fill={isLiked ? '#E5FF1F' : 'none'}
-                  />
-                  <Text style={styles.likeCountText}>
-                    {likesCount}
-                  </Text>
-                </RealisticGlassButton>
-              </View>
-
               {/* Animated Double-Tap Heart Overlay (Green Glow Pop) */}
               <Animated.View
                 pointerEvents="none"
@@ -247,9 +225,31 @@ export const ExploreCard = memo(function ExploreCard({
               </Animated.View>
             </View>
           </GestureDetector>
+
+          {/* Translucent Glass UI Like Button at Bottom Right (Outside GestureDetector to avoid touch conflict) */}
+          <View style={styles.likeBadgeContainer}>
+            <RealisticGlassButton
+              onPress={toggleHeartButton}
+              variant="glass"
+              tintColor="rgba(0, 0, 0, 0.58)"
+              borderRadius={14}
+              showGlint={false}
+              contentStyle={styles.glassLikeBtnContent}
+            >
+              <Feather
+                name="heart"
+                size={11.5}
+                color={isLiked ? '#E5FF1F' : '#ffffff'}
+                fill={isLiked ? '#E5FF1F' : 'none'}
+              />
+              <Text style={styles.likeCountText}>
+                {likesCount}
+              </Text>
+            </RealisticGlassButton>
+          </View>
         </Animated.View>
 
-        {/* BACK FACE (CLEANLY ALIGNED COPY & USE BUTTONS) */}
+        {/* BACK FACE (CLEANLY ALIGNED PROMPT, COPY & USE BUTTONS) */}
         <Animated.View
           pointerEvents={isFlipped ? 'auto' : 'none'}
           style={[
@@ -261,75 +261,101 @@ export const ExploreCard = memo(function ExploreCard({
             },
           ]}
         >
-          <GestureDetector gesture={backTapGesture}>
-            <View style={styles.backContent}>
-              {/* Back Top Header */}
-              <View style={styles.backHeader}>
-                <View style={styles.backHeaderTitle}>
-                  <Feather name="zap" size={12} color="#E5FF1F" />
-                  <Text style={styles.backHeaderText} numberOfLines={1}>
-                    {item.model}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  activeOpacity={0.75}
-                  onPress={onToggleFlip}
-                  style={styles.backCloseBtn}
-                >
-                  <Feather name="x" size={12} color="#ffffff" />
-                </TouchableOpacity>
+          <View style={styles.backContent}>
+            {/* Back Top Header */}
+            <View style={styles.backHeader}>
+              <View style={styles.backHeaderTitle}>
+                <Feather name="zap" size={12} color="#E5FF1F" />
+                <Text style={styles.backHeaderText} numberOfLines={1}>
+                  {item.model}
+                </Text>
               </View>
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={onToggleFlip}
+                style={styles.backCloseBtn}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Feather name="x" size={12} color="#ffffff" />
+              </TouchableOpacity>
+            </View>
 
-              {/* Properly Aligned Centered Action CTA Buttons */}
-              <View style={styles.ctaCenterContainer}>
-                <View style={styles.ctaRow}>
-                  {/* Copy Button */}
-                  <View style={{ flex: 1 }}>
-                    <RealisticGlassButton
-                      onPress={handleCopyPrompt}
-                      variant={copied ? 'lime' : 'glass'}
-                      borderRadius={12}
-                      showGlint={false}
-                      contentStyle={styles.actionBtnContent}
-                    >
-                      <Feather
-                        name={copied ? 'check' : 'copy'}
-                        size={13}
-                        color={copied ? '#0b1405' : '#ffffff'}
-                      />
-                      <Text
-                        style={[
-                          styles.btnCopyText,
-                          copied && { color: '#0b1405' },
-                        ]}
-                      >
-                        {copied ? 'Copied' : 'Copy'}
-                      </Text>
-                    </RealisticGlassButton>
+            {/* Prompt Display Area */}
+            <View style={styles.promptContainer}>
+              <GestureDetector gesture={backTapGesture}>
+                <View style={StyleSheet.absoluteFill} />
+              </GestureDetector>
+              <View style={styles.promptScrollArea}>
+                <View style={styles.promptHeaderLine}>
+                  <Text style={styles.promptTagLabel}>PROMPT</Text>
+                  <View style={styles.ratioBadge}>
+                    <Text style={styles.ratioBadgeText}>{item.aspectRatio}</Text>
                   </View>
+                </View>
+                <Text style={styles.promptBodyText} numberOfLines={6}>
+                  {item.prompt}
+                </Text>
+                {item.title && item.title !== item.prompt && (
+                  <Text style={styles.promptSubTitle} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                )}
+              </View>
+            </View>
 
-                  {/* Use Button */}
-                  <View style={{ flex: 1 }}>
-                    <RealisticGlassButton
-                      onPress={handleRemix}
-                      variant="lime"
-                      borderRadius={12}
-                      showGlint={false}
-                      contentStyle={styles.actionBtnContent}
+            {/* Action CTA Buttons */}
+            <View style={styles.ctaBottomContainer}>
+              <View style={styles.ctaRow}>
+                {/* Copy Button */}
+                <View style={{ flex: 1 }}>
+                  <RealisticGlassButton
+                    onPress={handleCopyPrompt}
+                    variant={copied ? 'lime' : 'glass'}
+                    borderRadius={12}
+                    showGlint={false}
+                    contentStyle={styles.actionBtnContent}
+                  >
+                    <Feather
+                      name={copied ? 'check' : 'copy'}
+                      size={13}
+                      color={copied ? '#0b1405' : '#ffffff'}
+                    />
+                    <Text
+                      style={[
+                        styles.btnCopyText,
+                        copied && { color: '#0b1405' },
+                      ]}
                     >
-                      <Feather name="corner-up-right" size={13} color="#0b1405" />
-                      <Text style={styles.btnRemixText}>Use</Text>
-                    </RealisticGlassButton>
-                  </View>
+                      {copied ? 'Copied' : 'Copy'}
+                    </Text>
+                  </RealisticGlassButton>
+                </View>
+
+                {/* Use Button */}
+                <View style={{ flex: 1 }}>
+                  <RealisticGlassButton
+                    onPress={handleRemix}
+                    variant="lime"
+                    borderRadius={12}
+                    showGlint={false}
+                    contentStyle={styles.actionBtnContent}
+                  >
+                    <Feather name="corner-up-right" size={13} color="#0b1405" />
+                    <Text style={styles.btnRemixText}>Use</Text>
+                  </RealisticGlassButton>
                 </View>
               </View>
 
               {/* Back Bottom Hint */}
-              <View style={styles.backBottomRow}>
+              <TouchableOpacity
+                onPress={onToggleFlip}
+                activeOpacity={0.7}
+                style={styles.backBottomRow}
+              >
                 <Text style={styles.backBottomHint}>Tap to flip back</Text>
-              </View>
+              </TouchableOpacity>
             </View>
-          </GestureDetector>
+          </View>
         </Animated.View>
       </View>
     </View>
@@ -464,11 +490,62 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ctaCenterContainer: {
+  promptContainer: {
+    flex: 1,
+    position: 'relative',
+    marginVertical: 6,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    padding: 8,
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  promptScrollArea: {
     flex: 1,
     justifyContent: 'center',
+  },
+  promptHeaderLine: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  promptTagLabel: {
+    fontSize: 9,
+    fontFamily: HELVETICA_BOLD,
+    color: '#E5FF1F',
+    letterSpacing: 0.8,
+  },
+  ratioBadge: {
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  ratioBadgeText: {
+    fontSize: 8.5,
+    fontFamily: HELVETICA_BOLD,
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  promptBodyText: {
+    color: '#ffffff',
+    fontSize: 11,
+    lineHeight: 15,
+    fontFamily: HELVETICA_FONT,
+    letterSpacing: -0.1,
+  },
+  promptSubTitle: {
+    color: 'rgba(229, 255, 31, 0.65)',
+    fontSize: 9.5,
+    fontFamily: HELVETICA_BOLD,
+    marginTop: 4,
+    letterSpacing: -0.1,
+  },
+  ctaBottomContainer: {
+    paddingTop: 4,
+    gap: 6,
   },
   ctaRow: {
     flexDirection: 'row',
@@ -481,7 +558,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
-    paddingVertical: 9,
+    paddingVertical: 8,
     paddingHorizontal: 4,
   },
   btnCopyText: {
@@ -502,6 +579,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 2,
+    paddingBottom: 1,
   },
   backBottomHint: {
     color: 'rgba(255, 255, 255, 0.35)',

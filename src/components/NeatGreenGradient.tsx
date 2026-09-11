@@ -1,8 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View, Dimensions } from 'react-native';
-import {
+import Animated, {
   Easing,
+  useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -46,6 +47,16 @@ export function NeatGreenGradient({
     }
   }, [animated, speed, wavePhase]);
 
+  const animatedWaveStyle = useAnimatedStyle(() => {
+    return {
+      opacity: 0.85 + 0.15 * wavePhase.value,
+      transform: [
+        { scale: 1 + 0.03 * wavePhase.value },
+        { translateY: -8 * wavePhase.value },
+      ],
+    } as any;
+  });
+
   const svgWidth = Math.max(windowWidth, screen.width, 1000);
   const svgHeight = Math.max(windowHeight, screen.height, 1000) + 120;
 
@@ -59,14 +70,15 @@ export function NeatGreenGradient({
         style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
       />
 
-      {/* Neat 3D Wave Mesh Layer via Multi-Stop Radial SVG */}
-      <Svg
-        width="100%"
-        height="100%"
-        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-        preserveAspectRatio="none"
-        style={StyleSheet.absoluteFill}
-      >
+      {/* Neat 3D Wave Mesh Layer via Multi-Stop Radial SVG with Subtle Organic Breathing */}
+      <Animated.View style={[StyleSheet.absoluteFill, animatedWaveStyle]} pointerEvents="none">
+        <Svg
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          preserveAspectRatio="none"
+          style={StyleSheet.absoluteFill}
+        >
         <Defs>
           {/* Main Electric Yellow-Lime Wave Blob (#E5FF1F) */}
           <RadialGradient
@@ -135,6 +147,7 @@ export function NeatGreenGradient({
         <Rect width={svgWidth} height={svgHeight} fill="url(#neatEmeraldShadowDepth)" />
         <Rect width={svgWidth} height={svgHeight} fill="url(#neatBottomLimeRefraction)" />
       </Svg>
+      </Animated.View>
     </View>
   );
 }
