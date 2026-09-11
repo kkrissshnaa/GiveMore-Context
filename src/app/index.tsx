@@ -490,8 +490,12 @@ export default function Index() {
         </RealisticGlassButton>
 
         <View className="items-center flex-1 mx-2">
-          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[10px] tracking-widest uppercase text-[#E5FF1F] font-bold">Generation</Text>
-          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[16px] font-bold text-white mt-0.5 tracking-tight">New generation</Text>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[10px] tracking-widest uppercase text-[#E5FF1F] font-bold">
+            {activePrompt || imageUrl ? 'Generation' : 'Studio'}
+          </Text>
+          <Text style={{ fontFamily: HELVETICA_BOLD }} className="text-[16px] font-bold text-white mt-0.5 tracking-tight" numberOfLines={1}>
+            {activePrompt ? (activePrompt.length > 26 ? activePrompt.slice(0, 26) + '…' : activePrompt) : 'New generation'}
+          </Text>
         </View>
 
         <RealisticGlassButton

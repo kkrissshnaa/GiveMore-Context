@@ -2,7 +2,8 @@ import { useAuth, useUser } from '@clerk/expo';
 import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -18,7 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AestheticBackdrop } from '../../components/AestheticBackdrop';
 import { RealisticGlassBox } from '../../components/RealisticGlassBox';
 import { RealisticGlassButton } from '../../components/RealisticGlassButton';
-import { getChats } from '../../lib/chatService';
+import { getChatCount } from '../../lib/chatService';
 
 const HELVETICA_FONT = Platform.select({
   ios: 'Helvetica',
@@ -32,8 +33,11 @@ const HELVETICA_BOLD = Platform.select({
   default: 'Helvetica, Arial, sans-serif',
 });
 
+const SETTINGS_KEY = '@givemore_studio_settings_v1';
+
 export default function Profile() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useAuth();
 
@@ -45,10 +49,30 @@ export default function Profile() {
   const [copiedId, setCopiedId] = useState(false);
 
   useEffect(() => {
-    getChats().then((chats) => {
-      setGenerationCount(chats.length);
+    getChatCount().then((count) => {
+      setGenerationCount(count);
+    }).catch(() => { });
+
+    AsyncStorage.getItem(SETTINGS_KEY).then((json) => {
+      if (json) {
+        try {
+          const parsed = JSON.parse(json);
+          if (parsed.haptics !== undefined) setHaptics(parsed.haptics);
+          if (parsed.autoSave !== undefined) setAutoSave(parsed.autoSave);
+          if (parsed.highRes !== undefined) setHighRes(parsed.highRes);
+          if (parsed.defaultModel) setDefaultModel(parsed.defaultModel);
+        } catch { }
+      }
     }).catch(() => { });
   }, []);
+
+  const saveSetting = (key: string, value: any) => {
+    AsyncStorage.getItem(SETTINGS_KEY).then((json) => {
+      const current = json ? JSON.parse(json) : {};
+      current[key] = value;
+      AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(current)).catch(() => { });
+    }).catch(() => { });
+  };
 
   const handleClearCache = () => {
     Alert.alert('Clear Cache', 'Temporary image cache cleared successfully.');
@@ -104,12 +128,13 @@ export default function Profile() {
           <View style={styles.headerTop}>
             <View style={styles.titleGroup}>
               <RealisticGlassButton
+                onPress={() => (navigation as any).toggleDrawer?.()}
                 variant="glass"
                 size={44}
                 borderRadius={14}
                 showGlint={false}
               >
-                <Feather name="user" size={22} color="#E5FF1F" />
+                <Feather name="grid" size={20} color="#E5FF1F" />
               </RealisticGlassButton>
               <View>
                 <Text style={styles.headerTitle}>Profile</Text>
@@ -306,7 +331,10 @@ export default function Profile() {
               </View>
               <Switch
                 value={haptics}
-                onValueChange={setHaptics}
+                onValueChange={(val) => {
+                  setHaptics(val);
+                  saveSetting('haptics', val);
+                }}
                 trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={haptics ? '#0b1405' : '#ffffff'}
                 ios_backgroundColor="rgba(255,255,255,0.12)"
@@ -322,7 +350,10 @@ export default function Profile() {
               </View>
               <Switch
                 value={autoSave}
-                onValueChange={setAutoSave}
+                onValueChange={(val) => {
+                  setAutoSave(val);
+                  saveSetting('autoSave', val);
+                }}
                 trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={autoSave ? '#0b1405' : '#ffffff'}
                 ios_backgroundColor="rgba(255,255,255,0.12)"
@@ -338,7 +369,10 @@ export default function Profile() {
               </View>
               <Switch
                 value={highRes}
-                onValueChange={setHighRes}
+                onValueChange={(val) => {
+                  setHighRes(val);
+                  saveSetting('highRes', val);
+                }}
                 trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#E5FF1F' }}
                 thumbColor={highRes ? '#0b1405' : '#ffffff'}
                 ios_backgroundColor="rgba(255,255,255,0.12)"
@@ -361,7 +395,9 @@ export default function Profile() {
               onPress={() => {
                 const models = ['Flux 1.1 Pro', 'Ideogram v2', 'Krea AI v2'];
                 const nextIdx = (models.indexOf(defaultModel) + 1) % models.length;
-                setDefaultModel(models[nextIdx]);
+                const nextModel = models[nextIdx];
+                setDefaultModel(nextModel);
+                saveSetting('defaultModel', nextModel);
               }}
             >
               <View style={styles.settingTextContainer}>

@@ -307,7 +307,7 @@ export default function SignUpScreen() {
                     value={username}
                     onChangeText={setUsername}
                     placeholder="choose_username"
-                    placeholderTextColor="#ffffff"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
                     autoCapitalize="none"
                     autoCorrect={false}
                     style={{ flex: 1, color: '#fff', fontSize: 14, fontFamily: HELVETICA_FONT }}
@@ -329,7 +329,7 @@ export default function SignUpScreen() {
                     value={email}
                     onChangeText={setEmail}
                     placeholder="you@example.com"
-                    placeholderTextColor="#ffffff"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
                     keyboardType="email-address"
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -352,7 +352,7 @@ export default function SignUpScreen() {
                     value={password}
                     onChangeText={setPassword}
                     placeholder="••••••••"
-                    placeholderTextColor="#ffffff"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
                     secureTextEntry={!showPassword}
                     autoCapitalize="none"
                     style={{ flex: 1, color: '#fff', fontSize: 14, fontFamily: HELVETICA_FONT }}
@@ -450,7 +450,7 @@ export default function SignUpScreen() {
                     value={code}
                     onChangeText={setCode}
                     placeholder="Enter 6-digit code"
-                    placeholderTextColor="#ffffff"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
                     keyboardType="number-pad"
                     style={{ flex: 1, color: '#fff', fontSize: 16, letterSpacing: 3, fontFamily: HELVETICA_FONT }}
                   />

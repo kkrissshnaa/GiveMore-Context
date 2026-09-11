@@ -164,3 +164,20 @@ export async function getChats(limit: number = 10, offset: number = 0): Promise<
     return [];
   }
 }
+
+export async function getChatCount(): Promise<number> {
+  try {
+    const db = await getSQLiteDb();
+    if (db) {
+      const rows: any[] = await db.getAllAsync(`SELECT COUNT(*) as count FROM chats;`);
+      return Number(rows[0]?.count ?? 0);
+    } else {
+      const stored = await safeStorageGetItem(STORAGE_KEY);
+      const list: ChatItem[] = stored ? JSON.parse(stored) : [];
+      return list.length;
+    }
+  } catch (err) {
+    console.error('Error getting chat count from database:', err);
+    return 0;
+  }
+}

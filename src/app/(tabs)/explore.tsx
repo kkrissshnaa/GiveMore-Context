@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { AestheticBackdrop } from '../../components/AestheticBackdrop';
 import { RealisticGlassButton } from '../../components/RealisticGlassButton';
 import { ExploreCard } from '../../components/ExploreCard';
@@ -44,6 +44,7 @@ type FeedRow =
 
 export default function Explore() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const [flippedId, setFlippedId] = useState<string | null>(null);
   const [exploreItems, setExploreItems] = useState<ExploreItem[]>(EXPLORE_ITEMS);
   const [refreshing, setRefreshing] = useState(false);
@@ -186,12 +187,13 @@ export default function Explore() {
           <View style={styles.headerTop}>
             <View style={styles.titleGroup}>
               <RealisticGlassButton
+                onPress={() => (navigation as any).toggleDrawer?.()}
                 variant="glass"
                 size={42}
                 borderRadius={14}
                 showGlint={false}
               >
-                <Feather name="compass" size={21} color="#E5FF1F" />
+                <Feather name="grid" size={20} color="#E5FF1F" />
               </RealisticGlassButton>
               <View>
                 <Text style={styles.headerTitle}>Explore</Text>
