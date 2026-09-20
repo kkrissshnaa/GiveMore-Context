@@ -458,7 +458,7 @@ export default function Index() {
           id: currentChatId,
         });
       } else {
-        setErrorText(data.error || 'Failed to generate image');
+        setErrorText(data.error || 'Failed to generate image ');
       }
     } catch (error: any) {
       if (error.name === 'AbortError') {
